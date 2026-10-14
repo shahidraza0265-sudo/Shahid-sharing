@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#16213e">
+<title>Shahid Sharing</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --ink:#16213e; --ink2:#243256; --paper:#f4f5f8; --card:#ffffff; --line:#dde1ea;
+  --text:#1b2236; --mute:#6a738a; --get:#0e8a5f; --give:#c8344b; --accent:#e9b44c;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--paper);color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.45}
+.num{font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+#app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:88px}
+
+/* login */
+.login{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:28px;
+  background:var(--ink);color:#fff;max-width:560px;margin:0 auto}
+.login h1{font-size:34px;line-height:1.1;margin:0 0 6px;letter-spacing:-.02em}
+.login p{margin:0 0 28px;color:#aab4d0}
+.login label{display:block;font-size:14px;color:#c9d1e8;margin:14px 0 6px}
+.login input{width:100%;padding:14px;border-radius:12px;border:1px solid #3a4a76;background:var(--ink2);color:#fff}
+.login input:focus{outline:2px solid var(--accent);border-color:transparent}
+.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:600;background:var(--ink);color:#fff}
+.btn.gold{background:var(--accent);color:#2b2208;width:100%;margin-top:22px;padding:15px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.red{background:var(--give)}
+.btn.sm{padding:8px 12px;font-size:14px;border-radius:10px}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.err{color:#ffb4c0;font-size:14px;margin-top:12px;min-height:20px}
+
+/* header + balance */
+.top{background:var(--ink);color:#fff;padding:18px 18px 22px;border-radius:0 0 22px 22px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top .who{font-size:14px;color:#aab4d0}
+.top .who b{color:#fff}
+.icon-btn{background:var(--ink2);border:0;color:#fff;border-radius:10px;padding:8px 11px;font-size:14px}
+.balance{margin-top:18px}
+.balance .lbl{font-size:14px;color:#aab4d0}
+.balance .amt{font-size:40px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.balance .amt small{font-size:16px;font-weight:500;margin-left:6px;color:#aab4d0}
+.balance.get .amt{color:#5fe0ae}
+.balance.give .amt{color:#ff8fa1}
+
+.wrap{padding:16px}
+.monthbar{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.monthbar input{flex:1;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.stat{display:flex;gap:10px;margin-bottom:14px}
+.stat>div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.stat .k{font-size:13px;color:var(--mute)}
+.stat .v{font-size:20px;font-weight:700}
+
+h2{font-size:17px;margin:20px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.li:last-child{border-bottom:0}
+.li .t{font-weight:600}
+.li .s{font-size:13px;color:var(--mute)}
+.li .r{text-align:right;white-space:nowrap}
+.get{color:var(--get)} .give{color:var(--give)}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:#e8ebf3;color:var(--mute)}
+.pill.off{background:#fbe3e7;color:var(--give)}
+.pill.adm{background:#fff2d1;color:#7a5600}
+.empty{padding:26px 16px;text-align:center;color:var(--mute)}
+.pay{padding:10px 14px;border-bottom:1px solid var(--line)}
+.pay:last-child{border-bottom:0}
+.acts{display:flex;gap:8px;margin-top:8px}
+
+.carry{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);margin:-4px 0 14px}
+.carry input{width:auto}
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+  display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+.nav .in{display:flex;max-width:560px;width:100%}
+.tab{flex:1;border:0;background:none;padding:12px 4px;font-size:13px;color:var(--mute);border-top:3px solid transparent}
+.tab.on{color:var(--ink);font-weight:700;border-top-color:var(--accent)}
+.fab{position:fixed;right:max(16px,calc(50% - 264px));bottom:78px;z-index:6;border:0;border-radius:99px;
+  background:var(--accent);color:#2b2208;font-weight:700;padding:14px 20px;box-shadow:0 6px 18px rgba(22,33,62,.28)}
+
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(10,15,30,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px}
+.sheet h3{margin:0 0 12px;font-size:19px}
+.f label{display:block;font-size:14px;color:var(--mute);margin:12px 0 5px}
+.f input,.f select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.chk{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chk label{display:flex;align-items:center;gap:6px;margin:0;padding:7px 11px;border:1px solid var(--line);border-radius:99px;color:var(--text);font-size:14px}
+.chk input{width:auto}
+.seg{display:flex;gap:8px}
+.seg label{flex:1;display:flex;align-items:center;gap:6px;margin:0;padding:11px;border:1px solid var(--line);border-radius:12px;color:var(--text)}
+.seg input{width:auto}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:30;font-size:14px}
+.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#5fe0ae;margin-right:6px}
+.live.off{background:#ff8fa1}
+
+@media print{
+  .nav,.fab,.top .icon-btn,.monthbar button,.noprint,.acts{display:none!important}
+  body{background:#fff} .top{background:#fff;color:#000;border-bottom:2px solid #000;border-radius:0}
+  .top .who,.balance .lbl{color:#444}
+}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .2s ease-out}}
+@keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ====== SETTINGS ====== */
+const SUPABASE_URL = 'https://zxoteqccatlddglcnjdl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_BFD2Vrf9aU756NjACFVTrw_ll2se_gz';
+const DOMAIN = '@shahidsharing.com';
+const CURRENCY = 'KWD';
+const CATS = ['Khana','Grocery','Bijli/Paani','Gas','Saaman','Transport','Other'];
+/* ====================== */
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = s => document.querySelector(s);
+const fmt = n => (Number(n) || 0).toFixed(3);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const S = { me:null, members:[], expenses:[], summary:[], xfers:[], carry:false, tab:'home', month:new Date().toISOString().slice(0,7), live:false };
+const advTxt = r => Number(r.advance || 0) ? ' · Advance ' + (Number(r.advance) > 0 ? '+' : '') + fmt(r.advance) : '';
+let channel = null;
+
+const isAdmin = () => S.me && S.me.role === 'admin';
+const nameOf = id => (S.members.find(m => m.id === id) || {name:'(hata hua)'}).name;
+function range(m){
+  const [y, mo] = m.split('-').map(Number);
+  const last = new Date(y, mo, 0).getDate();
+  return [m + '-01', m + '-' + String(last).padStart(2, '0')];
+}
+function toast(msg){
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+
+/* ---------- AUTH ---------- */
+function showLogin(msg){
+  if (channel){ sb.removeChannel(channel); channel = null; }
+  $('#app').innerHTML = `
+  <div class="login">
+    <h1>Shahid<br>Sharing</h1>
+    <p>Share Expenses. Track Everything. Settle Easily.</p>
+    <form id="lf">
+      <label for="u">Username</label>
+      <input id="u" autocomplete="username" autocapitalize="none" required>
+      <label for="p">Password</label>
+      <input id="p" type="password" autocomplete="current-password" required>
+      <div class="err" id="le">${esc(msg || '')}</div>
+      <button class="btn gold" type="submit">Login karo</button>
+    </form>
+  </div>`;
+  $('#lf').onsubmit = async e => {
+    e.preventDefault();
+    $('#le').textContent = 'Login ho raha hai...';
+    let uname = $('#u').value.trim().toLowerCase();
+    if (uname.includes('@')) uname = uname.split('@')[0];
+    const email = uname + DOMAIN;
+    const { error } = await sb.auth.signInWithPassword({ email, password: $('#p').value });
+    if (error) $('#le').textContent = 'Username ya password galat hai.';
+    else boot();
+  };
+}
+
+async function logout(){ await sb.auth.signOut(); S.me = null; showLogin(); }
+
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) return showLogin();
+  const { data, error } = await sb.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+  if (error || !data || !data.active){
+    await sb.auth.signOut();
+    return showLogin('Aapka account active nahi hai. Admin se baat karo.');
+  }
+  S.me = data;
+  await loadAll();
+  subscribe();
+}
+
+/* ---------- DATA ---------- */
+async function loadAll(){
+  const [from, to] = range(S.month);
+  const [m, e, s, x] = await Promise.all([
+    sb.from('profiles').select('*').order('name'),
+    sb.from('expenses').select('*').gte('date', from).lte('date', to)
+      .order('date', {ascending:false}).order('created_at', {ascending:false}),
+    sb.rpc('get_summary', { p_from: S.carry ? '2000-01-01' : from, p_to: to }),
+    sb.from('transfers').select('*').gte('date', from).lte('date', to)
+      .order('date', {ascending:false}).order('created_at', {ascending:false})
+  ]);
+  if (m.data) S.members = m.data;
+  if (e.data) S.expenses = e.data;
+  if (s.data) S.summary = s.data;
+  if (x.data) S.xfers = x.data;
+  const mine = S.members.find(x => x.id === S.me.id);
+  if (mine) S.me = mine;
+  if (!mine || !mine.active) return logout();
+  if (!isAdmin() && (S.tab === 'members')) S.tab = 'home';
+  render();
+}
+
+function subscribe(){
+  if (channel) sb.removeChannel(channel);
+  channel = sb.channel('shahid-sync')
+    .on('postgres_changes', { event:'*', schema:'public', table:'sync_ping' }, () => loadAll())
+    .subscribe(status => { S.live = status === 'SUBSCRIBED'; const d = $('#livedot'); if (d) d.className = 'live' + (S.live ? '' : ' off'); });
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.me) loadAll(); });
+setInterval(() => { if (S.me && !document.hidden) loadAll(); }, 60000);
+
+/* ---------- SETTLEMENT SUGGESTION ---------- */
+function transfers(){
+  const give = [], get = [];
+  S.summary.forEach(r => {
+    const n = Math.round(Number(r.net) * 1000) / 1000;
+    if (n <= -0.0005) give.push({ name:r.name, amt:-n });
+    else if (n >= 0.0005) get.push({ name:r.name, amt:n });
+  });
+  give.sort((a,b) => b.amt - a.amt); get.sort((a,b) => b.amt - a.amt);
+  const out = []; let i = 0, j = 0;
+  while (i < give.length && j < get.length){
+    const x = Math.min(give[i].amt, get[j].amt);
+    if (x >= 0.0005) out.push({ from:give[i].name, to:get[j].name, amt:x });
+    give[i].amt -= x; get[j].amt -= x;
+    if (give[i].amt < 0.0005) i++;
+    if (get[j].amt < 0.0005) j++;
+  }
+  return out;
+}
+
+/* ---------- RENDER ---------- */
+function render(){
+  const my = S.summary.find(r => r.member_id === S.me.id);
+  const net = my ? Number(my.net) : 0;
+  const cls = net > 0.0005 ? 'get' : net < -0.0005 ? 'give' : '';
+  const lbl = net > 0.0005 ? 'Is mahine aapko milenge' : net < -0.0005 ? 'Is mahine aapko dene hain' : 'Is mahine hisaab barabar hai';
+  const tabs = isAdmin()
+    ? [['home','Hisaab'],['kharcha','Kharcha'],['advance','Advance'],['members','Members'],['report','Report']]
+    : [['home','Hisaab'],['kharcha','Mera kharcha'],['advance','Advance'],['report','Report']];
+
+  $('#app').innerHTML = `
+  <div class="top">
+    <div class="row">
+      <div class="who"><span id="livedot" class="live${S.live ? '' : ' off'}"></span><b>${esc(S.me.name)}</b> ${isAdmin() ? '<span class="pill adm">Admin</span>' : ''}</div>
+      <div><button class="icon-btn" onclick="changePass()">Password</button> <button class="icon-btn" onclick="logout()">Logout</button></div>
+    </div>
+    <div class="balance ${cls}">
+      <div class="lbl">${lbl}</div>
+      <div class="amt num">${fmt(Math.abs(net))}<small>${CURRENCY}</small></div>
+    </div>
+  </div>
+  <div class="wrap" id="view"></div>
+  <nav class="nav"><div class="in">${tabs.map(t => `<button class="tab ${S.tab === t[0] ? 'on' : ''}" onclick="go('${t[0]}')">${t[1]}</button>`).join('')}</div></nav>
+  ${isAdmin() && S.tab === 'kharcha' ? '<button class="fab" onclick="expForm()">+ Naya kharcha</button>' : ''}
+  ${isAdmin() && S.tab === 'advance' ? '<button class="fab" onclick="xForm()">+ Naya advance</button>' : ''}
+  ${isAdmin() && S.tab === 'members' ? '<button class="fab" onclick="memForm()">+ Naya member</button>' : ''}`;
+  ({ home:vHome, kharcha:vExp, advance:vAdv, members:vMem, report:vReport })[S.tab]();
+}
+window.go = t => { S.tab = t; render(); window.scrollTo(0, 0); };
+
+function monthBar(){
+  const carry = (S.tab === 'home' || S.tab === 'report')
+    ? `<label class="carry noprint"><input type="checkbox" id="carry" ${S.carry ? 'checked' : ''} onchange="setCarry()"> Pichhle mahino ka baaki bhi jodo</label>` : '';
+  return `<div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button></div>${carry}`;
+}
+window.setCarry = async () => { S.carry = $('#carry').checked; await loadAll(); };
+window.setMonth = async () => { const v = $('#mon').value; if (v){ S.month = v; await loadAll(); } };
+
+function totals(){
+  const total = S.summary.reduce((a, r) => a + Number(r.paid), 0);
+  const active = S.members.filter(m => m.active).length || 1;
+  return { total, per: total / active, active };
+}
+
+function vHome(){
+  const t = totals(), tr = transfers();
+  $('#view').innerHTML = `
+  ${monthBar()}
+  <div class="stat">
+    <div><div class="k">${S.carry ? 'Total (shuru se)' : 'Total kharcha'}</div><div class="v num">${fmt(t.total)}</div></div>
+    <div><div class="k">Per member (${t.active})</div><div class="v num">${fmt(t.per)}</div></div>
+  </div>
+  <h2>Sab members ka hisaab</h2>
+  <div class="card">${S.summary.length ? S.summary.map(r => {
+    const n = Number(r.net);
+    return `<div class="li"><div><div class="t">${esc(r.name)}</div><div class="s num">Diya ${fmt(r.paid)} · Hissa ${fmt(r.share)}${advTxt(r)}</div></div>
+    <div class="r num ${n > 0.0005 ? 'get' : n < -0.0005 ? 'give' : ''}"><b>${n > 0.0005 ? '+' : n < -0.0005 ? '-' : ''}${fmt(Math.abs(n))}</b><div class="s">${n > 0.0005 ? 'milenge' : n < -0.0005 ? 'dene hain' : 'barabar'}</div></div></div>`;
+  }).join('') : '<div class="empty">Is mahine abhi koi kharcha nahi hai.</div>'}</div>
+  <h2>Kisko kisko dena hai</h2>
+  <div class="card">${tr.length ? tr.map(x => `<div class="pay"><b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> <span class="num give" style="float:right"><b>${fmt(x.amt)} ${CURRENCY}</b></span></div>`).join('') : '<div class="empty">Koi lena-dena baaki nahi.</div>'}</div>`;
+}
+
+function expRow(e, withActs){
+  const sp = e.split_members ? e.split_members.length + ' members me' : 'Sab me barabar';
+  return `<div class="li" style="display:block"><div class="row"><div><div class="t">${esc(e.description || e.category)}</div>
+  <div class="s">${esc(nameOf(e.spender))} · ${esc(e.category)} · ${e.date} · ${sp}</div></div>
+  <div class="r num"><b>${fmt(e.amount)}</b></div></div>
+  ${withActs ? `<div class="acts"><button class="btn ghost sm" onclick="expForm('${e.id}')">Edit</button><button class="btn ghost sm give" onclick="delExp('${e.id}')">Delete</button></div>` : ''}</div>`;
+}
+
+function vExp(){
+  const sum = S.expenses.reduce((a, e) => a + Number(e.amount), 0);
+  $('#view').innerHTML = `${monthBar()}
+  <div class="stat"><div><div class="k">${isAdmin() ? 'Is mahine ka kharcha' : 'Aapne kiya'}</div><div class="v num">${fmt(sum)} ${CURRENCY}</div></div><div><div class="k">Entries</div><div class="v num">${S.expenses.length}</div></div></div>
+  <div class="card">${S.expenses.length ? S.expenses.map(e => expRow(e, isAdmin())).join('') : '<div class="empty">Koi kharcha nahi mila.</div>'}</div>`;
+}
+
+function vMem(){
+  $('#view').innerHTML = `<h2 style="margin-top:4px">Members (${S.members.filter(m => m.active).length} active)</h2>
+  <div class="card">${S.members.map(m => `<div class="li" style="display:block"><div class="row"><div><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${m.active ? '' : '<span class="pill off">Band</span>'}</div><div class="s">Username: ${esc(m.username)}</div></div></div>
+  <div class="acts"><button class="btn ghost sm" onclick="memEdit('${m.id}')">Naam badlo</button>
+  <button class="btn ghost sm" onclick="toggleMem('${m.id}')">${m.active ? 'Band karo' : 'Chalu karo'}</button>
+  ${m.id === S.me.id ? '' : `<button class="btn ghost sm give" onclick="delMem('${m.id}')">Delete</button>`}</div></div>`).join('')}</div>
+  <p class="s" style="color:var(--mute);font-size:13px;margin-top:12px">Band kiya hua member naye kharche ke hisse me nahi aata. Purana record safe rehta hai.</p>`;
+}
+
+function vReport(){
+  const tr = transfers(), t = totals();
+  $('#view').innerHTML = `${monthBar()}
+  <div class="row noprint" style="margin-bottom:14px"><button class="btn" onclick="window.print()">PDF / Print</button><button class="btn ghost" onclick="csv()">Excel (CSV)</button></div>
+  <h2 style="margin-top:0">Report: ${S.month}</h2>
+  <div class="stat"><div><div class="k">Total</div><div class="v num">${fmt(t.total)} ${CURRENCY}</div></div><div><div class="k">Per member</div><div class="v num">${fmt(t.per)}</div></div></div>
+  <div class="card">${S.summary.map(r => { const n = Number(r.net); return `<div class="li"><div class="t">${esc(r.name)}<div class="s num">Diya ${fmt(r.paid)} · Hissa ${fmt(r.share)}${advTxt(r)}</div></div><div class="r num ${n > 0 ? 'get' : n < 0 ? 'give' : ''}"><b>${n >= 0 ? '+' : '-'}${fmt(Math.abs(n))}</b></div></div>`; }).join('') || '<div class="empty">Data nahi hai.</div>'}</div>
+  <h2>Settlement</h2>
+  <div class="card">${tr.length ? tr.map(x => `<div class="pay"><b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> <span class="num" style="float:right"><b>${fmt(x.amt)}</b></span></div>`).join('') : '<div class="empty">Sab barabar hai.</div>'}</div>
+  <h2>${isAdmin() ? 'Sab kharche' : 'Aapke kharche'}</h2>
+  <div class="card">${S.expenses.map(e => expRow(e, false)).join('') || '<div class="empty">Koi kharcha nahi.</div>'}</div>
+  <h2>Advance / Payment</h2>
+  <div class="card">${S.xfers.map(t => xRow(t, false)).join('') || '<div class="empty">Koi advance nahi.</div>'}</div>`;
+}
+
+/* ---------- CSV ---------- */
+window.csv = () => {
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  let out = 'Member,Diya,Hissa,Advance,Net\n' + S.summary.map(r => [q(r.name), fmt(r.paid), fmt(r.share), fmt(r.advance), fmt(r.net)].join(',')).join('\n');
+  out += '\n\nDate,Member,Category,Description,Amount\n' + S.expenses.map(e => [e.date, q(nameOf(e.spender)), q(e.category), q(e.description), fmt(e.amount)].join(',')).join('\n');
+  out += '\n\nDate,Kisne diya,Kis ko,Type,Amount,Note\n' + S.xfers.map(t => [t.date, q(nameOf(t.from_member)), q(nameOf(t.to_member)), t.kind, fmt(t.amount), q(t.note)].join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + out], { type:'text/csv;charset=utf-8' }));
+  a.download = 'shahid-sharing-' + S.month + '.csv'; a.click();
+};
+
+/* ---------- MODAL ---------- */
+function modal(html){
+  closeModal();
+  const o = document.createElement('div'); o.className = 'ov'; o.id = 'ov';
+  o.innerHTML = `<div class="sheet" role="dialog">${html}</div>`;
+  o.addEventListener('click', e => { if (e.target === o) closeModal(); });
+  document.body.appendChild(o);
+}
+window.closeModal = () => { const o = $('#ov'); if (o) o.remove(); };
+
+/* ---------- EXPENSE FORM (admin) ---------- */
+window.expForm = id => {
+  const e = id ? S.expenses.find(x => x.id === id) : null;
+  const act = S.members.filter(m => m.active || (e && m.id === e.spender));
+  const sel = e && e.split_members ? 'sel' : 'all';
+  modal(`<h3>${e ? 'Kharcha edit karo' : 'Naya kharcha'}</h3>
+  <form class="f" id="ef">
+    <label>Kisne kharcha kiya</label>
+    <select id="e_sp">${act.map(m => `<option value="${m.id}" ${(e ? e.spender : S.me.id) === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>
+    <label>Raqam (${CURRENCY})</label>
+    <input id="e_am" type="number" step="0.001" min="0.001" inputmode="decimal" value="${e ? e.amount : ''}" required>
+    <label>Kis cheez ka</label>
+    <input id="e_ds" value="${e ? esc(e.description) : ''}" placeholder="jaise: sabzi, chawal">
+    <label>Category</label>
+    <select id="e_ct">${CATS.map(c => `<option ${e && e.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select>
+    <label>Tareekh</label>
+    <input id="e_dt" type="date" value="${e ? e.date : new Date().toISOString().slice(0, 10)}" required>
+    <label>Hissa kaise bantna hai</label>
+    <div class="seg">
+      <label><input type="radio" name="sm" value="all" ${sel === 'all' ? 'checked' : ''}> Sab me barabar</label>
+      <label><input type="radio" name="sm" value="sel" ${sel === 'sel' ? 'checked' : ''}> Kuch members me</label>
+    </div>
+    <div class="chk" id="e_ch" style="${sel === 'sel' ? '' : 'display:none'}">${S.members.filter(m => m.active).map(m => `<label><input type="checkbox" value="${m.id}" ${e && e.split_members && e.split_members.includes(m.id) ? 'checked' : ''}> ${esc(m.name)}</label>`).join('')}</div>
+    <div class="err" id="e_er" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div>
+  </form>`);
+  document.querySelectorAll('input[name=sm]').forEach(r => r.onchange = () => { $('#e_ch').style.display = r.value === 'sel' && r.checked ? '' : 'none'; });
+  $('#ef').onsubmit = async ev => {
+    ev.preventDefault();
+    const amount = parseFloat($('#e_am').value);
+    if (!(amount > 0)) return ($('#e_er').textContent = 'Sahi raqam daalo.');
+    const mode = document.querySelector('input[name=sm]:checked').value;
+    let split = null;
+    if (mode === 'sel'){
+      split = [...document.querySelectorAll('#e_ch input:checked')].map(i => i.value);
+      if (!split.length) return ($('#e_er').textContent = 'Kam se kam ek member chuno.');
+    }
+    const row = { spender:$('#e_sp').value, amount, description:$('#e_ds').value.trim(), category:$('#e_ct').value, date:$('#e_dt').value, split_members:split };
+    const { error } = e ? await sb.from('expenses').update(row).eq('id', e.id) : await sb.from('expenses').insert(row);
+    if (error) return ($('#e_er').textContent = 'Save nahi hua: ' + error.message);
+    closeModal(); toast('Save ho gaya'); loadAll();
+  };
+};
+window.delExp = async id => {
+  if (!confirm('Ye kharcha delete karna hai?')) return;
+  const { error } = await sb.from('expenses').delete().eq('id', id);
+  if (error) toast('Delete nahi hua'); else { toast('Delete ho gaya'); loadAll(); }
+};
+
+/* ---------- ADVANCE / PAYMENT ---------- */
+function xRow(t, acts){
+  return `<div class="li" style="display:block"><div class="row"><div>
+    <div class="t">${esc(nameOf(t.from_member))} → ${esc(nameOf(t.to_member))}</div>
+    <div class="s">${t.kind === 'advance' ? 'Advance' : 'Settlement'} · ${t.date}${t.note ? ' · ' + esc(t.note) : ''}</div></div>
+    <div class="r num get"><b>${fmt(t.amount)}</b></div></div>
+    ${acts ? `<div class="acts"><button class="btn ghost sm" onclick="xForm('${t.id}')">Edit</button><button class="btn ghost sm give" onclick="delX('${t.id}')">Delete</button></div>` : ''}</div>`;
+}
+function vAdv(){
+  const sum = S.xfers.reduce((a, t) => a + Number(t.amount), 0);
+  $('#view').innerHTML = `${monthBar()}
+  <div class="stat"><div><div class="k">Total raqam</div><div class="v num">${fmt(sum)} ${CURRENCY}</div></div><div><div class="k">Entries</div><div class="v num">${S.xfers.length}</div></div></div>
+  <div class="card">${S.xfers.length ? S.xfers.map(t => xRow(t, isAdmin())).join('') : '<div class="empty">Is mahine koi advance ya payment nahi hai.</div>'}</div>`;
+}
+window.xForm = id => {
+  const t = id ? S.xfers.find(x => x.id === id) : null;
+  const opts = sel => (sel ? '' : '<option value="">-- chuno --</option>') + S.members
+    .filter(m => m.active || (t && (m.id === t.from_member || m.id === t.to_member)))
+    .map(m => `<option value="${m.id}" ${sel === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('');
+  modal(`<h3>${t ? 'Entry edit karo' : 'Naya advance / payment'}</h3>
+  <form class="f" id="xf">
+    <label>Kisne paisa diya</label>
+    <select id="x_f" required>${opts(t ? t.from_member : '')}</select>
+    <label>Kis ko diya (jiske paas paisa jama hua)</label>
+    <select id="x_t" required>${opts(t ? t.to_member : '')}</select>
+    <label>Raqam (${CURRENCY})</label>
+    <input id="x_a" type="number" step="0.001" min="0.001" inputmode="decimal" value="${t ? t.amount : ''}" required>
+    <label>Type</label>
+    <select id="x_k">
+      <option value="advance" ${t && t.kind === 'advance' || !t ? 'selected' : ''}>Advance (mahine ke liye jama)</option>
+      <option value="settlement" ${t && t.kind === 'settlement' ? 'selected' : ''}>Settlement (purana hisaab chukaya)</option>
+    </select>
+    <label>Tareekh</label>
+    <input id="x_d" type="date" value="${t ? t.date : new Date().toISOString().slice(0, 10)}" required>
+    <label>Note (optional)</label>
+    <input id="x_n" value="${t ? esc(t.note) : ''}" placeholder="jaise: cash diya">
+    <div class="err" id="x_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div>
+  </form>`);
+  $('#xf').onsubmit = async ev => {
+    ev.preventDefault();
+    const from_member = $('#x_f').value, to_member = $('#x_t').value, amount = parseFloat($('#x_a').value);
+    if (!from_member || !to_member) return ($('#x_e').textContent = 'Dono member chuno.');
+    if (from_member === to_member) return ($('#x_e').textContent = 'Dene wala aur lene wala alag hone chahiye.');
+    if (!(amount > 0)) return ($('#x_e').textContent = 'Sahi raqam daalo.');
+    const row = { from_member, to_member, amount, kind:$('#x_k').value, date:$('#x_d').value, note:$('#x_n').value.trim() };
+    const { error } = t ? await sb.from('transfers').update(row).eq('id', t.id) : await sb.from('transfers').insert(row);
+    if (error) return ($('#x_e').textContent = 'Save nahi hua: ' + error.message);
+    closeModal(); toast('Save ho gaya'); loadAll();
+  };
+};
+window.delX = async id => {
+  if (!confirm('Ye entry delete karni hai?')) return;
+  const { error } = await sb.from('transfers').delete().eq('id', id);
+  if (error) toast('Delete nahi hua'); else { toast('Delete ho gaya'); loadAll(); }
+};
+
+/* ---------- MEMBERS (admin) ---------- */
+window.memForm = () => {
+  modal(`<h3>Naya member</h3>
+  <form class="f" id="mf">
+    <label>Pura naam</label><input id="m_n" required>
+    <label>Username (chhota, english me, bina space)</label><input id="m_u" autocapitalize="none" pattern="[a-zA-Z0-9_.]+" required>
+    <label>Password (kam se kam 6 akshar)</label><input id="m_p" minlength="6" required>
+    <div class="err" id="m_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Member banao</button></div>
+  </form>`);
+  $('#mf').onsubmit = async ev => {
+    ev.preventDefault();
+    const name = $('#m_n').value.trim(), u = $('#m_u').value.trim().toLowerCase(), p = $('#m_p').value;
+    $('#m_e').textContent = 'Ban raha hai...';
+    // alag client: admin ka login na badle
+    const tmp = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{ persistSession:false, autoRefreshToken:false, storageKey:'tmp-signup' } });
+    const { error } = await tmp.auth.signUp({ email:u + DOMAIN, password:p, options:{ data:{ name } } });
+    if (error) return ($('#m_e').textContent = error.message.includes('registered') ? 'Ye username pehle se hai.' : 'Nahi bana: ' + error.message);
+    closeModal(); toast(name + ' ban gaya'); loadAll();
+  };
+};
+window.memEdit = id => {
+  const m = S.members.find(x => x.id === id);
+  const n = prompt('Naya naam:', m.name);
+  if (n && n.trim()) sb.from('profiles').update({ name:n.trim() }).eq('id', id).then(({ error }) => { if (error) toast('Nahi hua'); else loadAll(); });
+};
+window.toggleMem = async id => {
+  const m = S.members.find(x => x.id === id);
+  if (m.active && m.id === S.me.id) return toast('Apne aap ko band nahi kar sakte');
+  const { error } = await sb.from('profiles').update({ active:!m.active }).eq('id', id);
+  if (error) toast('Nahi hua'); else loadAll();
+};
+window.delMem = async id => {
+  const m = S.members.find(x => x.id === id);
+  if (!confirm(m.name + ' ko delete karna hai?')) return;
+  const { error } = await sb.from('profiles').delete().eq('id', id);
+  if (error) alert('Delete nahi ho sakta kyunki iske kharche record me hain. "Band karo" use karo.');
+  else { toast('Delete ho gaya'); loadAll(); }
+};
+
+/* ---------- PASSWORD ---------- */
+window.changePass = async () => {
+  const p = prompt('Naya password (kam se kam 6 akshar):');
+  if (!p) return;
+  if (p.length < 6) return alert('Password chhota hai.');
+  const { error } = await sb.auth.updateUser({ password:p });
+  toast(error ? 'Password nahi badla' : 'Password badal gaya');
+};
+
+boot();
+</script>
+</body>
+</html>

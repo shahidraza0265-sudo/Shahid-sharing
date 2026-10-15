@@ -33,6 +33,8 @@ button{cursor:pointer}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
 .btn.red{background:var(--give)}
 .btn.sm{padding:8px 12px;font-size:14px;border-radius:10px}
+.btn[disabled]{opacity:.55}
+a.btn{text-decoration:none;display:inline-block;text-align:center}
 .btn:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .err{color:#ffb4c0;font-size:14px;margin-top:12px;min-height:20px}
 
@@ -50,8 +52,9 @@ button{cursor:pointer}
 .balance.give .amt{color:#ff8fa1}
 
 .wrap{padding:16px}
-.monthbar{display:flex;gap:10px;align-items:center;margin-bottom:14px}
-.monthbar input{flex:1;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.monthbar{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+.monthbar input{flex:1;min-width:0;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.lockpill{background:#fff2d1;color:#7a5600;border-radius:10px;padding:8px 12px;font-size:14px;margin:-4px 0 14px}
 .stat{display:flex;gap:10px;margin-bottom:14px}
 .stat>div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px}
 .stat .k{font-size:13px;color:var(--mute)}
@@ -59,6 +62,7 @@ button{cursor:pointer}
 
 h2{font-size:17px;margin:20px 0 10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.card.pad{padding:14px}
 .li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .li:last-child{border-bottom:0}
 .li .t{font-weight:600}
@@ -68,19 +72,33 @@ h2{font-size:17px;margin:20px 0 10px}
 .pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:#e8ebf3;color:var(--mute)}
 .pill.off{background:#fbe3e7;color:var(--give)}
 .pill.adm{background:#fff2d1;color:#7a5600}
+.pill.ok{background:#dff5ea;color:var(--get)}
 .empty{padding:26px 16px;text-align:center;color:var(--mute)}
 .pay{padding:10px 14px;border-bottom:1px solid var(--line)}
 .pay:last-child{border-bottom:0}
-.acts{display:flex;gap:8px;margin-top:8px}
+.acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.menu{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:15px 14px}
+.menu:last-child{border-bottom:0}
+.menu b{display:block}
+.menu span{font-size:13px;color:var(--mute)}
+.back{margin-bottom:12px}
+
+/* charts */
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.bar{height:10px;border-radius:6px;background:#e8ebf3;overflow:hidden;margin-top:6px}
+.bar>div{height:100%;border-radius:6px}
 
 .carry{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);margin:-4px 0 14px}
 .carry input{width:auto}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
   display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
 .nav .in{display:flex;max-width:560px;width:100%}
-.tab{flex:1;border:0;background:none;padding:12px 4px;font-size:13px;color:var(--mute);border-top:3px solid transparent}
+.tab{flex:1;border:0;background:none;padding:12px 2px;font-size:12.5px;color:var(--mute);border-top:3px solid transparent}
 .tab.on{color:var(--ink);font-weight:700;border-top-color:var(--accent)}
+.badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:99px;background:var(--give);color:#fff;font-size:11px;line-height:18px;margin-left:3px}
 .fab{position:fixed;right:max(16px,calc(50% - 264px));bottom:78px;z-index:6;border:0;border-radius:99px;
   background:var(--accent);color:#2b2208;font-weight:700;padding:14px 20px;box-shadow:0 6px 18px rgba(22,33,62,.28)}
 
@@ -96,7 +114,9 @@ h2{font-size:17px;margin:20px 0 10px}
 .seg{display:flex;gap:8px}
 .seg label{flex:1;display:flex;align-items:center;gap:6px;margin:0;padding:11px;border:1px solid var(--line);border-radius:12px;color:var(--text)}
 .seg input{width:auto}
-.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:30;font-size:14px}
+.preview{width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-top:10px;background:#eef0f5}
+.hint{font-size:13px;color:var(--mute);margin-top:6px}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:30;font-size:14px;max-width:90%;text-align:center}
 .live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#5fe0ae;margin-right:6px}
 .live.off{background:#ff8fa1}
 
@@ -119,26 +139,34 @@ const SUPABASE_KEY = 'sb_publishable_BFD2Vrf9aU756NjACFVTrw_ll2se_gz';
 const DOMAIN = '@shahidsharing.com';
 const CURRENCY = 'KWD';
 const CATS = ['Khana','Grocery','Bijli/Paani','Gas','Saaman','Transport','Other'];
+const COLORS = ['#16213e','#e9b44c','#0e8a5f','#c8344b','#5b7cfa','#9b5de5','#f15bb5','#00a6a6'];
 /* ====================== */
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = s => document.querySelector(s);
 const fmt = n => (Number(n) || 0).toFixed(3);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const S = { me:null, members:[], expenses:[], summary:[], xfers:[], carry:false, tab:'home', month:new Date().toISOString().slice(0,7), live:false };
-const advTxt = r => Number(r.advance || 0) ? ' · Advance ' + (Number(r.advance) > 0 ? '+' : '') + fmt(r.advance) : '';
+const S = { me:null, members:[], expenses:[], summary:[], xfers:[], reqs:[], cat:[], phones:{}, locks:new Set(),
+  lastPend:null, carry:false, tab:'home', month:new Date().toISOString().slice(0,7), live:false };
 let channel = null;
 
+const advTxt = r => Number(r.advance || 0) ? ' · Advance ' + (Number(r.advance) > 0 ? '+' : '') + fmt(r.advance) : '';
 const isAdmin = () => S.me && S.me.role === 'admin';
 const nameOf = id => (S.members.find(m => m.id === id) || {name:'(hata hua)'}).name;
+const errMsg = e => (e && e.message) ? e.message : 'Kuch gadbad hui';
 function range(m){
   const [y, mo] = m.split('-').map(Number);
   const last = new Date(y, mo, 0).getDate();
   return [m + '-01', m + '-' + String(last).padStart(2, '0')];
 }
+function addMonths(m, n){
+  const [y, mo] = m.split('-').map(Number);
+  const d = new Date(y, mo - 1 + n, 1);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
 function toast(msg){
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
 }
 
 /* ---------- AUTH ---------- */
@@ -162,14 +190,12 @@ function showLogin(msg){
     $('#le').textContent = 'Login ho raha hai...';
     let uname = $('#u').value.trim().toLowerCase();
     if (uname.includes('@')) uname = uname.split('@')[0];
-    const email = uname + DOMAIN;
-    const { error } = await sb.auth.signInWithPassword({ email, password: $('#p').value });
+    const { error } = await sb.auth.signInWithPassword({ email: uname + DOMAIN, password: $('#p').value });
     if (error) $('#le').textContent = 'Username ya password galat hai.';
     else boot();
   };
 }
-
-async function logout(){ await sb.auth.signOut(); S.me = null; showLogin(); }
+async function logout(){ await sb.auth.signOut(); S.me = null; S.lastPend = null; showLogin(); }
 
 async function boot(){
   const { data:{ session } } = await sb.auth.getSession();
@@ -187,22 +213,35 @@ async function boot(){
 /* ---------- DATA ---------- */
 async function loadAll(){
   const [from, to] = range(S.month);
-  const [m, e, s, x] = await Promise.all([
+  const catFrom = addMonths(S.month, -5) + '-01';
+  const q = [
     sb.from('profiles').select('*').order('name'),
     sb.from('expenses').select('*').gte('date', from).lte('date', to)
       .order('date', {ascending:false}).order('created_at', {ascending:false}),
     sb.rpc('get_summary', { p_from: S.carry ? '2000-01-01' : from, p_to: to }),
     sb.from('transfers').select('*').gte('date', from).lte('date', to)
-      .order('date', {ascending:false}).order('created_at', {ascending:false})
-  ]);
+      .order('date', {ascending:false}).order('created_at', {ascending:false}),
+    sb.from('expense_requests').select('*').order('created_at', {ascending:false}).limit(100),
+    sb.from('month_locks').select('month'),
+    sb.rpc('get_category_totals', { p_from: catFrom, p_to: to })
+  ];
+  if (isAdmin()) q.push(sb.from('member_phones').select('*'));
+  const [m, e, s, x, rq, lk, ct, ph] = await Promise.all(q);
   if (m.data) S.members = m.data;
   if (e.data) S.expenses = e.data;
   if (s.data) S.summary = s.data;
   if (x.data) S.xfers = x.data;
-  const mine = S.members.find(x => x.id === S.me.id);
+  if (rq.data) S.reqs = rq.data;
+  if (lk.data) S.locks = new Set(lk.data.map(r => r.month));
+  if (ct.data) S.cat = ct.data;
+  if (ph && ph.data){ S.phones = {}; ph.data.forEach(p => S.phones[p.member_id] = p.phone); }
+  const mine = S.members.find(z => z.id === S.me.id);
   if (mine) S.me = mine;
-  if (!mine || !mine.active) return logout();
-  if (!isAdmin() && (S.tab === 'members')) S.tab = 'home';
+  if (m.data && (!mine || !mine.active)) return logout();
+  if (!isAdmin() && S.tab === 'members') S.tab = 'home';
+  const pend = isAdmin() ? S.reqs.filter(r => r.status === 'pending').length : 0;
+  if (isAdmin() && S.lastPend !== null && pend > S.lastPend) toast('Naya bill request aayi hai');
+  S.lastPend = pend;
   render();
 }
 
@@ -236,14 +275,17 @@ function transfers(){
 }
 
 /* ---------- RENDER ---------- */
+function pendCount(){ return S.reqs.filter(r => r.status === 'pending').length; }
+
 function render(){
   const my = S.summary.find(r => r.member_id === S.me.id);
   const net = my ? Number(my.net) : 0;
   const cls = net > 0.0005 ? 'get' : net < -0.0005 ? 'give' : '';
   const lbl = net > 0.0005 ? 'Is mahine aapko milenge' : net < -0.0005 ? 'Is mahine aapko dene hain' : 'Is mahine hisaab barabar hai';
-  const tabs = isAdmin()
-    ? [['home','Hisaab'],['kharcha','Kharcha'],['advance','Advance'],['members','Members'],['report','Report']]
-    : [['home','Hisaab'],['kharcha','Mera kharcha'],['advance','Advance'],['report','Report']];
+  const pc = isAdmin() ? pendCount() : 0;
+  const reqLbl = isAdmin() ? 'Requests' + (pc ? `<span class="badge">${pc}</span>` : '') : 'Bill bhejo';
+  const tabs = [['home','Hisaab'], ['kharcha', isAdmin() ? 'Kharcha' : 'Mera kharcha'], ['advance','Advance'], ['requests', reqLbl], ['more','Aur']];
+  const navOn = ['chart','report','members'].includes(S.tab) ? 'more' : S.tab;
 
   $('#app').innerHTML = `
   <div class="top">
@@ -257,21 +299,38 @@ function render(){
     </div>
   </div>
   <div class="wrap" id="view"></div>
-  <nav class="nav"><div class="in">${tabs.map(t => `<button class="tab ${S.tab === t[0] ? 'on' : ''}" onclick="go('${t[0]}')">${t[1]}</button>`).join('')}</div></nav>
+  <nav class="nav"><div class="in">${tabs.map(t => `<button class="tab ${navOn === t[0] ? 'on' : ''}" onclick="go('${t[0]}')">${t[1]}</button>`).join('')}</div></nav>
   ${isAdmin() && S.tab === 'kharcha' ? '<button class="fab" onclick="expForm()">+ Naya kharcha</button>' : ''}
   ${isAdmin() && S.tab === 'advance' ? '<button class="fab" onclick="xForm()">+ Naya advance</button>' : ''}
+  ${!isAdmin() && S.tab === 'requests' ? '<button class="fab" onclick="reqForm()">+ Bill bhejo</button>' : ''}
   ${isAdmin() && S.tab === 'members' ? '<button class="fab" onclick="memForm()">+ Naya member</button>' : ''}`;
-  ({ home:vHome, kharcha:vExp, advance:vAdv, members:vMem, report:vReport })[S.tab]();
+  ({ home:vHome, kharcha:vExp, advance:vAdv, requests:vReq, more:vMore, chart:vChart, report:vReport, members:vMem })[S.tab]();
 }
 window.go = t => { S.tab = t; render(); window.scrollTo(0, 0); };
 
 function monthBar(){
-  const carry = (S.tab === 'home' || S.tab === 'report')
+  const locked = S.locks.has(S.month);
+  const showCarry = S.tab === 'home' || S.tab === 'report';
+  const lockBtn = isAdmin() && ['home','kharcha','advance'].includes(S.tab)
+    ? `<button class="btn ghost sm" onclick="toggleLock()">${locked ? 'Unlock' : 'Lock'}</button>` : '';
+  const carry = showCarry
     ? `<label class="carry noprint"><input type="checkbox" id="carry" ${S.carry ? 'checked' : ''} onchange="setCarry()"> Pichhle mahino ka baaki bhi jodo</label>` : '';
-  return `<div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button></div>${carry}`;
+  return `<div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button>${lockBtn}</div>
+  ${locked ? '<div class="lockpill">Ye mahina locked hai: kharcha aur advance badal nahi sakte.</div>' : ''}${carry}`;
 }
-window.setCarry = async () => { S.carry = $('#carry').checked; await loadAll(); };
 window.setMonth = async () => { const v = $('#mon').value; if (v){ S.month = v; await loadAll(); } };
+window.setCarry = async () => { S.carry = $('#carry').checked; await loadAll(); };
+window.toggleLock = async () => {
+  const locked = S.locks.has(S.month);
+  const ok = confirm(locked ? S.month + ' ko UNLOCK karna hai? Phir kharche badal sakte hain.' : S.month + ' ko LOCK karna hai? Phir is mahine ka kharcha ya advance badal nahi sakega.');
+  if (!ok) return;
+  const { error } = locked
+    ? await sb.from('month_locks').delete().eq('month', S.month)
+    : await sb.from('month_locks').insert({ month: S.month });
+  if (error) return toast(errMsg(error));
+  toast(locked ? 'Mahina unlock ho gaya' : 'Mahina lock ho gaya');
+  loadAll();
+};
 
 function totals(){
   const total = S.summary.reduce((a, r) => a + Number(r.paid), 0);
@@ -279,6 +338,7 @@ function totals(){
   return { total, per: total / active, active };
 }
 
+/* ---------- HOME ---------- */
 function vHome(){
   const t = totals(), tr = transfers();
   $('#view').innerHTML = `
@@ -297,14 +357,16 @@ function vHome(){
   <div class="card">${tr.length ? tr.map(x => `<div class="pay"><b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> <span class="num give" style="float:right"><b>${fmt(x.amt)} ${CURRENCY}</b></span></div>`).join('') : '<div class="empty">Koi lena-dena baaki nahi.</div>'}</div>`;
 }
 
+/* ---------- EXPENSES ---------- */
 function expRow(e, withActs){
   const sp = e.split_members ? e.split_members.length + ' members me' : 'Sab me barabar';
+  const bill = e.bill_path ? `<button class="btn ghost sm" onclick="viewBill('${e.bill_path}')">Bill dekho</button>` : '';
+  const edit = withActs ? `<button class="btn ghost sm" onclick="expForm('${e.id}')">Edit</button><button class="btn ghost sm give" onclick="delExp('${e.id}')">Delete</button>` : '';
   return `<div class="li" style="display:block"><div class="row"><div><div class="t">${esc(e.description || e.category)}</div>
   <div class="s">${esc(nameOf(e.spender))} · ${esc(e.category)} · ${e.date} · ${sp}</div></div>
   <div class="r num"><b>${fmt(e.amount)}</b></div></div>
-  ${withActs ? `<div class="acts"><button class="btn ghost sm" onclick="expForm('${e.id}')">Edit</button><button class="btn ghost sm give" onclick="delExp('${e.id}')">Delete</button></div>` : ''}</div>`;
+  ${(bill || edit) ? `<div class="acts">${bill}${edit}</div>` : ''}</div>`;
 }
-
 function vExp(){
   const sum = S.expenses.reduce((a, e) => a + Number(e.amount), 0);
   $('#view').innerHTML = `${monthBar()}
@@ -312,18 +374,186 @@ function vExp(){
   <div class="card">${S.expenses.length ? S.expenses.map(e => expRow(e, isAdmin())).join('') : '<div class="empty">Koi kharcha nahi mila.</div>'}</div>`;
 }
 
-function vMem(){
-  $('#view').innerHTML = `<h2 style="margin-top:4px">Members (${S.members.filter(m => m.active).length} active)</h2>
-  <div class="card">${S.members.map(m => `<div class="li" style="display:block"><div class="row"><div><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${m.active ? '' : '<span class="pill off">Band</span>'}</div><div class="s">Username: ${esc(m.username)}</div></div></div>
-  <div class="acts"><button class="btn ghost sm" onclick="memEdit('${m.id}')">Naam badlo</button>
-  <button class="btn ghost sm" onclick="toggleMem('${m.id}')">${m.active ? 'Band karo' : 'Chalu karo'}</button>
-  ${m.id === S.me.id ? '' : `<button class="btn ghost sm give" onclick="delMem('${m.id}')">Delete</button>`}</div></div>`).join('')}</div>
-  <p class="s" style="color:var(--mute);font-size:13px;margin-top:12px">Band kiya hua member naye kharche ke hisse me nahi aata. Purana record safe rehta hai.</p>`;
+/* ---------- ADVANCE ---------- */
+function xRow(t, acts){
+  return `<div class="li" style="display:block"><div class="row"><div>
+    <div class="t">${esc(nameOf(t.from_member))} → ${esc(nameOf(t.to_member))}</div>
+    <div class="s">${t.kind === 'advance' ? 'Advance' : 'Settlement'} · ${t.date}${t.note ? ' · ' + esc(t.note) : ''}</div></div>
+    <div class="r num get"><b>${fmt(t.amount)}</b></div></div>
+    ${acts ? `<div class="acts"><button class="btn ghost sm" onclick="xForm('${t.id}')">Edit</button><button class="btn ghost sm give" onclick="delX('${t.id}')">Delete</button></div>` : ''}</div>`;
+}
+function vAdv(){
+  const sum = S.xfers.reduce((a, t) => a + Number(t.amount), 0);
+  $('#view').innerHTML = `${monthBar()}
+  <div class="stat"><div><div class="k">Total raqam</div><div class="v num">${fmt(sum)} ${CURRENCY}</div></div><div><div class="k">Entries</div><div class="v num">${S.xfers.length}</div></div></div>
+  <div class="card">${S.xfers.length ? S.xfers.map(t => xRow(t, isAdmin())).join('') : '<div class="empty">Is mahine koi advance ya payment nahi hai.</div>'}</div>`;
 }
 
+/* ---------- BILL VIEW ---------- */
+window.viewBill = async path => {
+  const { data, error } = await sb.storage.from('bills').createSignedUrl(path, 300);
+  if (error || !data) return toast('Bill khul nahi paya');
+  modal(`<h3>Bill</h3><img class="preview" style="max-height:none" src="${data.signedUrl}" alt="Bill ki photo">
+  <div class="row" style="margin-top:14px"><a class="btn ghost" href="${data.signedUrl}" target="_blank" rel="noopener">Poora dekho</a><button class="btn" onclick="closeModal()">Band karo</button></div>`);
+};
+
+/* ---------- BILL REQUESTS ---------- */
+function reqCard(r, adminView){
+  const st = r.status === 'pending' ? '<span class="pill">Pending</span>' : r.status === 'approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill off">Rejected</span>';
+  return `<div class="li" style="display:block"><div class="row"><div>
+    <div class="t">${adminView ? esc(nameOf(r.requester)) + ' · ' : ''}${esc(r.description || r.category)}</div>
+    <div class="s">${esc(r.category)} · ${r.date} · ${st}</div>
+    ${r.status === 'rejected' && r.admin_note ? `<div class="s give">Wajah: ${esc(r.admin_note)}</div>` : ''}</div>
+    <div class="r num"><b>${fmt(r.amount)}</b></div></div>
+    <div class="acts"><button class="btn ghost sm" onclick="viewBill('${r.bill_path}')">Bill dekho</button>
+    ${adminView && r.status === 'pending' ? `<button class="btn sm" onclick="approveReq('${r.id}')">Approve</button><button class="btn ghost sm give" onclick="rejectReq('${r.id}')">Reject</button>` : ''}
+    ${!adminView && r.status === 'pending' ? `<button class="btn ghost sm give" onclick="delReq('${r.id}')">Wapas lo</button>` : ''}</div></div>`;
+}
+function vReq(){
+  const pend = S.reqs.filter(r => r.status === 'pending');
+  const done = S.reqs.filter(r => r.status !== 'pending');
+  if (isAdmin()){
+    $('#view').innerHTML = `<h2 style="margin-top:4px">Check karne wale bill (${pend.length})</h2>
+    <div class="card">${pend.length ? pend.map(r => reqCard(r, true)).join('') : '<div class="empty">Koi naya bill request nahi hai.</div>'}</div>
+    <h2>Purani requests</h2>
+    <div class="card">${done.length ? done.map(r => reqCard(r, true)).join('') : '<div class="empty">Abhi koi nahi.</div>'}</div>
+    <p class="hint">Approve karne par kharcha apne aap add ho jata hai (sab members me barabar baant kar). Amount galat ho to Reject karke wajah likho.</p>`;
+  } else {
+    $('#view').innerHTML = `<h2 style="margin-top:4px">Aapke bheje hue bill</h2>
+    <div class="card">${S.reqs.length ? S.reqs.map(r => reqCard(r, false)).join('') : '<div class="empty">Abhi koi bill nahi bheja. Neeche "+ Bill bhejo" dabao.</div>'}</div>
+    <p class="hint">Bill ki photo saaf aur poori dikhni chahiye. Admin check karke approve karega, tab kharcha hisaab me judega.</p>`;
+  }
+}
+window.approveReq = async id => {
+  if (!confirm('Bill check kar liya? Approve karne par kharcha add ho jayega.')) return;
+  const { error } = await sb.rpc('approve_request', { p_id: id });
+  if (error) return toast(errMsg(error));
+  toast('Approve ho gaya, kharcha add ho gaya'); loadAll();
+};
+window.rejectReq = async id => {
+  const why = prompt('Reject karne ki wajah (member ko dikhegi):', 'Bill saaf nahi hai');
+  if (why === null) return;
+  const { error } = await sb.from('expense_requests').update({ status:'rejected', admin_note:why.trim(), reviewed_by:S.me.id, reviewed_at:new Date().toISOString() }).eq('id', id).eq('status', 'pending');
+  if (error) return toast(errMsg(error));
+  toast('Reject ho gaya'); loadAll();
+};
+window.delReq = async id => {
+  if (!confirm('Ye request wapas leni hai?')) return;
+  const r = S.reqs.find(x => x.id === id);
+  const { error } = await sb.from('expense_requests').delete().eq('id', id);
+  if (error) return toast(errMsg(error));
+  if (r) sb.storage.from('bills').remove([r.bill_path]);
+  toast('Request hata di'); loadAll();
+};
+
+async function compress(file){
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
+  const max = 1600, sc = Math.min(1, max / Math.max(img.width, img.height));
+  const w = Math.round(img.width * sc), h = Math.round(img.height * sc);
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  c.getContext('2d').drawImage(img, 0, 0, w, h);
+  return await new Promise(res => c.toBlob(res, 'image/jpeg', 0.8));
+}
+window.reqForm = () => {
+  modal(`<h3>Bill bhejo</h3>
+  <form class="f" id="rf">
+    <label>Raqam (${CURRENCY})</label>
+    <input id="r_am" type="number" step="0.001" min="0.001" inputmode="decimal" required>
+    <label>Kis cheez ka</label>
+    <input id="r_ds" placeholder="jaise: sabzi, gas cylinder" required>
+    <label>Category</label>
+    <select id="r_ct">${CATS.map(c => `<option>${c}</option>`).join('')}</select>
+    <label>Tareekh</label>
+    <input id="r_dt" type="date" value="${new Date().toISOString().slice(0, 10)}" required>
+    <label>Bill ki photo (saaf aur poori)</label>
+    <input id="r_ph" type="file" accept="image/*" required>
+    <img id="r_pv" class="preview" alt="" style="display:none">
+    <div class="hint">Roshni me, seedha aur poora bill dikhe. Dhundhli photo reject ho sakti hai.</div>
+    <div class="err" id="r_er" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit" id="r_bt">Bhejo</button></div>
+  </form>`);
+  $('#r_ph').onchange = () => {
+    const f = $('#r_ph').files[0];
+    if (f){ const p = $('#r_pv'); p.src = URL.createObjectURL(f); p.style.display = 'block'; }
+  };
+  $('#rf').onsubmit = async ev => {
+    ev.preventDefault();
+    const f = $('#r_ph').files[0], amount = parseFloat($('#r_am').value);
+    if (!f) return ($('#r_er').textContent = 'Bill ki photo chuno.');
+    if (!(amount > 0)) return ($('#r_er').textContent = 'Sahi raqam daalo.');
+    $('#r_bt').disabled = true; $('#r_er').textContent = 'Bhej raha hai...';
+    try {
+      const blob = await compress(f);
+      const path = `${S.me.id}/${Date.now()}.jpg`;
+      const up = await sb.storage.from('bills').upload(path, blob, { contentType:'image/jpeg' });
+      if (up.error) throw up.error;
+      const row = { requester:S.me.id, amount, description:$('#r_ds').value.trim(), category:$('#r_ct').value, date:$('#r_dt').value, bill_path:path };
+      const ins = await sb.from('expense_requests').insert(row);
+      if (ins.error){ sb.storage.from('bills').remove([path]); throw ins.error; }
+      closeModal(); toast('Bill admin ko bhej diya'); loadAll();
+    } catch (e) {
+      $('#r_er').textContent = 'Nahi bheja ja saka: ' + errMsg(e); $('#r_bt').disabled = false;
+    }
+  };
+};
+
+/* ---------- MORE ---------- */
+function vMore(){
+  const locked = S.locks.has(S.month);
+  $('#view').innerHTML = `<div class="card">
+    <button class="menu" onclick="go('chart')"><b>Analysis chart</b><span>Mahine wise aur category wise kharcha</span></button>
+    <button class="menu" onclick="go('report')"><b>Report</b><span>PDF / Excel (CSV)</span></button>
+    ${isAdmin() ? `<button class="menu" onclick="go('members')"><b>Members</b><span>Naam, mobile number, hisaab WhatsApp par bhejna</span></button>
+    <button class="menu" onclick="toggleLock()"><b>Mahina ${locked ? 'unlock' : 'lock'} karo (${S.month})</b><span>${locked ? 'Abhi locked hai' : 'Abhi khula hai'}. Mahina badalne ke liye Hisaab tab me jao.</span></button>` : ''}
+  </div>`;
+}
+
+/* ---------- ANALYSIS CHART ---------- */
+function vChart(){
+  const months = []; for (let i = 5; i >= 0; i--) months.push(addMonths(S.month, -i));
+  const tot = {}; S.cat.forEach(r => tot[r.category] = (tot[r.category] || 0) + Number(r.total));
+  const cats = Object.keys(tot).sort((a, b) => tot[b] - tot[a]);
+  const col = c => COLORS[cats.indexOf(c) % COLORS.length];
+  const val = (m, c) => S.cat.filter(r => r.month === m && r.category === c).reduce((a, r) => a + Number(r.total), 0);
+  const mt = months.map(m => cats.reduce((a, c) => a + val(m, c), 0));
+  const max = Math.max(...mt, 1);
+  const W = 340, H = 190, pad = 22, bw = 34, gap = (W - pad * 2 - bw * 6) / 5;
+  let svg = `<svg viewBox="0 0 ${W} ${H + 28}" width="100%" role="img" aria-label="Mahine wise kharcha">`;
+  months.forEach((m, i) => {
+    const x = pad + i * (bw + gap); let y = H;
+    cats.forEach(c => {
+      const v = val(m, c), h = v / max * H;
+      if (h > 0){ y -= h; svg += `<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="${col(c)}"><title>${esc(c)}: ${fmt(v)}</title></rect>`; }
+    });
+    svg += `<text x="${x + bw / 2}" y="${H + 16}" text-anchor="middle" font-size="11" fill="currentColor">${m.slice(5)}/${m.slice(2, 4)}</text>`;
+    if (mt[i]) svg += `<text x="${x + bw / 2}" y="${H - mt[i] / max * H - 4}" text-anchor="middle" font-size="10" fill="currentColor">${Math.round(mt[i])}</text>`;
+  });
+  svg += `<line x1="${pad - 4}" x2="${W - pad + 4}" y1="${H}" y2="${H}" stroke="#dde1ea"/></svg>`;
+
+  const cur = S.month, curTot = mt[5], prevTot = mt[4];
+  const rows = cats.map(c => ({ c, v: val(cur, c) })).filter(r => r.v > 0).sort((a, b) => b.v - a.v);
+  const change = prevTot > 0 ? ((curTot - prevTot) / prevTot * 100) : null;
+  const top = rows[0];
+
+  $('#view').innerHTML = `<button class="btn ghost sm back noprint" onclick="go('more')">← Wapas</button>
+  ${monthBar()}
+  ${S.cat.length ? `
+  <div class="stat">
+    <div><div class="k">${cur} ka total</div><div class="v num">${fmt(curTot)}</div></div>
+    <div><div class="k">Pichhle mahine se</div><div class="v num ${change === null ? '' : change > 0 ? 'give' : 'get'}">${change === null ? '-' : (change > 0 ? '+' : '') + change.toFixed(0) + '%'}</div></div>
+  </div>
+  ${top ? `<div class="stat"><div><div class="k">Sabse zyada kharcha</div><div class="v">${esc(top.c)} <span class="num" style="font-size:14px;color:var(--mute)">${(top.v / curTot * 100).toFixed(0)}%</span></div></div></div>` : ''}
+  <h2>Pichhle 6 mahine</h2>
+  <div class="card pad">${svg}<div class="legend">${cats.map(c => `<span><i style="background:${col(c)}"></i>${esc(c)}</span>`).join('')}</div></div>
+  <h2>${cur}: category wise</h2>
+  <div class="card">${rows.length ? rows.map(r => `<div class="pay"><div class="row"><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:${col(r.c)}"></i><b>${esc(r.c)}</b></span><span class="num">${fmt(r.v)} <span class="s" style="color:var(--mute)">(${(r.v / curTot * 100).toFixed(0)}%)</span></span></div><div class="bar"><div style="width:${(r.v / curTot * 100).toFixed(1)}%;background:${col(r.c)}"></div></div></div>`).join('') : '<div class="empty">Is mahine koi kharcha nahi.</div>'}</div>`
+  : '<div class="empty card">Abhi chart ke liye data nahi hai. Kharche add hone par yahan dikhega. (Agar SQL update nahi chalayi to pehle wo chalao.)</div>'}`;
+}
+
+/* ---------- REPORT ---------- */
 function vReport(){
   const tr = transfers(), t = totals();
-  $('#view').innerHTML = `${monthBar()}
+  $('#view').innerHTML = `<button class="btn ghost sm back noprint" onclick="go('more')">← Wapas</button>${monthBar()}
   <div class="row noprint" style="margin-bottom:14px"><button class="btn" onclick="window.print()">PDF / Print</button><button class="btn ghost" onclick="csv()">Excel (CSV)</button></div>
   <h2 style="margin-top:0">Report: ${S.month}</h2>
   <div class="stat"><div><div class="k">Total</div><div class="v num">${fmt(t.total)} ${CURRENCY}</div></div><div><div class="k">Per member</div><div class="v num">${fmt(t.per)}</div></div></div>
@@ -333,10 +563,8 @@ function vReport(){
   <h2>${isAdmin() ? 'Sab kharche' : 'Aapke kharche'}</h2>
   <div class="card">${S.expenses.map(e => expRow(e, false)).join('') || '<div class="empty">Koi kharcha nahi.</div>'}</div>
   <h2>Advance / Payment</h2>
-  <div class="card">${S.xfers.map(t => xRow(t, false)).join('') || '<div class="empty">Koi advance nahi.</div>'}</div>`;
+  <div class="card">${S.xfers.map(x => xRow(x, false)).join('') || '<div class="empty">Koi advance nahi.</div>'}</div>`;
 }
-
-/* ---------- CSV ---------- */
 window.csv = () => {
   const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
   let out = 'Member,Diya,Hissa,Advance,Net\n' + S.summary.map(r => [q(r.name), fmt(r.paid), fmt(r.share), fmt(r.advance), fmt(r.net)].join(',')).join('\n');
@@ -396,46 +624,40 @@ window.expForm = id => {
     }
     const row = { spender:$('#e_sp').value, amount, description:$('#e_ds').value.trim(), category:$('#e_ct').value, date:$('#e_dt').value, split_members:split };
     const { error } = e ? await sb.from('expenses').update(row).eq('id', e.id) : await sb.from('expenses').insert(row);
-    if (error) return ($('#e_er').textContent = 'Save nahi hua: ' + error.message);
+    if (error) return ($('#e_er').textContent = 'Save nahi hua: ' + errMsg(error));
     closeModal(); toast('Save ho gaya'); loadAll();
   };
 };
 window.delExp = async id => {
   if (!confirm('Ye kharcha delete karna hai?')) return;
   const { error } = await sb.from('expenses').delete().eq('id', id);
-  if (error) toast('Delete nahi hua'); else { toast('Delete ho gaya'); loadAll(); }
+  if (error) toast(errMsg(error)); else { toast('Delete ho gaya'); loadAll(); }
 };
 
-/* ---------- ADVANCE / PAYMENT ---------- */
-function xRow(t, acts){
-  return `<div class="li" style="display:block"><div class="row"><div>
-    <div class="t">${esc(nameOf(t.from_member))} → ${esc(nameOf(t.to_member))}</div>
-    <div class="s">${t.kind === 'advance' ? 'Advance' : 'Settlement'} · ${t.date}${t.note ? ' · ' + esc(t.note) : ''}</div></div>
-    <div class="r num get"><b>${fmt(t.amount)}</b></div></div>
-    ${acts ? `<div class="acts"><button class="btn ghost sm" onclick="xForm('${t.id}')">Edit</button><button class="btn ghost sm give" onclick="delX('${t.id}')">Delete</button></div>` : ''}</div>`;
-}
-function vAdv(){
-  const sum = S.xfers.reduce((a, t) => a + Number(t.amount), 0);
-  $('#view').innerHTML = `${monthBar()}
-  <div class="stat"><div><div class="k">Total raqam</div><div class="v num">${fmt(sum)} ${CURRENCY}</div></div><div><div class="k">Entries</div><div class="v num">${S.xfers.length}</div></div></div>
-  <div class="card">${S.xfers.length ? S.xfers.map(t => xRow(t, isAdmin())).join('') : '<div class="empty">Is mahine koi advance ya payment nahi hai.</div>'}</div>`;
-}
+/* ---------- ADVANCE FORM (admin, multi-select) ---------- */
 window.xForm = id => {
   const t = id ? S.xfers.find(x => x.id === id) : null;
-  const opts = sel => (sel ? '' : '<option value="">-- chuno --</option>') + S.members
-    .filter(m => m.active || (t && (m.id === t.from_member || m.id === t.to_member)))
+  const act = S.members.filter(m => m.active);
+  const toOpts = sel => (sel ? '' : '<option value="">-- chuno --</option>') + S.members
+    .filter(m => m.active || (t && m.id === t.to_member))
     .map(m => `<option value="${m.id}" ${sel === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('');
+  const fromBlock = t
+    ? `<label>Kisne paisa diya</label>
+       <select id="x_f">${S.members.filter(m => m.active || m.id === t.from_member).map(m => `<option value="${m.id}" ${t.from_member === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>`
+    : `<label>Kisne paisa diya (ek ya zyada member chuno)</label>
+       <div class="row" style="margin-bottom:6px"><button type="button" class="btn ghost sm" id="x_all">Sab chuno</button><span id="x_cnt" class="hint"></span></div>
+       <div class="chk" id="x_ch">${act.map(m => `<label><input type="checkbox" value="${m.id}"> ${esc(m.name)}</label>`).join('')}</div>`;
   modal(`<h3>${t ? 'Entry edit karo' : 'Naya advance / payment'}</h3>
   <form class="f" id="xf">
-    <label>Kisne paisa diya</label>
-    <select id="x_f" required>${opts(t ? t.from_member : '')}</select>
+    ${fromBlock}
     <label>Kis ko diya (jiske paas paisa jama hua)</label>
-    <select id="x_t" required>${opts(t ? t.to_member : '')}</select>
-    <label>Raqam (${CURRENCY})</label>
+    <select id="x_t" required>${toOpts(t ? t.to_member : '')}</select>
+    <label>${t ? 'Raqam' : 'Har member ki raqam'} (${CURRENCY})</label>
     <input id="x_a" type="number" step="0.001" min="0.001" inputmode="decimal" value="${t ? t.amount : ''}" required>
+    ${t ? '' : '<div class="hint" id="x_sum"></div>'}
     <label>Type</label>
     <select id="x_k">
-      <option value="advance" ${t && t.kind === 'advance' || !t ? 'selected' : ''}>Advance (mahine ke liye jama)</option>
+      <option value="advance" ${!t || t.kind === 'advance' ? 'selected' : ''}>Advance (mahine ke liye jama)</option>
       <option value="settlement" ${t && t.kind === 'settlement' ? 'selected' : ''}>Settlement (purana hisaab chukaya)</option>
     </select>
     <label>Tareekh</label>
@@ -443,44 +665,151 @@ window.xForm = id => {
     <label>Note (optional)</label>
     <input id="x_n" value="${t ? esc(t.note) : ''}" placeholder="jaise: cash diya">
     <div class="err" id="x_e" style="color:var(--give)"></div>
-    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit" id="x_bt">Save karo</button></div>
   </form>`);
+  const chosen = () => {
+    const to = $('#x_t').value;
+    return [...document.querySelectorAll('#x_ch input:checked')].map(i => i.value).filter(v => v !== to);
+  };
+  const upd = () => {
+    if (t) return;
+    const n = chosen().length, a = parseFloat($('#x_a').value) || 0;
+    $('#x_cnt').textContent = n + ' member chune';
+    $('#x_sum').textContent = n && a ? `${n} x ${fmt(a)} = ${fmt(n * a)} ${CURRENCY} total (jis ko diya, uska naam apne aap hat jata hai)` : '';
+  };
+  if (!t){
+    $('#x_all').onclick = () => {
+      const boxes = [...document.querySelectorAll('#x_ch input')];
+      const all = boxes.every(b => b.checked);
+      boxes.forEach(b => b.checked = !all); upd();
+    };
+    document.querySelectorAll('#x_ch input').forEach(b => b.onchange = upd);
+    $('#x_a').oninput = upd; $('#x_t').onchange = upd; upd();
+  }
   $('#xf').onsubmit = async ev => {
     ev.preventDefault();
-    const from_member = $('#x_f').value, to_member = $('#x_t').value, amount = parseFloat($('#x_a').value);
-    if (!from_member || !to_member) return ($('#x_e').textContent = 'Dono member chuno.');
-    if (from_member === to_member) return ($('#x_e').textContent = 'Dene wala aur lene wala alag hone chahiye.');
+    const to_member = $('#x_t').value, amount = parseFloat($('#x_a').value);
+    const base = { to_member, amount, kind:$('#x_k').value, date:$('#x_d').value, note:$('#x_n').value.trim() };
+    if (!to_member) return ($('#x_e').textContent = 'Jis ko paisa diya, wo member chuno.');
     if (!(amount > 0)) return ($('#x_e').textContent = 'Sahi raqam daalo.');
-    const row = { from_member, to_member, amount, kind:$('#x_k').value, date:$('#x_d').value, note:$('#x_n').value.trim() };
-    const { error } = t ? await sb.from('transfers').update(row).eq('id', t.id) : await sb.from('transfers').insert(row);
-    if (error) return ($('#x_e').textContent = 'Save nahi hua: ' + error.message);
+    let res;
+    if (t){
+      const from_member = $('#x_f').value;
+      if (from_member === to_member) return ($('#x_e').textContent = 'Dene wala aur lene wala alag hone chahiye.');
+      res = await sb.from('transfers').update({ ...base, from_member }).eq('id', t.id);
+    } else {
+      const ids = chosen();
+      if (!ids.length) return ($('#x_e').textContent = 'Kam se kam ek dene wala member chuno.');
+      $('#x_bt').disabled = true;
+      res = await sb.from('transfers').insert(ids.map(f => ({ ...base, from_member: f })));
+    }
+    if (res.error){ $('#x_bt').disabled = false; return ($('#x_e').textContent = 'Save nahi hua: ' + errMsg(res.error)); }
     closeModal(); toast('Save ho gaya'); loadAll();
   };
 };
 window.delX = async id => {
   if (!confirm('Ye entry delete karni hai?')) return;
   const { error } = await sb.from('transfers').delete().eq('id', id);
-  if (error) toast('Delete nahi hua'); else { toast('Delete ho gaya'); loadAll(); }
+  if (error) toast(errMsg(error)); else { toast('Delete ho gaya'); loadAll(); }
 };
 
 /* ---------- MEMBERS (admin) ---------- */
+const normPhone = v => { let d = String(v || '').replace(/\D/g, ''); if (d.startsWith('00')) d = d.slice(2); if (d.length === 8) d = '965' + d; return d; };
+const showPhone = p => p ? '+' + p : '';
+
+function vMem(){
+  $('#view').innerHTML = `<button class="btn ghost sm back noprint" onclick="go('more')">← Wapas</button>
+  <h2 style="margin-top:0">Members (${S.members.filter(m => m.active).length} active)</h2>
+  <p class="hint" style="margin:0 0 10px">"Hisaab bhejo" us mahine ka hisaab dikhata hai jo neeche chuna hai (<b>${S.month}</b>).</p>
+  ${monthBar()}
+  <div class="card">${S.members.map(m => {
+    const ph = S.phones[m.id];
+    return `<div class="li" style="display:block"><div class="row"><div><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${m.active ? '' : '<span class="pill off">Band</span>'}</div>
+    <div class="s">Username: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div></div></div>
+    <div class="acts">
+      <button class="btn sm" onclick="sendHisaab('${m.id}')">Hisaab bhejo</button>
+      <button class="btn ghost sm" onclick="phoneForm('${m.id}')">${ph ? 'Mobile edit' : 'Mobile add'}</button>
+      <button class="btn ghost sm" onclick="memEdit('${m.id}')">Naam badlo</button>
+      <button class="btn ghost sm" onclick="toggleMem('${m.id}')">${m.active ? 'Band karo' : 'Chalu karo'}</button>
+      ${m.id === S.me.id ? '' : `<button class="btn ghost sm give" onclick="delMem('${m.id}')">Delete</button>`}
+    </div></div>`;
+  }).join('')}</div>
+  <p class="hint">Band kiya hua member naye kharche ke hisse me nahi aata. Purana record safe rehta hai. Mobile number sirf admin dekh sakta hai.</p>`;
+}
+
+window.phoneForm = id => {
+  const m = S.members.find(x => x.id === id), cur = S.phones[id];
+  modal(`<h3>${esc(m.name)}: mobile number</h3>
+  <form class="f" id="pf">
+    <label>Mobile number</label>
+    <input id="p_n" type="tel" inputmode="tel" value="${cur ? esc(showPhone(cur)) : ''}" placeholder="Kuwait: 8 digit, ya country code ke saath" required>
+    <div class="hint">Kuwait ka number 8 digit me likho to +965 apne aap lag jayega. Doosre desh ka ho to country code ke saath likho (jaise +91...).</div>
+    <div class="err" id="p_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div>
+    ${cur ? '<button type="button" class="btn ghost give" id="p_del" style="width:100%;margin-top:10px">Number hatao</button>' : ''}
+  </form>`);
+  $('#pf').onsubmit = async ev => {
+    ev.preventDefault();
+    const d = normPhone($('#p_n').value);
+    if (d.length < 10 || d.length > 15) return ($('#p_e').textContent = 'Number sahi nahi lag raha. Country code ke saath check karo.');
+    const { error } = await sb.from('member_phones').upsert({ member_id:id, phone:d, updated_at:new Date().toISOString() });
+    if (error) return ($('#p_e').textContent = 'Save nahi hua: ' + errMsg(error));
+    closeModal(); toast('Number save ho gaya'); loadAll();
+  };
+  const del = $('#p_del');
+  if (del) del.onclick = async () => {
+    if (!confirm('Ye number hatana hai?')) return;
+    const { error } = await sb.from('member_phones').delete().eq('member_id', id);
+    if (error) return ($('#p_e').textContent = errMsg(error));
+    closeModal(); toast('Number hata diya'); loadAll();
+  };
+};
+
+function hisaabMsg(r){
+  const n = Number(r.net), tr = transfers().filter(t => t.from === r.name || t.to === r.name);
+  const lines = [
+    `*Shahid Sharing: Hisaab (${S.month}${S.carry ? ', shuru se ab tak' : ''})*`,
+    `Naam: ${r.name}`,
+    `Kharcha diya: ${fmt(r.paid)} ${CURRENCY}`,
+    `Aapka hissa: ${fmt(r.share)} ${CURRENCY}`
+  ];
+  if (Number(r.advance || 0)) lines.push(`Advance: ${Number(r.advance) > 0 ? '+' : ''}${fmt(r.advance)} ${CURRENCY}`);
+  lines.push(n > 0.0005 ? `*Net: Aapko ${fmt(n)} ${CURRENCY} milenge*` : n < -0.0005 ? `*Net: Aapko ${fmt(-n)} ${CURRENCY} dene hain*` : '*Net: Hisaab barabar hai*');
+  if (tr.length){
+    lines.push('', 'Kisko dena hai:');
+    tr.forEach(t => lines.push(`• ${t.from} → ${t.to}: ${fmt(t.amt)} ${CURRENCY}`));
+  }
+  lines.push('', 'Shukriya');
+  return lines.join('\n');
+}
+window.sendHisaab = id => {
+  const m = S.members.find(x => x.id === id), ph = S.phones[id];
+  if (!ph){ toast('Pehle mobile number add karo'); return phoneForm(id); }
+  const r = S.summary.find(x => x.member_id === id);
+  if (!r) return toast('Is mahine ka hisaab nahi mila');
+  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent(hisaabMsg(r)), '_blank');
+};
+
 window.memForm = () => {
   modal(`<h3>Naya member</h3>
   <form class="f" id="mf">
     <label>Pura naam</label><input id="m_n" required>
     <label>Username (chhota, english me, bina space)</label><input id="m_u" autocapitalize="none" pattern="[a-zA-Z0-9_.]+" required>
     <label>Password (kam se kam 6 akshar)</label><input id="m_p" minlength="6" required>
+    <label>Mobile number (optional)</label><input id="m_ph" type="tel" inputmode="tel" placeholder="Kuwait: 8 digit">
     <div class="err" id="m_e" style="color:var(--give)"></div>
     <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Member banao</button></div>
   </form>`);
   $('#mf').onsubmit = async ev => {
     ev.preventDefault();
     const name = $('#m_n').value.trim(), u = $('#m_u').value.trim().toLowerCase(), p = $('#m_p').value;
+    const ph = $('#m_ph').value.trim() ? normPhone($('#m_ph').value) : '';
+    if (ph && (ph.length < 10 || ph.length > 15)) return ($('#m_e').textContent = 'Mobile number sahi nahi lag raha.');
     $('#m_e').textContent = 'Ban raha hai...';
-    // alag client: admin ka login na badle
     const tmp = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{ persistSession:false, autoRefreshToken:false, storageKey:'tmp-signup' } });
-    const { error } = await tmp.auth.signUp({ email:u + DOMAIN, password:p, options:{ data:{ name } } });
+    const { data, error } = await tmp.auth.signUp({ email:u + DOMAIN, password:p, options:{ data:{ name } } });
     if (error) return ($('#m_e').textContent = error.message.includes('registered') ? 'Ye username pehle se hai.' : 'Nahi bana: ' + error.message);
+    if (ph && data && data.user) await sb.from('member_phones').upsert({ member_id:data.user.id, phone:ph });
     closeModal(); toast(name + ' ban gaya'); loadAll();
   };
 };
@@ -499,7 +828,7 @@ window.delMem = async id => {
   const m = S.members.find(x => x.id === id);
   if (!confirm(m.name + ' ko delete karna hai?')) return;
   const { error } = await sb.from('profiles').delete().eq('id', id);
-  if (error) alert('Delete nahi ho sakta kyunki iske kharche record me hain. "Band karo" use karo.');
+  if (error) alert('Delete nahi ho sakta kyunki iske kharche ya advance record me hain. "Band karo" use karo.');
   else { toast('Delete ho gaya'); loadAll(); }
 };
 

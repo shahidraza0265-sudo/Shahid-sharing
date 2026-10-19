@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#16213e">
+<meta name="theme-color" content="#0f1b3a">
 <title>Shahid Sharing</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
-  --ink:#16213e; --ink2:#243256; --paper:#f4f5f8; --card:#ffffff; --line:#dde1ea;
-  --text:#1b2236; --mute:#6a738a; --get:#0e8a5f; --give:#c8344b; --accent:#e9b44c;
+  --ink:#0f1b3a; --ink2:#1b2a52; --paper:#f2f6fa; --card:#ffffff; --line:#d9e1ec;
+  --text:#18233d; --mute:#66728a; --get:#0e8a5f; --give:#c8344b; --accent:#13a39c; --accent2:#2f6fed;
   --r:14px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -18,36 +18,37 @@ html,body{margin:0;background:var(--paper);color:var(--text);
 .num{font-variant-numeric:tabular-nums}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
-#app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:88px}
+#app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:92px}
+@media (min-width:900px){#app{max-width:720px}.nav .in{max-width:720px}.chatbar{max-width:720px}.sheet{max-width:640px}}
 
 /* login */
 .login{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:28px;
-  background:var(--ink);color:#fff;max-width:560px;margin:0 auto}
+  background:linear-gradient(160deg,#0f1b3a,#16365f);color:#fff;max-width:560px;margin:0 auto}
 .login h1{font-size:34px;line-height:1.1;margin:0 0 6px;letter-spacing:-.02em}
-.login p{margin:0 0 28px;color:#aab4d0}
-.login label{display:block;font-size:14px;color:#c9d1e8;margin:14px 0 6px}
-.login input{width:100%;padding:14px;border-radius:12px;border:1px solid #3a4a76;background:var(--ink2);color:#fff}
+.login p{margin:0 0 28px;color:#a9bbd6}
+.login label{display:block;font-size:14px;color:#c9d6ea;margin:14px 0 6px}
+.login input{width:100%;padding:14px;border-radius:12px;border:1px solid #36527f;background:#1b2f58;color:#fff}
 .login input:focus{outline:2px solid var(--accent);border-color:transparent}
 .btn{border:0;border-radius:12px;padding:13px 18px;font-weight:600;background:var(--ink);color:#fff}
-.btn.gold{background:var(--accent);color:#2b2208;width:100%;margin-top:22px;padding:15px}
+.btn.gold{background:var(--accent);color:#fff;width:100%;margin-top:22px;padding:15px}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.btn.red{background:var(--give)}
 .btn.sm{padding:8px 12px;font-size:14px;border-radius:10px}
-.btn[disabled]{opacity:.55}
+.btn[disabled]{opacity:.5}
 a.btn{text-decoration:none;display:inline-block;text-align:center}
-.btn:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .err{color:#ffb4c0;font-size:14px;margin-top:12px;min-height:20px}
 
 /* header + balance */
-.top{background:var(--ink);color:#fff;padding:18px 18px 22px;border-radius:0 0 22px 22px}
+.top{background:linear-gradient(160deg,#0f1b3a,#173a63);color:#fff;padding:14px 16px 20px;border-radius:0 0 22px 22px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.top .who{font-size:14px;color:#aab4d0}
+.top .who{font-size:14px;color:#a9bbd6;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .top .who b{color:#fff}
-.icon-btn{background:var(--ink2);border:0;color:#fff;border-radius:10px;padding:8px 11px;font-size:14px}
-.balance{margin-top:18px}
-.balance .lbl{font-size:14px;color:#aab4d0}
+.icon-btn{background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:10px;padding:8px 11px;font-size:14px;position:relative}
+.icon-btn .dot{position:absolute;top:4px;right:4px;width:9px;height:9px;border-radius:50%;background:#ff6b81}
+.balance{margin-top:14px}
+.balance .lbl{font-size:14px;color:#a9bbd6}
 .balance .amt{font-size:40px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
-.balance .amt small{font-size:16px;font-weight:500;margin-left:6px;color:#aab4d0}
+.balance .amt small{font-size:16px;font-weight:500;margin-left:6px;color:#a9bbd6}
 .balance.get .amt{color:#5fe0ae}
 .balance.give .amt{color:#ff8fa1}
 
@@ -55,78 +56,293 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 .monthbar{display:flex;gap:8px;align-items:center;margin-bottom:14px}
 .monthbar input{flex:1;min-width:0;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
 .lockpill{background:#fff2d1;color:#7a5600;border-radius:10px;padding:8px 12px;font-size:14px;margin:-4px 0 14px}
+.info{background:#e4f4f6;border:1px solid #b9e3e7;color:#0c4f56;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:15px}
 .stat{display:flex;gap:10px;margin-bottom:14px}
-.stat>div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.stat>div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-width:0}
 .stat .k{font-size:13px;color:var(--mute)}
 .stat .v{font-size:20px;font-weight:700}
 
 h2{font-size:17px;margin:20px 0 10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.card.pad{padding:14px}
+.card.pad{padding:14px;margin-bottom:12px}
 .li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .li:last-child{border-bottom:0}
 .li .t{font-weight:600}
-.li .s{font-size:13px;color:var(--mute)}
+.s{font-size:13px;color:var(--mute)}
 .li .r{text-align:right;white-space:nowrap}
 .get{color:var(--get)} .give{color:var(--give)}
-.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:#e8ebf3;color:var(--mute)}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:#e6edf5;color:var(--mute)}
 .pill.off{background:#fbe3e7;color:var(--give)}
 .pill.adm{background:#fff2d1;color:#7a5600}
 .pill.ok{background:#dff5ea;color:var(--get)}
-.empty{padding:26px 16px;text-align:center;color:var(--mute)}
+.pill.warn{background:#fff2d1;color:#7a5600}
+.empty{padding:22px 16px;text-align:center;color:var(--mute)}
 .pay{padding:10px 14px;border-bottom:1px solid var(--line)}
 .pay:last-child{border-bottom:0}
 .acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.menu{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:15px 14px}
-.menu:last-child{border-bottom:0}
-.menu b{display:block}
-.menu span{font-size:13px;color:var(--mute)}
 .back{margin-bottom:12px}
+.hint{font-size:13px;color:var(--mute);margin-top:6px}
+.chip{display:inline-block;padding:4px 10px;border-radius:99px;background:#e9eff6;font-size:13px;margin:3px 4px 0 0}
 
-/* charts */
-.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;margin-top:8px}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
-.bar{height:10px;border-radius:6px;background:#e8ebf3;overflow:hidden;margin-top:6px}
-.bar>div{height:100%;border-radius:6px}
+/* segmented */
+.segbar{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.segbar::-webkit-scrollbar{display:none}
+.segbar button{flex:1;min-width:max-content;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:14px}
+.segbar button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 
-.carry{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);margin:-4px 0 14px}
-.carry input{width:auto}
+/* avatar */
+.av{display:inline-flex;border-radius:50%;overflow:hidden;flex:none;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#13a39c,#2f6fed);color:#fff}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av.ph svg{width:56%;height:56%}
 
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
-  display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+  display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5;box-shadow:0 -4px 16px rgba(15,27,58,.06)}
 .nav .in{display:flex;max-width:560px;width:100%}
-.tab{flex:1;border:0;background:none;padding:12px 2px;font-size:12.5px;color:var(--mute);border-top:3px solid transparent}
-.tab.on{color:var(--ink);font-weight:700;border-top-color:var(--accent)}
-.badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:99px;background:var(--give);color:#fff;font-size:11px;line-height:18px;margin-left:3px}
-.fab{position:fixed;right:max(16px,calc(50% - 264px));bottom:78px;z-index:6;border:0;border-radius:99px;
-  background:var(--accent);color:#2b2208;font-weight:700;padding:14px 20px;box-shadow:0 6px 18px rgba(22,33,62,.28)}
+.tab{flex:1;border:0;background:none;padding:7px 2px 8px;font-size:11.5px;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px;justify-content:center}
+.tab .ic{display:flex;align-items:center;justify-content:center;padding:3px 16px;border-radius:14px;transition:background .2s,color .2s}
+.tab.on{color:var(--accent);font-weight:700}
+.tab.on .ic{background:#dff3f2}
+.tab:active .ic{transform:scale(.94)}
+.badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:99px;background:var(--give);color:#fff;font-size:11px;line-height:18px;margin-left:3px;font-weight:600}
+.fab{position:fixed;right:max(16px,calc(50% - 264px));bottom:82px;z-index:6;border:0;border-radius:99px;
+  background:var(--accent);color:#fff;font-weight:700;padding:14px 20px;box-shadow:0 6px 18px rgba(15,27,58,.3)}
+
+/* drawer */
+.dr-ov{position:fixed;inset:0;background:rgba(8,16,36,.55);z-index:40}
+.drawer{position:absolute;left:0;top:0;bottom:0;width:min(310px,86vw);background:var(--card);overflow:auto;padding-bottom:20px}
+.dr-head{background:linear-gradient(160deg,#0f1b3a,#173a63);color:#fff;padding:22px 16px 16px;display:flex;gap:12px;align-items:center}
+.dr-head .nm{font-weight:700;font-size:17px}
+.dr-head button.avb{background:none;border:0;padding:0;border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.35)}
+.dr-s{padding:14px 16px 4px;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.dr-i{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:12px 16px;border-left:4px solid transparent;color:var(--text)}
+.dr-i svg{color:var(--mute);flex:none}
+.dr-i.on{background:#e4f4f6;border-left-color:var(--accent);font-weight:700}
+.dr-i.on svg{color:var(--accent)}
+.dr-i .sp{flex:1}
+
+/* tables */
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+.tbl th{background:#eaf1f8;text-align:left;padding:9px 10px;font-weight:600;white-space:nowrap;cursor:pointer;user-select:none}
+.tbl td{padding:9px 10px;border-top:1px solid var(--line);vertical-align:top}
+.tbl td.n,.tbl th.n{text-align:right}
+.tbl tr.pend td{background:#fffaf0;color:var(--mute)}
+.tbl tfoot td{font-weight:700;background:#f4f8fc}
+.txc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;border-left:5px solid var(--get)}
+.txc.pend{border-left-color:#e0a21b;background:#fffaf0}
+.txc .big{font-size:19px;font-weight:700}
+
+
+/* excel jaisa grid */
+.xl{overflow:auto;max-height:68vh;border:1px solid var(--line);border-radius:12px;background:#fff;-webkit-overflow-scrolling:touch}
+.xlt{border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:100%}
+.xlt th,.xlt td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:7px 8px;min-width:74px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.xlt thead th{position:sticky;top:0;background:#e6eef7;z-index:2;text-align:center;max-width:96px;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.xlt .gd{position:sticky;left:0;background:#f1f6fb;z-index:1;text-align:left;min-width:64px;font-weight:600}
+.xlt thead .gd{z-index:3;background:#e6eef7}
+.xlt td.has{background:#e3f6f4;font-weight:700;color:var(--ink);cursor:pointer;position:relative}
+.xlt td.has::after{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 9px 9px 0;border-color:transparent #e5484d transparent transparent}
+.xlt td.tt,.xlt th.tt{background:#f1f6fb;font-weight:700}
+.xlt tr.tod .gd{background:#fff0c9}
+.xlt tr.tod td:not(.has){background:#fffaf0}
+.xlt tfoot td,.xlt tfoot th{position:sticky;bottom:0;background:#e6eef7;font-weight:700;z-index:2}
+.xlt tfoot .gd{z-index:3}
+/* charts */
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.bar{height:10px;border-radius:6px;background:#e6edf5;overflow:hidden;margin-top:6px}
+.bar>div{height:100%;border-radius:6px}
+.carry{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);margin:-4px 0 14px}
+.carry input{width:auto}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.stp{font-size:12px;padding:3px 9px;border-radius:99px;background:#e9eff6;color:var(--mute)}
+.stp.ok{background:#dff5ea;color:var(--get)}
+.stp.wait{background:#fff2d1;color:#7a5600}
+.stp.bad{background:#fbe3e7;color:var(--give)}
+
+/* status */
+.sring{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none}
+.sring::-webkit-scrollbar{display:none}
+.sitem{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:5px;width:68px;flex:none;padding:0;font-size:12px;color:var(--text)}
+.sitem span.nmx{max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ring{padding:3px;border-radius:50%;background:linear-gradient(135deg,#13a39c,#2f6fed);position:relative}
+.ring.seen{background:#c5cfdd}
+.ring.none{background:#e6edf5}
+.ring .av{border:2px solid #fff}
+.ring .plus{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid #fff;font-size:16px;line-height:1}
+.kbadge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#e9eff6;color:var(--ink2);flex:none}
+.kbadge.photo{background:#e2eefe;color:#2f6fed}
+.kbadge.video{background:#fde8f0;color:#c0306a}
+.kbadge.text{background:#e4f4f6;color:var(--accent)}
+.viewer{position:fixed;inset:0;background:#0a1226;z-index:60;display:flex;flex-direction:column;color:#fff}
+.viewer .vh{padding:12px 14px calc(8px);display:flex;flex-direction:column;gap:8px}
+.viewer .prog{display:flex;gap:4px}
+.viewer .prog i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.3)}
+.viewer .prog i.on{background:#fff}
+.viewer .vb{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.viewer .vb img,.viewer .vb video{max-width:100%;max-height:100%;object-fit:contain}
+.viewer .vtext{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:28px;text-align:center;font-size:24px;
+  background:linear-gradient(160deg,#13a39c,#2f6fed);word-break:break-word;white-space:pre-wrap}
+.viewer .vcap{padding:12px 16px calc(18px + env(safe-area-inset-bottom));text-align:center;min-height:56px}
+.viewer .nv{position:absolute;top:0;bottom:0;width:26%;background:none;border:0}
+.viewer .nv.l{left:0}.viewer .nv.r{right:0}
+.viewer .vclose{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:10px;padding:8px 12px}
+
+/* food */
+.food{border:2px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px;margin-bottom:12px}
+.food.today{border-color:var(--accent);background:linear-gradient(180deg,#eaf8f7,#fff)}
+.food.tomorrow{border-color:#9fb8e8;background:linear-gradient(180deg,#eff4fd,#fff)}
+.food h3{margin:0 0 4px;font-size:16px}
+.food .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent);color:#fff;margin-left:6px}
+.food.tomorrow .tag{background:#2f6fed}
+.meal{margin-top:10px}
+.meal b{font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.meal ul{margin:4px 0 0;padding-left:20px}
+.meal li{margin:2px 0}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal.head{margin-bottom:4px;text-align:center;font-size:12px;color:var(--mute)}
+.cal .c{min-height:60px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:4px;font-size:11px;
+  text-align:left;overflow:hidden;display:flex;flex-direction:column;gap:2px;line-height:1.15}
+.cal .c b{font-size:13px}
+.cal .c.today{outline:2px solid var(--accent)}
+.cal .c.sel{background:#e4f4f6}
+.cal .c.past{opacity:.6}
+.cal .c .dn{color:var(--ink2);word-break:break-word}
+.cal .c .more{color:var(--accent);font-weight:700}
+
+/* chat */
+.chatlist{padding-bottom:70px}
+.msg{display:flex;margin-bottom:8px}
+.msg.me{justify-content:flex-end}
+.bub{max-width:80%;background:#fff;border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:8px 12px;word-break:break-word;white-space:pre-wrap}
+.msg.me .bub{background:#dff3f2;border-color:#bfe6e3;border-radius:14px 14px 4px 14px}
+.bub .nm{font-size:12px;font-weight:700;color:var(--ink2)}
+.bub .tm{font-size:11px;color:var(--mute);text-align:right;margin-top:2px}
+.bub .tm a{margin-left:6px;color:var(--give)}
+.dsep{text-align:center;font-size:12px;color:var(--mute);margin:10px 0}
+.chatbar{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:6;display:flex;gap:8px;
+  padding:8px 12px;background:var(--paper);max-width:560px;margin:0 auto}
+.chatbar input{flex:1;min-width:0;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.ann.urgent{border-color:var(--give);background:#fff6f7}
+.ann .body{margin-top:6px;white-space:pre-wrap;word-break:break-word}
+.sw{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.sw:last-child{border-bottom:0}
+.sw input{width:20px;height:20px}
 
 /* modal */
-.ov{position:fixed;inset:0;background:rgba(10,15,30,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.ov{position:fixed;inset:0;background:rgba(8,16,36,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px}
 .sheet h3{margin:0 0 12px;font-size:19px}
 .f label{display:block;font-size:14px;color:var(--mute);margin:12px 0 5px}
-.f input,.f select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.f input,.f select,.f textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.f textarea{min-height:90px;resize:vertical}
 .chk{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .chk label{display:flex;align-items:center;gap:6px;margin:0;padding:7px 11px;border:1px solid var(--line);border-radius:99px;color:var(--text);font-size:14px}
 .chk input{width:auto}
 .seg{display:flex;gap:8px}
-.seg label{flex:1;display:flex;align-items:center;gap:6px;margin:0;padding:11px;border:1px solid var(--line);border-radius:12px;color:var(--text)}
+.seg label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;margin:0;padding:11px 6px;border:1px solid var(--line);border-radius:12px;color:var(--text)}
 .seg input{width:auto}
-.preview{width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-top:10px;background:#eef0f5}
-.hint{font-size:13px;color:var(--mute);margin-top:6px}
-.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:30;font-size:14px;max-width:90%;text-align:center}
+.preview{width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-top:10px;background:#e9eff6}
+.optbtn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#f4f8fc;border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:8px}
+.optbtn[disabled]{opacity:.45}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:70;font-size:14px;max-width:90%;text-align:center}
 .live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#5fe0ae;margin-right:6px}
 .live.off{background:#ff8fa1}
 
 @media print{
-  .nav,.fab,.top .icon-btn,.monthbar button,.noprint,.acts{display:none!important}
+  .nav,.fab,.top .icon-btn,.monthbar button,.noprint,.acts,.chatbar{display:none!important}
   body{background:#fff} .top{background:#fff;color:#000;border-bottom:2px solid #000;border-radius:0}
   .top .who,.balance .lbl{color:#444}
 }
-@media (prefers-reduced-motion:no-preference){.sheet{animation:up .2s ease-out}}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .2s ease-out}.drawer{animation:slide .2s ease-out}}
 @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes slide{from{transform:translateX(-100%)}to{transform:none}}
+
+/* ===== v6 polish: same layout, better look and graphics ===== */
+body{background:linear-gradient(180deg,#f3f7fc 0,#e7eff8 100%) fixed;letter-spacing:.005em}
+.login{position:relative;overflow:hidden;background:radial-gradient(circle at 88% 6%,rgba(19,163,156,.38),transparent 46%),radial-gradient(circle at 8% 92%,rgba(47,111,237,.38),transparent 52%),linear-gradient(160deg,#0f1b3a,#16365f)}
+.login::before,.login::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none}
+.login::before{width:240px;height:240px;right:-80px;top:120px}
+.login::after{width:160px;height:160px;left:-50px;bottom:140px}
+.login>*{position:relative;z-index:1}
+.lart{width:68px;height:68px;border-radius:22px;background:linear-gradient(135deg,#13a39c,#2f6fed);display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 12px 28px rgba(0,0,0,.35);color:#fff}
+.login input{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22)}
+.btn{background:linear-gradient(135deg,#1d3a78,#0f1b3a);box-shadow:0 3px 8px rgba(15,27,58,.25);transition:transform .12s ease,box-shadow .2s ease,filter .2s}
+.btn:active{transform:scale(.97);box-shadow:0 1px 3px rgba(15,27,58,.3)}
+.btn.gold{background:linear-gradient(135deg,#13a39c,#2f6fed);box-shadow:0 8px 20px rgba(19,163,156,.35)}
+.btn.ghost{background:#fff;box-shadow:none;color:var(--ink)}
+.top{position:relative;overflow:hidden;background:linear-gradient(160deg,#0f1b3a 0,#173a63 58%,#1a6a86 100%);box-shadow:0 10px 26px rgba(15,27,58,.22)}
+.top::before{content:"";position:absolute;right:-50px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(19,163,156,.6),transparent 70%)}
+.top::after{content:"";position:absolute;left:-40px;bottom:-70px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(47,111,237,.5),transparent 70%)}
+.top>*{position:relative;z-index:1}
+.icon-btn{background:rgba(255,255,255,.14);backdrop-filter:blur(4px);transition:background .2s}
+.balance{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:12px 14px}
+.balico{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#13a39c,#2f6fed);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(0,0,0,.28);color:#fff;flex:none}
+.wrap.enter{animation:fadeUp .32s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card,.stat>div,.txc,.food{box-shadow:0 2px 12px rgba(15,27,58,.07);border-radius:16px}
+.stat>div{border-top:3px solid var(--accent);background:linear-gradient(180deg,#fff,#f7fbfd)}
+.stat>div:nth-child(2){border-top-color:var(--accent2)}
+.stat .v{background:linear-gradient(135deg,#0f1b3a,#1b6a86);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{display:flex;align-items:center;gap:8px}
+h2::before{content:"";width:5px;height:18px;border-radius:3px;background:linear-gradient(180deg,#13a39c,#2f6fed);flex:none}
+.li,.pay{transition:background .15s}
+.li:active{background:#f1f7fb}
+.pill{font-weight:600}
+.empty::before{content:"";display:block;width:52px;height:52px;margin:0 auto 8px;opacity:.55;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2366728a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 13l3-8h12l3 8'/%3E%3Cpath d='M3 13v6h18v-6h-5l-1 2h-6l-1-2z'/%3E%3C/svg%3E") center/contain no-repeat}
+.segbar button{transition:background .2s,color .2s,box-shadow .2s;box-shadow:0 1px 3px rgba(15,27,58,.06)}
+.segbar button.on{background:linear-gradient(135deg,#13a39c,#2f6fed);border-color:transparent;box-shadow:0 6px 14px rgba(19,163,156,.3)}
+.nav{box-shadow:0 -6px 22px rgba(15,27,58,.1);border-top:0}
+.tab.on .ic{background:linear-gradient(135deg,#13a39c,#2f6fed);color:#fff;box-shadow:0 6px 14px rgba(19,163,156,.35);animation:pop .3s ease}
+@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.fab{background:linear-gradient(135deg,#13a39c,#2f6fed);box-shadow:0 10px 24px rgba(19,163,156,.45)}
+.dr-head{position:relative;overflow:hidden;background:linear-gradient(160deg,#0f1b3a,#173a63 60%,#1a6a86)}
+.dr-head::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(19,163,156,.55),transparent 70%)}
+.dr-head>*{position:relative;z-index:1}
+.dr-i{transition:background .15s}
+.dr-i.on{background:linear-gradient(90deg,#dff3f2,#fff)}
+.txc{border-left-width:5px;transition:transform .12s}
+.txc:active{transform:scale(.99)}
+.txc .big{color:var(--ink2)}
+.txc .ico,.ico{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#dff3f2,#e3ecfd);color:var(--accent);flex:none}
+.payb{width:100%;display:flex;align-items:center;gap:10px;justify-content:flex-start;margin-bottom:12px;padding:12px 14px;border:1px solid var(--line);box-shadow:0 2px 8px rgba(15,27,58,.06)}
+.payb svg{color:var(--accent)}
+.payb span{flex:1;text-align:left;font-weight:700}
+.payb i{font-style:normal;font-size:12px;color:var(--mute)}
+.xl{box-shadow:0 4px 16px rgba(15,27,58,.08)}
+.xlt thead th{background:linear-gradient(180deg,#e6eef7,#d9e6f4)}
+.toast{background:linear-gradient(135deg,#0f1b3a,#1d3a78);box-shadow:0 10px 24px rgba(15,27,58,.35)}
+/* pakwan: do badi pictures aur month table */
+.heroes{display:flex;flex-direction:column;gap:12px}
+.hero{position:relative;border-radius:22px;overflow:hidden;height:clamp(190px,calc((100vh - 335px) / 2),380px);height:clamp(190px,calc((100dvh - 335px) / 2),380px);background:linear-gradient(135deg,#13a39c,#2f6fed);box-shadow:0 12px 28px rgba(15,27,58,.2);color:#fff}
+.hphotos{position:absolute;inset:0;display:flex}
+.hphotos img{flex:1;min-width:0;height:100%;object-fit:cover}
+.hnone{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;opacity:.55;font-size:13px;padding-bottom:60px}
+.hshade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,36,.05) 30%,rgba(8,16,36,.8) 100%)}
+.hcap{position:absolute;left:0;right:0;bottom:0;padding:14px 16px}
+.hl{font-size:21px;font-weight:800;letter-spacing:-.01em;text-shadow:0 2px 8px rgba(0,0,0,.45)}
+.hd{font-size:13px;opacity:.92;margin-bottom:8px}
+.hdish{display:flex;flex-wrap:wrap;gap:6px}
+.hdish span{background:rgba(255,255,255,.22);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.32);padding:4px 12px;border-radius:99px;font-size:14px;font-weight:600}
+.hempty{font-size:14px;opacity:.92}
+.hoth{font-size:12.5px;opacity:.92;margin-top:6px}
+.hedit{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.92);color:var(--ink);border:0;border-radius:10px;padding:7px 12px;font-weight:700;z-index:2}
+.schw{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 4px 16px rgba(15,27,58,.08);max-height:70vh}
+.sch{width:100%;border-collapse:collapse;font-size:14px}
+.sch thead th{background:linear-gradient(180deg,#e6eef7,#d9e6f4);text-align:left;padding:10px;position:sticky;top:0;z-index:2}
+.sch td,.sch th{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.sch tbody th{text-align:left;font-weight:700;white-space:nowrap;background:#f6f9fc}
+.sch tr.tod td,.sch tr.tod th{background:#dff5f3}
+.sch tr.tom td,.sch tr.tom th{background:#e8effd}
+.sch tr.past{opacity:.62}
+.sch .tg{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;background:var(--accent);color:#fff;border-radius:99px;padding:1px 8px}
+.sch .tg.b{background:var(--accent2)}
+.dedit{margin-top:8px;padding:8px;border:1px solid var(--line);border-radius:12px;background:#fafcfe}
+.dthumb{width:46px;height:46px;border-radius:10px;object-fit:cover;flex:none}
+@media (prefers-reduced-motion:reduce){.wrap.enter,.tab.on .ic{animation:none}}
 </style>
 </head>
 <body>
@@ -135,38 +351,91 @@ h2{font-size:17px;margin:20px 0 10px}
 <script>
 /* ====== SETTINGS ====== */
 const SUPABASE_URL = 'https://zxoteqccatlddglcnjdl.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_BFD2Vrf9aU756NjACFVTrw_ll2se_gz';
+const SUPABASE_KEY = 'sb_publishable_BFD2Vrf9aU756NjACFVTrw_ll2se_gz';   // publishable key (public hoti hai)
 const DOMAIN = '@shahidsharing.com';
 const CURRENCY = 'KWD';
 const CATS = ['Khana','Grocery','Bijli/Paani','Gas','Saaman','Transport','Other'];
-const COLORS = ['#16213e','#e9b44c','#0e8a5f','#c8344b','#5b7cfa','#9b5de5','#f15bb5','#00a6a6'];
+const FOOD_CATS = ['Khana','Grocery'];
+const COLORS = ['#0f1b3a','#13a39c','#2f6fed','#c8344b','#e9b44c','#9b5de5','#f15bb5','#00a6a6'];
+const IMG_TYPES = ['image/jpeg','image/png','image/webp'];
+const VID_TYPES = ['video/mp4','video/webm','video/quicktime'];
 /* ====================== */
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = s => document.querySelector(s);
 const fmt = n => (Number(n) || 0).toFixed(3);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const p2 = n => String(n).padStart(2, '0');
+const todayStr = () => { const d = new Date(); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); };
+const plusDays = (s, n) => { const [y, m, d] = s.split('-').map(Number); const x = new Date(y, m - 1, d + n); return x.getFullYear() + '-' + p2(x.getMonth() + 1) + '-' + p2(x.getDate()); };
+const dow = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
+const weekStart = s => plusDays(s, -dow(s));                    // week Sunday se shuru
+const WD = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const dayName = s => WD[dow(s)];
+const dmy = s => s.slice(8) + '/' + s.slice(5, 7);
+const ftime = iso => new Date(iso).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+const fdt = iso => { const d = new Date(iso); return p2(d.getDate()) + '/' + p2(d.getMonth() + 1) + ' ' + ftime(iso); };
+const fday = iso => { const d = new Date(iso); return p2(d.getDate()) + '/' + p2(d.getMonth() + 1) + '/' + d.getFullYear(); };
+const after = (a, b) => !b || new Date(a) > new Date(b);
+const errMsg = e => (e && e.message) ? e.message : 'Kuch gadbad hui';
+function range(m){ const [y, mo] = m.split('-').map(Number); const last = new Date(y, mo, 0).getDate(); return [m + '-01', m + '-' + p2(last)]; }
+function addMonths(m, n){ const [y, mo] = m.split('-').map(Number); const d = new Date(y, mo - 1 + n, 1); return d.getFullYear() + '-' + p2(d.getMonth() + 1); }
+function monthDates(m){ const [a, b] = range(m); const out = []; for (let d = a; d <= b; d = plusDays(d, 1)) out.push(d); return out; }
+function toast(msg){ const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3400); }
+const loadImg = file => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Photo khul nahi paayi')); i.src = URL.createObjectURL(file); });
+const hasType = (f, types, exts) => types.includes(f.type) || (!f.type && exts.test(f.name || ''));
+
+/* ---------- ICONS (ek jaisa style) ---------- */
+const IC = {
+ home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ wallet:'<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14" r="1"/>',
+ coins:'<circle cx="12" cy="12" r="9"/><path d="M8 16l8-8M9 8h7v7"/>',
+ receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+ grid:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+ status:'<circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="4"/>',
+ chat:'<path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12z"/>',
+ mega:'<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/>',
+ backup:'<path d="M7 18a4 4 0 0 1-.5-7.9A6 6 0 0 1 18 9a4.5 4.5 0 0 1 0 9z"/><path d="M12 16v-5M9.5 13l2.5-2.5 2.5 2.5"/>',
+ rent:'<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/>',
+ food:'<path d="M7 3v8a2 2 0 0 0 2 2v8"/><path d="M5 3v6M9 3v6"/><path d="M17 3c-2 2-3 5-3 8h3v10"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c3 0 4.5 1.8 4.5 4.5"/>',
+ key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',
+ chart:'<path d="M4 20V4"/><path d="M4 20h16"/><rect x="8" y="12" width="3" height="5"/><rect x="13" y="8" width="3" height="9"/>',
+ camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+ video:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/>',
+ text:'<path d="M5 6h14M12 6v13M9 19h6"/>'
+};
+const ic = (n, s = 22) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n] || ''}</svg>`;
+
+/* ---------- STATE ---------- */
 const S = { me:null, members:[], expenses:[], summary:[], xfers:[], reqs:[], cat:[], phones:{}, locks:new Set(),
-  lastPend:null, carry:false, tab:'home', month:new Date().toISOString().slice(0,7), live:false };
+  ledger:[], statuses:[], chat:[], anns:[], rentDues:[], rentPays:[], food:[], meals:['Dinner'], backups:[], actlog:[],
+  prefs:{ announcements_on:true, chat_on:true, ann_seen_at:null, chat_seen_at:null },
+  knownAnn:null, lastPend:null, carry:false, tab:'home', month:todayStr().slice(0, 7), live:false,
+  hv:lsGet('ss_hv') === 'list' ? 'list' : 'table', hSort:{ k:'day', d:-1 }, hCat:'',
+  fView:'today', fDate:todayStr(), fMonth:todayStr().slice(0, 7), fWeek:weekStart(todayStr()),
+  chatDraft:'', chatFocus:false, pwq:'', dishPhotos:{}, fTab:'home', showPay:false, _enter:false, foodFrom:'', foodTo:'' };
 let channel = null;
 
+const isAdmin = () => !!S.me && S.me.role === 'admin';
+const nameOf = id => (S.members.find(m => m.id === id) || { name:'(hata hua)' }).name;
+const memberOf = id => S.members.find(m => m.id === id);
 const advTxt = r => Number(r.advance || 0) ? ' · Advance ' + (Number(r.advance) > 0 ? '+' : '') + fmt(r.advance) : '';
-const isAdmin = () => S.me && S.me.role === 'admin';
-const nameOf = id => (S.members.find(m => m.id === id) || {name:'(hata hua)'}).name;
-const errMsg = e => (e && e.message) ? e.message : 'Kuch gadbad hui';
-function range(m){
-  const [y, mo] = m.split('-').map(Number);
-  const last = new Date(y, mo, 0).getDate();
-  return [m + '-01', m + '-' + String(last).padStart(2, '0')];
-}
-function addMonths(m, n){
-  const [y, mo] = m.split('-').map(Number);
-  const d = new Date(y, mo - 1 + n, 1);
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-}
-function toast(msg){
-  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
+const pendCount = () => S.reqs.filter(r => r.status === 'pending').length;
+const pendAnn = () => S.anns.filter(a => a.status === 'pending').length;
+const chatUnread = () => S.prefs.chat_on ? S.chat.filter(c => c.sender !== S.me.id && after(c.created_at, S.prefs.chat_seen_at)).length : 0;
+const annUnread = () => S.prefs.announcements_on ? S.anns.filter(a => a.status === 'approved' && a.author !== S.me.id && after(a.reviewed_at || a.created_at, S.prefs.ann_seen_at)).length : 0;
+
+/* ---------- AVATAR ---------- */
+const avUrl = m => (m && m.avatar_path) ? sb.storage.from('avatars').getPublicUrl(m.avatar_path).data.publicUrl : '';
+function av(m, size = 40){
+  const u = avUrl(m);
+  return u ? `<span class="av" style="width:${size}px;height:${size}px"><img src="${esc(u)}" alt="" loading="lazy"></span>`
+           : `<span class="av ph" style="width:${size}px;height:${size}px">${ic('user', Math.round(size * .56))}</span>`;
 }
 
 /* ---------- AUTH ---------- */
@@ -174,6 +443,7 @@ function showLogin(msg){
   if (channel){ sb.removeChannel(channel); channel = null; }
   $('#app').innerHTML = `
   <div class="login">
+    <div class="lart">${ic('wallet', 34)}</div>
     <h1>Shahid<br>Sharing</h1>
     <p>Share Expenses. Track Everything. Settle Easily.</p>
     <form id="lf">
@@ -195,7 +465,8 @@ function showLogin(msg){
     else boot();
   };
 }
-async function logout(){ await sb.auth.signOut(); S.me = null; S.lastPend = null; showLogin(); }
+async function logout(){ await sb.auth.signOut(); S.me = null; S.lastPend = null; S.knownAnn = null; closeDrawer(); showLogin(); }
+window.logout = logout;
 
 async function boot(){
   const { data:{ session } } = await sb.auth.getSession();
@@ -212,21 +483,40 @@ async function boot(){
 
 /* ---------- DATA ---------- */
 async function loadAll(){
-  const [from, to] = range(S.month);
-  const catFrom = addMonths(S.month, -5) + '-01';
+  const [from, to] = range(S.month), t0 = todayStr();
+  const fMo = range(S.fMonth), fwk = S.fWeek;
+  const fFrom = [fMo[0], fwk, plusDays(t0, -60)].sort()[0];
+  const fTo = [fMo[1], plusDays(fwk, 6), plusDays(t0, 60)].sort().pop();
+  S.foodFrom = fFrom; S.foodTo = fTo;
   const q = [
-    sb.from('profiles').select('*').order('name'),
+    sb.from('profiles').select('*').order('name'),                                                       // 0
     sb.from('expenses').select('*').gte('date', from).lte('date', to)
-      .order('date', {ascending:false}).order('created_at', {ascending:false}),
-    sb.rpc('get_summary', { p_from: S.carry ? '2000-01-01' : from, p_to: to }),
+      .order('date', {ascending:false}).order('created_at', {ascending:false}),                          // 1
+    sb.rpc('get_summary', { p_from: S.carry ? '2000-01-01' : from, p_to: to }),                         // 2
     sb.from('transfers').select('*').gte('date', from).lte('date', to)
-      .order('date', {ascending:false}).order('created_at', {ascending:false}),
-    sb.from('expense_requests').select('*').order('created_at', {ascending:false}).limit(100),
-    sb.from('month_locks').select('month'),
-    sb.rpc('get_category_totals', { p_from: catFrom, p_to: to })
+      .order('date', {ascending:false}).order('created_at', {ascending:false}),                          // 3
+    sb.from('expense_requests').select('*').order('created_at', {ascending:false}).limit(100),          // 4
+    sb.from('month_locks').select('month'),                                                              // 5
+    sb.rpc('get_category_totals', { p_from: addMonths(S.month, -5) + '-01', p_to: to }),                // 6
+    sb.rpc('get_ledger', { p_from: from, p_to: to }),                                                   // 7
+    sb.from('statuses').select('*').order('created_at', {ascending:false}).limit(200),                  // 8
+    sb.from('chat_messages').select('*').order('created_at', {ascending:false}).limit(100),             // 9
+    sb.from('announcements').select('*').order('created_at', {ascending:false}).limit(100),             // 10
+    sb.from('member_prefs').select('*').eq('member_id', S.me.id).maybeSingle(),                         // 11
+    sb.from('rent_dues').select('*').eq('month', S.month),                                               // 12
+    sb.from('rent_payments').select('*').eq('month', S.month).order('paid_on'),                          // 13
+    sb.from('food_menu').select('*').gte('menu_date', fFrom).lte('menu_date', fTo)
+      .order('menu_date').order('sort').limit(3000),                                                     // 14
+    sb.from('app_settings').select('*').eq('key', 'meals').maybeSingle(),                               // 15
+    sb.from('dish_photos').select('*')                                                                   // 16
   ];
-  if (isAdmin()) q.push(sb.from('member_phones').select('*'));
-  const [m, e, s, x, rq, lk, ct, ph] = await Promise.all(q);
+  if (isAdmin()){
+    q.push(sb.from('member_phones').select('*'));                                                        // 16
+    q.push(sb.from('backups').select('id,kind,created_at').order('created_at', {ascending:false}).limit(40)); // 17
+    q.push(sb.from('admin_activity_log').select('*').order('created_at', {ascending:false}).limit(150)); // 18
+  }
+  const R = await Promise.all(q);
+  const [m, e, s, x, rq, lk, ct, lg, st, ch, an, pf, rd, rp, fm, ms, dp, ph, bk, al] = R;
   if (m.data) S.members = m.data;
   if (e.data) S.expenses = e.data;
   if (s.data) S.summary = s.data;
@@ -234,14 +524,37 @@ async function loadAll(){
   if (rq.data) S.reqs = rq.data;
   if (lk.data) S.locks = new Set(lk.data.map(r => r.month));
   if (ct.data) S.cat = ct.data;
+  if (lg.data) S.ledger = lg.data;
+  if (st.data) S.statuses = st.data;
+  if (ch.data) S.chat = ch.data.slice().reverse();
+  if (an.data) S.anns = an.data;
+  if (pf && !pf.error) S.prefs = Object.assign({ announcements_on:true, chat_on:true, ann_seen_at:null, chat_seen_at:null }, pf.data || {});
+  if (rd.data) S.rentDues = rd.data;
+  if (rp.data) S.rentPays = rp.data;
+  if (fm.data) S.food = fm.data;
+  if (ms && ms.data && Array.isArray(ms.data.value) && ms.data.value.length) S.meals = ms.data.value;
+  if (dp && dp.data){ S.dishPhotos = {}; dp.data.forEach(d => S.dishPhotos[d.name_key] = d); }
   if (ph && ph.data){ S.phones = {}; ph.data.forEach(p => S.phones[p.member_id] = p.phone); }
+  if (bk && bk.data) S.backups = bk.data;
+  if (al && al.data) S.actlog = al.data;
   const mine = S.members.find(z => z.id === S.me.id);
   if (mine) S.me = mine;
   if (m.data && (!mine || !mine.active)) return logout();
-  if (!isAdmin() && S.tab === 'members') S.tab = 'home';
-  const pend = isAdmin() ? S.reqs.filter(r => r.status === 'pending').length : 0;
+
+  const pend = isAdmin() ? pendCount() : 0;
   if (isAdmin() && S.lastPend !== null && pend > S.lastPend) toast('Naya bill request aayi hai');
   S.lastPend = pend;
+  if (an.data){
+    const ids = new Set(an.data.map(a => a.id));
+    if (S.knownAnn){
+      an.data.filter(a => !S.knownAnn.has(a.id) && a.author !== S.me.id).forEach(a => {
+        if (a.status === 'pending' && isAdmin()) toast('Naya announcement check ke liye aaya');
+        else if (a.status === 'approved' && S.prefs.announcements_on) toast('Naya announcement: ' + a.title);
+      });
+    }
+    S.knownAnn = ids;
+  }
+  await purgeExpired();
   render();
 }
 
@@ -249,6 +562,7 @@ function subscribe(){
   if (channel) sb.removeChannel(channel);
   channel = sb.channel('shahid-sync')
     .on('postgres_changes', { event:'*', schema:'public', table:'sync_ping' }, () => loadAll())
+    .on('postgres_changes', { event:'*', schema:'public', table:'chat_messages' }, () => reloadChat())
     .subscribe(status => { S.live = status === 'SUBSCRIBED'; const d = $('#livedot'); if (d) d.className = 'live' + (S.live ? '' : ' off'); });
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.me) loadAll(); });
@@ -262,7 +576,7 @@ function transfers(){
     if (n <= -0.0005) give.push({ name:r.name, amt:-n });
     else if (n >= 0.0005) get.push({ name:r.name, amt:n });
   });
-  give.sort((a,b) => b.amt - a.amt); get.sort((a,b) => b.amt - a.amt);
+  give.sort((a, b) => b.amt - a.amt); get.sort((a, b) => b.amt - a.amt);
   const out = []; let i = 0, j = 0;
   while (i < give.length && j < get.length){
     const x = Math.min(give[i].amt, get[j].amt);
@@ -275,43 +589,94 @@ function transfers(){
 }
 
 /* ---------- RENDER ---------- */
-function pendCount(){ return S.reqs.filter(r => r.status === 'pending').length; }
+const PAGES = () => ({ home:vHome, kharcha:vExp, advance:vAdv, requests:vReq, more:vMore, chart:vChart, report:vReport,
+  profile:vProfile, status:vStatus, chat:vChat, notice:vNotice, backup:vBackup, rent:vRent, food:vFood,
+  members:vMem, pwreset:vPwReset, settings:vSettings });
+const ADMIN_PAGES = ['members','pwreset','backup'];
 
 function render(){
+  if (!isAdmin() && ADMIN_PAGES.includes(S.tab)) S.tab = 'home';
   const my = S.summary.find(r => r.member_id === S.me.id);
   const net = my ? Number(my.net) : 0;
   const cls = net > 0.0005 ? 'get' : net < -0.0005 ? 'give' : '';
   const lbl = net > 0.0005 ? 'Is mahine aapko milenge' : net < -0.0005 ? 'Is mahine aapko dene hain' : 'Is mahine hisaab barabar hai';
   const pc = isAdmin() ? pendCount() : 0;
-  const reqLbl = isAdmin() ? 'Requests' + (pc ? `<span class="badge">${pc}</span>` : '') : 'Bill bhejo';
-  const tabs = [['home','Hisaab'], ['kharcha', isAdmin() ? 'Kharcha' : 'Mera kharcha'], ['advance','Advance'], ['requests', reqLbl], ['more','Aur']];
-  const navOn = ['chart','report','members'].includes(S.tab) ? 'more' : S.tab;
-
+  const tabs = [
+    ['home', 'Hisaab', 'home', ''],
+    ['kharcha', isAdmin() ? 'Kharcha' : 'Mera kharcha', 'wallet', ''],
+    ['advance', 'Advance', 'coins', ''],
+    ['requests', isAdmin() ? 'Requests' : 'Bill bhejo', 'receipt', pc ? `<span class="badge">${pc}</span>` : ''],
+    ['more', 'Aur', 'grid', '']
+  ];
+  const navOn = ['chart', 'report'].includes(S.tab) ? 'more' : S.tab;
+  const enter = S._enter; S._enter = false;
+  const dotOn = chatUnread() + annUnread() + (isAdmin() ? pendAnn() : 0) > 0;
   $('#app').innerHTML = `
   <div class="top">
     <div class="row">
-      <div class="who"><span id="livedot" class="live${S.live ? '' : ' off'}"></span><b>${esc(S.me.name)}</b> ${isAdmin() ? '<span class="pill adm">Admin</span>' : ''}</div>
+      <div class="row" style="gap:10px;min-width:0"><button class="icon-btn" aria-label="Sidebar menu" onclick="openDrawer()">&#9776;${dotOn ? '<i class="dot"></i>' : ''}</button>
+        <div class="who"><span id="livedot" class="live${S.live ? '' : ' off'}"></span><b>${esc(S.me.name)}</b></div></div>
       <div><button class="icon-btn" onclick="changePass()">Password</button> <button class="icon-btn" onclick="logout()">Logout</button></div>
     </div>
-    <div class="balance ${cls}">
-      <div class="lbl">${lbl}</div>
-      <div class="amt num">${fmt(Math.abs(net))}<small>${CURRENCY}</small></div>
-    </div>
+    <div class="balance ${cls}"><div><div class="lbl">${lbl}</div>
+      <div class="amt num">${fmt(Math.abs(net))}<small>${CURRENCY}</small></div></div><div class="balico">${ic('wallet', 30)}</div></div>
   </div>
-  <div class="wrap" id="view"></div>
-  <nav class="nav"><div class="in">${tabs.map(t => `<button class="tab ${navOn === t[0] ? 'on' : ''}" onclick="go('${t[0]}')">${t[1]}</button>`).join('')}</div></nav>
-  ${isAdmin() && S.tab === 'kharcha' ? '<button class="fab" onclick="expForm()">+ Naya kharcha</button>' : ''}
-  ${isAdmin() && S.tab === 'advance' ? '<button class="fab" onclick="xForm()">+ Naya advance</button>' : ''}
-  ${!isAdmin() && S.tab === 'requests' ? '<button class="fab" onclick="reqForm()">+ Bill bhejo</button>' : ''}
-  ${isAdmin() && S.tab === 'members' ? '<button class="fab" onclick="memForm()">+ Naya member</button>' : ''}`;
-  ({ home:vHome, kharcha:vExp, advance:vAdv, requests:vReq, more:vMore, chart:vChart, report:vReport, members:vMem })[S.tab]();
+  <div class="wrap${enter ? ' enter' : ''}" id="view"></div>
+  <nav class="nav" aria-label="Neeche ka menu"><div class="in">${tabs.map(t => `<button class="tab ${navOn === t[0] ? 'on' : ''}" onclick="go('${t[0]}')"><span class="ic">${ic(t[2])}</span><span>${t[1]}${t[3]}</span></button>`).join('')}</div></nav>
+  ${fabHTML()}`;
+  PAGES()[S.tab]();
 }
-window.go = t => { S.tab = t; render(); window.scrollTo(0, 0); };
+function fabHTML(){
+  const a = isAdmin(), t = S.tab;
+  const b = (fn, l) => `<button class="fab" onclick="${fn}">${l}</button>`;
+  if (t === 'kharcha' && a) return b('expForm()', '+ Naya kharcha');
+  if (t === 'advance' && a) return b('xForm()', '+ Naya advance');
+  if (t === 'requests' && !a) return b('reqForm()', '+ Bill bhejo');
+  if (t === 'members' && a) return b('memForm()', '+ Naya member');
+  if (t === 'notice') return b('annForm()', '+ Announcement');
+  if (t === 'status') return b('statusForm()', '+ Status');
+  return '';
+}
+window.go = t => {
+  closeDrawer(); S.tab = t; S._enter = true; render(); window.scrollTo(0, 0);
+  if (t === 'chat') markSeen('chat');
+  if (t === 'notice') markSeen('ann');
+};
 
+/* ---------- SIDEBAR ---------- */
+window.closeDrawer = () => { const o = $('#dr'); if (o) o.remove(); };
+window.openDrawer = () => {
+  closeDrawer();
+  const cu = chatUnread(), au = annUnread(), pa = isAdmin() ? pendAnn() : 0;
+  const it = (t, icon, label, b) => `<button class="dr-i ${S.tab === t ? 'on' : ''}" onclick="go('${t}')">${ic(icon)}<span class="sp">${label}</span>${b ? `<span class="badge">${b}</span>` : ''}</button>`;
+  const o = document.createElement('div'); o.className = 'dr-ov'; o.id = 'dr';
+  o.innerHTML = `<div class="drawer" role="dialog" aria-label="Sidebar">
+    <div class="dr-head"><button class="avb" aria-label="Profile picture" onclick="closeDrawer();avatarSheet('${S.me.id}')">${av(S.me, 58)}</button>
+      <div style="min-width:0"><div class="nm">${esc(S.me.name)}</div><div class="s" style="color:#a9bbd6">${S.me.role === 'admin' ? 'Admin' : 'Member'} · ${esc(S.me.username)}</div></div></div>
+    <div class="dr-s">Meri jaankari</div>
+    ${it('profile', 'user', 'Profile')}
+    ${it('status', 'status', 'Status')}
+    <div class="dr-s">Room</div>
+    ${it('chat', 'chat', 'Group Messages', cu)}
+    ${it('notice', 'mega', 'Announcements', au + pa)}
+    ${it('rent', 'rent', 'Room Rent')}
+    ${it('food', 'food', 'Pakwan (Food Schedule)')}
+    ${isAdmin() ? `<div class="dr-s">Admin</div>
+      ${it('backup', 'backup', 'Backup &amp; Restore')}
+      ${it('members', 'users', 'Member Management')}
+      ${it('pwreset', 'key', 'Password Reset')}` : ''}
+    <div class="dr-s">Aur</div>
+    ${it('settings', 'chart', 'Reports &amp; Settings')}
+  </div>`;
+  o.addEventListener('click', e => { if (e.target === o) closeDrawer(); });
+  document.body.appendChild(o);
+};
+
+/* ---------- MONTH BAR ---------- */
 function monthBar(){
   const locked = S.locks.has(S.month);
   const showCarry = S.tab === 'home' || S.tab === 'report';
-  const lockBtn = isAdmin() && ['home','kharcha','advance'].includes(S.tab)
+  const lockBtn = isAdmin() && ['home', 'kharcha', 'advance'].includes(S.tab)
     ? `<button class="btn ghost sm" onclick="toggleLock()">${locked ? 'Unlock' : 'Lock'}</button>` : '';
   const carry = showCarry
     ? `<label class="carry noprint"><input type="checkbox" id="carry" ${S.carry ? 'checked' : ''} onchange="setCarry()"> Pichhle mahino ka baaki bhi jodo</label>` : '';
@@ -324,40 +689,180 @@ window.toggleLock = async () => {
   const locked = S.locks.has(S.month);
   const ok = confirm(locked ? S.month + ' ko UNLOCK karna hai? Phir kharche badal sakte hain.' : S.month + ' ko LOCK karna hai? Phir is mahine ka kharcha ya advance badal nahi sakega.');
   if (!ok) return;
-  const { error } = locked
-    ? await sb.from('month_locks').delete().eq('month', S.month)
-    : await sb.from('month_locks').insert({ month: S.month });
+  const { error } = locked ? await sb.from('month_locks').delete().eq('month', S.month) : await sb.from('month_locks').insert({ month: S.month });
   if (error) return toast(errMsg(error));
-  toast(locked ? 'Mahina unlock ho gaya' : 'Mahina lock ho gaya');
-  loadAll();
+  toast(locked ? 'Mahina unlock ho gaya' : 'Mahina lock ho gaya'); loadAll();
 };
-
 function totals(){
   const total = S.summary.reduce((a, r) => a + Number(r.paid), 0);
   const active = S.members.filter(m => m.active).length || 1;
   return { total, per: total / active, active };
 }
 
-/* ---------- HOME ---------- */
+/* ===================== HISAB (home) ===================== */
+/* Table View (Excel jaisa grid) aur List View dono ek hi records (baseRows) se bante hain */
+function baseRows(){
+  if (S.ledger.length) return S.ledger.map(r => ({ id:r.id, day:r.day, by:r.paid_by, byName:r.paid_by_name, desc:r.description || r.category, cat:r.category,
+    amount:Number(r.amount), np:r.participants, share:Number(r.my_share), byMe:!!r.is_mine }));
+  return S.expenses.map(e => ({ id:e.id, day:e.date, by:e.spender, byName:nameOf(e.spender), desc:e.description || e.category, cat:e.category,
+    amount:Number(e.amount), np:null, share:null, byMe:e.spender === S.me.id }));
+}
+function txRows(){
+  const [from, to] = range(S.month);
+  const rows = baseRows().map(r => Object.assign({}, r, { status:'Counted', pending:false }));
+  S.reqs.filter(r => r.status === 'pending' && r.date >= from && r.date <= to).forEach(r =>
+    rows.push({ id:'req:' + r.id, reqId:r.id, day:r.date, desc:r.description || r.category, cat:r.category, amount:Number(r.amount),
+      by:r.requester, byName:nameOf(r.requester), byMe:r.requester === S.me.id, share:null, np:null, status:'Pending', pending:true }));
+  return rows;
+}
+function txView(rows, cat, sort){
+  let out = cat ? rows.filter(r => r.cat === cat) : rows.slice();
+  const k = sort.k, d = sort.d;
+  out.sort((a, b) => {
+    let x = a[k], y = b[k];
+    if (x == null) x = -Infinity; if (y == null) y = -Infinity;
+    if (typeof x === 'string') return d * x.localeCompare(y);
+    return d * (x - y);
+  });
+  return out;
+}
+function txTotals(rows){
+  const c = rows.filter(r => !r.pending);
+  return { n:c.length, total:c.reduce((a, r) => a + r.amount, 0), share:c.reduce((a, r) => a + (r.share || 0), 0),
+    pendN:rows.length - c.length, pend:rows.filter(r => r.pending).reduce((a, r) => a + r.amount, 0) };
+}
+const gridRows = () => baseRows();
+function gridModel(rows, month){
+  const dates = monthDates(month), spent = new Set(rows.map(r => r.by));
+  const cols = S.members.filter(m => m.active || spent.has(m.id)).sort((a, b) => a.name.localeCompare(b.name));
+  const cell = {}, colTot = {}, rowTot = {}; let grand = 0;
+  rows.forEach(r => {
+    const k = r.day + '|' + r.by; (cell[k] = cell[k] || []).push(r);
+    colTot[r.by] = (colTot[r.by] || 0) + r.amount; rowTot[r.day] = (rowTot[r.day] || 0) + r.amount; grand += r.amount;
+  });
+  return { dates, cols, cell, colTot, rowTot, grand };
+}
+function gridHTML(rows){
+  const G = gridModel(rows, S.month), t0 = todayStr();
+  const sum = (d, id) => (G.cell[d + '|' + id] || []).reduce((a, r) => a + r.amount, 0);
+  return `<div class="xl"><table class="xlt"><thead><tr><th class="gd corner">Date</th>${G.cols.map(m => `<th title="${esc(m.name)}">${esc(m.name)}</th>`).join('')}<th class="tt">Din ka total</th></tr></thead><tbody>
+  ${G.dates.map(d => `<tr class="${d === t0 ? 'tod' : ''}"><th class="gd"><b>${d.slice(8)}</b> <span class="s">${dayName(d).slice(0, 3)}</span></th>
+    ${G.cols.map(m => (G.cell[d + '|' + m.id] ? `<td class="has" onclick="cellInfo('${d}','${m.id}')">${fmt(sum(d, m.id))}</td>` : '<td></td>')).join('')}
+    <td class="tt">${G.rowTot[d] ? fmt(G.rowTot[d]) : ''}</td></tr>`).join('')}</tbody>
+  <tfoot><tr><th class="gd">Total</th>${G.cols.map(m => `<td>${G.colTot[m.id] ? fmt(G.colTot[m.id]) : ''}</td>`).join('')}<td class="tt">${fmt(G.grand)}</td></tr></tfoot></table></div>`;
+}
+window.cellInfo = (d, id) => {
+  const l = gridRows().filter(r => r.day === d && r.by === id); if (!l.length) return;
+  const tot = l.reduce((a, r) => a + r.amount, 0);
+  modal(`<h3>${dayName(d)} ${dmy(d)} · ${esc(nameOf(id))}</h3>
+  <div class="card">${l.map(r => `<div class="li" style="display:block"><div class="row"><div class="t">${esc(r.desc)}</div><b class="num">${fmt(r.amount)}</b></div>
+    <div class="s">Kya kharida: <b>${esc(r.desc)}</b></div><div class="s">Kisne kharida: <b>${esc(r.byName)}</b>${r.np ? ' · ' + r.np + ' members me baanta' : ''}</div>
+    ${isAdmin() ? `<div class="acts"><button class="btn ghost sm" onclick="closeModal();expForm('${r.id}')">Edit</button></div>` : ''}</div>`).join('')}</div>
+  ${l.length > 1 ? `<div class="s" style="margin-top:8px">Us din ka total: <b class="num">${fmt(tot)} ${CURRENCY}</b></div>` : ''}
+  <div class="row" style="margin-top:14px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>`);
+};
+window.gridCsv = () => {
+  const rows = gridRows(), G = gridModel(rows, S.month), q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const sum = (d, id) => (G.cell[d + '|' + id] || []).reduce((a, r) => a + r.amount, 0);
+  let out = ['Date'].concat(G.cols.map(m => q(m.name)), ['Din ka total']).join(',') + '\n';
+  out += G.dates.map(d => [d].concat(G.cols.map(m => G.cell[d + '|' + m.id] ? fmt(sum(d, m.id)) : ''), [G.rowTot[d] ? fmt(G.rowTot[d]) : '']).join(',')).join('\n');
+  out += '\nTotal,' + G.cols.map(m => G.colTot[m.id] ? fmt(G.colTot[m.id]) : '').join(',') + ',' + fmt(G.grand);
+  out += '\n\nDate,Kisne kharida,Kya kharida,Raqam\n' + rows.slice().sort((a, b) => a.day.localeCompare(b.day)).map(r => [r.day, q(r.byName), q(r.desc), fmt(r.amount)].join(',')).join('\n');
+  downloadBlob(new Blob(['\ufeff' + out], { type:'text/csv;charset=utf-8' }), 'hisaab-table-' + S.month + '.csv');
+};
+window.setHV = v => { S.hv = v; lsSet('ss_hv', v); render(); };
+window.setHSort = v => { const [k, d] = v.split(':'); S.hSort = { k, d:Number(d) }; render(); };
+window.togglePay = () => { S.showPay = !S.showPay; render(); };
+function payCard(){
+  const tr = transfers();
+  return `<div class="card" style="margin-bottom:12px">${tr.length ? tr.map(x => `<div class="pay"><b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> <span class="num give" style="float:right"><b>${fmt(x.amt)} ${CURRENCY}</b></span></div>`).join('') : '<div class="empty">Koi lena-dena baaki nahi.</div>'}</div>`;
+}
+function membersCard(){
+  return `<h2 style="margin-top:6px">Sab members ka hisaab</h2><div class="card" style="margin-bottom:12px">${S.summary.length ? S.summary.map(r => {
+    const n = Number(r.net);
+    return `<div class="li"><div><div class="t">${esc(r.name)}</div><div class="s num">Diya ${fmt(r.paid)} · Hissa ${fmt(r.share)}${advTxt(r)}</div></div>
+    <div class="r num ${n > 0.0005 ? 'get' : n < -0.0005 ? 'give' : ''}"><b>${n > 0.0005 ? '+' : n < -0.0005 ? '-' : ''}${fmt(Math.abs(n))}</b><div class="s">${n > 0.0005 ? 'milenge' : n < -0.0005 ? 'dene hain' : 'barabar'}</div></div></div>`;
+  }).join('') : '<div class="empty">Is mahine abhi koi kharcha nahi hai.</div>'}</div>`;
+}
+function txBlock(){
+  const all = txRows();
+  const sw = `<div class="segbar noprint"><button class="${S.hv === 'table' ? 'on' : ''}" onclick="setHV('table')">Table View</button><button class="${S.hv === 'list' ? 'on' : ''}" onclick="setHV('list')">List View</button></div>`;
+  const payBtn = `<button class="btn ghost payb noprint" onclick="togglePay()">${ic('coins', 18)}<span>Kisko kisko dena hai</span><i>${S.showPay ? '&#9650;' : '&#9660;'}</i></button>${S.showPay ? payCard() : ''}`;
+  let body;
+  if (S.hv === 'table'){
+    const rows = gridRows(), n = rows.length, total = rows.reduce((a, r) => a + r.amount, 0), pend = all.filter(r => r.pending);
+    body = `<div class="s" style="margin:0 0 8px">${n} kharche · Total <b class="num">${fmt(total)}</b> ${CURRENCY}${pend.length ? ` · <span style="color:#7a5600">${pend.length} bill pending, abhi table me nahi</span>` : ''}</div>
+      ${n ? '' : '<div class="s" style="margin:0 0 8px">Is mahine abhi koi kharcha nahi hai, isliye cells khali hain.</div>'}${gridHTML(rows)}
+      <div class="hint">Jis cell me lal kona hai us par tap karo: kya kharida aur kisne kharida dikhega.</div>
+      <div class="acts noprint"><button class="btn ghost sm" onclick="gridCsv()">Excel (CSV) me download</button></div>`;
+  } else {
+    const rows = txView(all, '', S.hSort), T = txTotals(rows);
+    const sortOpts = [['day:-1', 'Nayi tareekh pehle'], ['day:1', 'Purani tareekh pehle'], ['amount:-1', 'Badi raqam pehle'], ['amount:1', 'Chhoti raqam pehle']];
+    body = `${membersCard()}
+      <div class="monthbar noprint"><select onchange="setHSort(this.value)" aria-label="Sort" style="flex:1;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff">${sortOpts.map(([v, l]) => `<option value="${v}" ${S.hSort.k + ':' + S.hSort.d === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      <div class="s" style="margin:0 0 8px">${T.n} kharche · Total <b class="num">${fmt(T.total)}</b> · Aapka hissa <b class="num">${fmt(T.share)}</b> ${CURRENCY}${T.pendN ? ` · <span style="color:#7a5600">${T.pendN} bill pending (${fmt(T.pend)}), abhi hisaab me nahi</span>` : ''}</div>
+      ${rows.length ? rows.map(r => `<div class="txc ${r.pending ? 'pend' : ''}" onclick="txDetail('${r.id}')"><div class="row"><div class="row" style="justify-content:flex-start;gap:10px;min-width:0"><span class="ico">${ic('receipt', 18)}</span><div style="min-width:0"><div class="t" style="font-weight:600">${esc(r.desc)}</div>
+        <div class="s">${r.day} · ${dayName(r.day)}</div></div></div><div class="big num">${fmt(r.amount)}</div></div>
+        <div class="row" style="margin-top:6px"><div class="s">Paid by: <b>${esc(r.byName)}</b>${r.share == null ? '' : ' · Aapka hissa: <b class="num">' + fmt(r.share) + '</b>'}</div>
+        ${r.pending ? '<span class="pill warn">Pending</span>' : '<span class="pill ok">Counted</span>'}</div></div>`).join('') : '<div class="card"><div class="empty">Is mahine koi kharcha nahi mila.</div></div>'}`;
+  }
+  return sw + payBtn + body;
+}
+window.txDetail = id => {
+  const r = txRows().find(x => x.id === id); if (!r) return;
+  const per = r.np ? r.amount / Math.max(r.np, 1) : null;
+  modal(`<h3>${esc(r.desc)}</h3>
+  <div class="card"><div class="li"><span>Date</span><b>${r.day}</b></div>
+  <div class="li"><span>Total amount</span><b class="num">${fmt(r.amount)} ${CURRENCY}</b></div><div class="li"><span>Paid by</span><b>${esc(r.byName)}</b></div>
+  ${r.pending ? '<div class="li"><span>Status</span><span class="pill warn">Pending approval, abhi hisaab me nahi</span></div>'
+   : `<div class="li"><span>Kitne members me baanta</span><b>${r.np}</b></div><div class="li"><span>Per member</span><b class="num">${fmt(per)}</b></div>
+      <div class="li"><span>Aapka hissa</span><b class="num">${fmt(r.share)}</b></div><div class="li"><span>Status</span><span class="pill ok">Counted</span></div>`}</div>
+  <div class="row" style="margin-top:14px">${r.pending ? `<button class="btn ghost" onclick="closeModal();go('requests')">Bill request kholo</button>` : (isAdmin() ? `<button class="btn ghost" onclick="closeModal();expForm('${r.id}')">Edit</button>` : '<span></span>')}<button class="btn" onclick="closeModal()">Band karo</button></div>`);
+};
+
+/* Hisab ka breakdown: food / other / rent alag alag, kuch double nahi */
+function rentRows(){
+  const ids = new Set(isAdmin() ? S.members.filter(m => m.active).map(m => m.id) : [S.me.id]);
+  S.rentDues.forEach(d => ids.add(d.member_id));
+  return [...ids].map(id => memberOf(id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name)).map(m => {
+    const d = S.rentDues.find(x => x.member_id === m.id && x.month === S.month);
+    const due = d ? Number(d.amount) + Number(d.adjustment || 0) : 0;
+    const paid = S.rentPays.filter(p => p.member_id === m.id && p.month === S.month).reduce((a, p) => a + Number(p.amount), 0);
+    return { m, d, due, paid, rem:Math.max(0, due - paid), extra:Math.max(0, paid - due), status:d ? rentStatus(due, paid) : 'Set nahi' };
+  });
+}
+function rentStatus(due, paid){
+  if (due <= 0.0005) return 'Paid';
+  if (paid >= due - 0.0005) return 'Paid';
+  return paid > 0.0005 ? 'Partially Paid' : 'Pending';
+}
+function breakdownCard(){
+  const sumCat = f => S.cat.filter(r => r.month === S.month && f(r.category)).reduce((a, r) => a + Number(r.total), 0);
+  const food = sumCat(c => FOOD_CATS.includes(c)), other = sumCat(c => !FOOD_CATS.includes(c));
+  const rr = rentRows().filter(r => r.d), due = rr.reduce((a, r) => a + r.due, 0), recv = S.rentPays.reduce((a, p) => a + Number(p.amount), 0), rem = rr.reduce((a, r) => a + r.rem, 0);
+  const owe = isAdmin() ? S.summary.reduce((a, r) => a + Math.max(0, -Number(r.net)), 0) : Math.max(0, -Number((S.summary.find(r => r.member_id === S.me.id) || {}).net || 0));
+  const row = (l, v, cls) => `<div class="li"><span>${l}</span><b class="num ${cls || ''}">${fmt(v)}</b></div>`;
+  return `<h2>Hisaab ka breakdown (${S.month})</h2><div class="card">
+    ${row('Food expenses (Khana + Grocery)', food)}${row('Other room expenses', other)}
+    ${row(isAdmin() ? 'Room rent (sab members)' : 'Aapka room rent', due)}${row('Rent ki payments received', recv, 'get')}
+    ${row('Rent baaki', rem, rem > 0 ? 'give' : '')}${row('Kharche me dene baaki', owe, owe > 0 ? 'give' : '')}
+    ${row('Total outstanding (rent + kharcha)', rem + owe, rem + owe > 0 ? 'give' : '')}</div>
+  <p class="hint">Rent alag ledger hai (Room Rent). Wo kharche ke hisaab me dobara nahi judta.</p>`;
+}
+
 function vHome(){
-  const t = totals(), tr = transfers();
-  $('#view').innerHTML = `
-  ${monthBar()}
+  const t = totals();
+  const bkBanner = isAdmin() && bkDue() ? `<div class="lockpill noprint">Backup lene ka time ho gaya. <a href="#" onclick="doBackupDownload();return false" style="color:inherit;font-weight:700">Abhi lo</a></div>` : '';
+  $('#view').innerHTML = `${monthBar()}${bkBanner}
   <div class="stat">
     <div><div class="k">${S.carry ? 'Total (shuru se)' : 'Total kharcha'}</div><div class="v num">${fmt(t.total)}</div></div>
     <div><div class="k">Per member (${t.active})</div><div class="v num">${fmt(t.per)}</div></div>
   </div>
-  <h2>Sab members ka hisaab</h2>
-  <div class="card">${S.summary.length ? S.summary.map(r => {
-    const n = Number(r.net);
-    return `<div class="li"><div><div class="t">${esc(r.name)}</div><div class="s num">Diya ${fmt(r.paid)} · Hissa ${fmt(r.share)}${advTxt(r)}</div></div>
-    <div class="r num ${n > 0.0005 ? 'get' : n < -0.0005 ? 'give' : ''}"><b>${n > 0.0005 ? '+' : n < -0.0005 ? '-' : ''}${fmt(Math.abs(n))}</b><div class="s">${n > 0.0005 ? 'milenge' : n < -0.0005 ? 'dene hain' : 'barabar'}</div></div></div>`;
-  }).join('') : '<div class="empty">Is mahine abhi koi kharcha nahi hai.</div>'}</div>
-  <h2>Kisko kisko dena hai</h2>
-  <div class="card">${tr.length ? tr.map(x => `<div class="pay"><b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> <span class="num give" style="float:right"><b>${fmt(x.amt)} ${CURRENCY}</b></span></div>`).join('') : '<div class="empty">Koi lena-dena baaki nahi.</div>'}</div>`;
+  <h2 style="margin-top:6px">Kharche (Transactions)</h2>
+  ${txBlock()}`;
 }
 
-/* ---------- EXPENSES ---------- */
+/* ---------- KHARCHA ---------- */
 function expRow(e, withActs){
   const sp = e.split_members ? e.split_members.length + ' members me' : 'Sab me barabar';
   const bill = e.bill_path ? `<button class="btn ghost sm" onclick="viewBill('${e.bill_path}')">Bill dekho</button>` : '';
@@ -389,39 +894,70 @@ function vAdv(){
   <div class="card">${S.xfers.length ? S.xfers.map(t => xRow(t, isAdmin())).join('') : '<div class="empty">Is mahine koi advance ya payment nahi hai.</div>'}</div>`;
 }
 
-/* ---------- BILL VIEW ---------- */
+/* ---------- BILL BHEJO / REQUESTS ---------- */
 window.viewBill = async path => {
   const { data, error } = await sb.storage.from('bills').createSignedUrl(path, 300);
   if (error || !data) return toast('Bill khul nahi paya');
   modal(`<h3>Bill</h3><img class="preview" style="max-height:none" src="${data.signedUrl}" alt="Bill ki photo">
   <div class="row" style="margin-top:14px"><a class="btn ghost" href="${data.signedUrl}" target="_blank" rel="noopener">Poora dekho</a><button class="btn" onclick="closeModal()">Band karo</button></div>`);
 };
-
-/* ---------- BILL REQUESTS ---------- */
+/* Automated validation: sirf photo ki quality jaanch (browser me). Bill sahi hai ya nahi, ye approval se tay hota hai. */
+async function autoCheck(file){
+  const res = { ok:true, fail:[], warnings:[], at:new Date().toISOString() };
+  if (!hasType(file, IMG_TYPES, /\.(jpe?g|png|webp)$/i)) res.fail.push('Sirf JPG, PNG ya WebP photo chalegi');
+  if (file.size > 12 * 1024 * 1024) res.fail.push('Photo 12 MB se badi hai');
+  if (!res.fail.length){
+    try {
+      const img = await loadImg(file); res.w = img.width; res.h = img.height;
+      if (Math.min(img.width, img.height) < 600) res.fail.push('Photo ka size bahut chhota hai (kam se kam 600 pixel chahiye)');
+      const sc = Math.min(1, 320 / Math.max(img.width, img.height)), w = Math.max(16, Math.round(img.width * sc)), h = Math.max(16, Math.round(img.height * sc));
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const cx = c.getContext('2d'); cx.drawImage(img, 0, 0, w, h);
+      const px = cx.getImageData(0, 0, w, h).data, g = new Float32Array(w * h); let mean = 0;
+      for (let i = 0; i < w * h; i++){ g[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]; mean += g[i]; }
+      mean /= w * h; let s = 0, s2 = 0, n = 0;
+      for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++){
+        const l = 4 * g[y * w + x] - g[y * w + x - 1] - g[y * w + x + 1] - g[(y - 1) * w + x] - g[(y + 1) * w + x]; s += l; s2 += l * l; n++; }
+      const blur = n ? (s2 / n - (s / n) * (s / n)) : 0;
+      res.blur = Math.round(blur); res.brightness = Math.round(mean);
+      if (blur < 25) res.warnings.push('Photo dhundhli lag rahi hai');
+      if (mean < 45) res.warnings.push('Photo bahut andheri hai');
+      if (mean > 235) res.warnings.push('Photo me bahut zyada roshni hai');
+    } catch (e) { res.fail.push(errMsg(e)); }
+  }
+  res.ok = !res.fail.length;
+  return res;
+}
+function stepsHTML(r){
+  const ac = r.auto_check, a = !ac ? '<span class="stp">1 Auto-check: record nahi</span>'
+    : (!ac.ok ? '<span class="stp bad">1 Auto-check: fail</span>' : ((ac.warnings || []).length ? '<span class="stp wait">1 Auto-check: chetavni</span>' : '<span class="stp ok">1 Auto-check: photo theek</span>'));
+  const v = r.status === 'pending' ? '<span class="stp wait">2 Verification: pending</span>' : r.status === 'approved' ? '<span class="stp ok">2 Verified</span>' : '<span class="stp bad">2 Reject hua</span>';
+  const f = r.status === 'approved' ? '<span class="stp ok">3 Hisaab me judh gaya</span>' : '<span class="stp">3 Hisaab me nahi judega</span>';
+  return `<div class="steps">${a}${v}${f}</div>` + (ac && (ac.warnings || []).length ? `<div class="s" style="color:#7a5600">${ac.warnings.map(esc).join(' · ')}</div>` : '');
+}
 function reqCard(r, adminView){
   const st = r.status === 'pending' ? '<span class="pill">Pending</span>' : r.status === 'approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill off">Rejected</span>';
   return `<div class="li" style="display:block"><div class="row"><div>
     <div class="t">${adminView ? esc(nameOf(r.requester)) + ' · ' : ''}${esc(r.description || r.category)}</div>
     <div class="s">${esc(r.category)} · ${r.date} · ${st}</div>
     ${r.status === 'rejected' && r.admin_note ? `<div class="s give">Wajah: ${esc(r.admin_note)}</div>` : ''}</div>
-    <div class="r num"><b>${fmt(r.amount)}</b></div></div>
+    <div class="r num"><b>${fmt(r.amount)}</b></div></div>${stepsHTML(r)}
     <div class="acts"><button class="btn ghost sm" onclick="viewBill('${r.bill_path}')">Bill dekho</button>
     ${adminView && r.status === 'pending' ? `<button class="btn sm" onclick="approveReq('${r.id}')">Approve</button><button class="btn ghost sm give" onclick="rejectReq('${r.id}')">Reject</button>` : ''}
     ${!adminView && r.status === 'pending' ? `<button class="btn ghost sm give" onclick="delReq('${r.id}')">Wapas lo</button>` : ''}</div></div>`;
 }
 function vReq(){
-  const pend = S.reqs.filter(r => r.status === 'pending');
-  const done = S.reqs.filter(r => r.status !== 'pending');
+  const pend = S.reqs.filter(r => r.status === 'pending'), done = S.reqs.filter(r => r.status !== 'pending');
   if (isAdmin()){
-    $('#view').innerHTML = `<h2 style="margin-top:4px">Check karne wale bill (${pend.length})</h2>
+    $('#view').innerHTML = `<h2 style="margin-top:0">Check karne wale bill (${pend.length})</h2>
     <div class="card">${pend.length ? pend.map(r => reqCard(r, true)).join('') : '<div class="empty">Koi naya bill request nahi hai.</div>'}</div>
     <h2>Purani requests</h2>
     <div class="card">${done.length ? done.map(r => reqCard(r, true)).join('') : '<div class="empty">Abhi koi nahi.</div>'}</div>
-    <p class="hint">Approve karne par kharcha apne aap add ho jata hai (sab members me barabar baant kar). Amount galat ho to Reject karke wajah likho.</p>`;
+    <p class="hint">Approve karne par kharcha apne aap add ho jata hai (sab members me barabar). Amount galat ho to Reject karke wajah likho. Auto-check sirf photo ki quality dekhta hai, bill ki sachchai nahi.</p>`;
   } else {
-    $('#view').innerHTML = `<h2 style="margin-top:4px">Aapke bheje hue bill</h2>
-    <div class="card">${S.reqs.length ? S.reqs.map(r => reqCard(r, false)).join('') : '<div class="empty">Abhi koi bill nahi bheja. Neeche "+ Bill bhejo" dabao.</div>'}</div>
-    <p class="hint">Bill ki photo saaf aur poori dikhni chahiye. Admin check karke approve karega, tab kharcha hisaab me judega.</p>`;
+    $('#view').innerHTML = `<div class="info">Bill ki photo saaf aur poori dikhni chahiye. System check karke approve karega, tab kharcha hisaab me judega.</div>
+    <h2 style="margin-top:0">Aapke bheje hue bill</h2>
+    <div class="card">${S.reqs.length ? S.reqs.map(r => reqCard(r, false)).join('') : '<div class="empty">Abhi koi bill nahi bheja. Neeche "+ Bill bhejo" dabao.</div>'}</div>`;
   }
 }
 window.approveReq = async id => {
@@ -431,8 +967,7 @@ window.approveReq = async id => {
   toast('Approve ho gaya, kharcha add ho gaya'); loadAll();
 };
 window.rejectReq = async id => {
-  const why = prompt('Reject karne ki wajah (member ko dikhegi):', 'Bill saaf nahi hai');
-  if (why === null) return;
+  const why = prompt('Reject karne ki wajah (member ko dikhegi):', 'Bill saaf nahi hai'); if (why === null) return;
   const { error } = await sb.from('expense_requests').update({ status:'rejected', admin_note:why.trim(), reviewed_by:S.me.id, reviewed_at:new Date().toISOString() }).eq('id', id).eq('status', 'pending');
   if (error) return toast(errMsg(error));
   toast('Reject ho gaya'); loadAll();
@@ -445,16 +980,14 @@ window.delReq = async id => {
   if (r) sb.storage.from('bills').remove([r.bill_path]);
   toast('Request hata di'); loadAll();
 };
-
-async function compress(file){
-  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
-  const max = 1600, sc = Math.min(1, max / Math.max(img.width, img.height));
-  const w = Math.round(img.width * sc), h = Math.round(img.height * sc);
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  c.getContext('2d').drawImage(img, 0, 0, w, h);
-  return await new Promise(res => c.toBlob(res, 'image/jpeg', 0.8));
+async function compress(file, max = 1600, q = 0.8){
+  const img = await loadImg(file), sc = Math.min(1, max / Math.max(img.width, img.height));
+  const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return await new Promise(res => c.toBlob(res, 'image/jpeg', q));
 }
 window.reqForm = () => {
+  let ac = null;
   modal(`<h3>Bill bhejo</h3>
   <form class="f" id="rf">
     <label>Raqam (${CURRENCY})</label>
@@ -464,47 +997,52 @@ window.reqForm = () => {
     <label>Category</label>
     <select id="r_ct">${CATS.map(c => `<option>${c}</option>`).join('')}</select>
     <label>Tareekh</label>
-    <input id="r_dt" type="date" value="${new Date().toISOString().slice(0, 10)}" required>
+    <input id="r_dt" type="date" value="${todayStr()}" required>
     <label>Bill ki photo (saaf aur poori)</label>
-    <input id="r_ph" type="file" accept="image/*" required>
+    <input id="r_ph" type="file" accept="image/jpeg,image/png,image/webp,image/*" required>
     <img id="r_pv" class="preview" alt="" style="display:none">
+    <div id="r_ac" class="hint"></div>
     <div class="hint">Roshni me, seedha aur poora bill dikhe. Dhundhli photo reject ho sakti hai.</div>
     <div class="err" id="r_er" style="color:var(--give)"></div>
     <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit" id="r_bt">Bhejo</button></div>
   </form>`);
-  $('#r_ph').onchange = () => {
-    const f = $('#r_ph').files[0];
-    if (f){ const p = $('#r_pv'); p.src = URL.createObjectURL(f); p.style.display = 'block'; }
+  $('#r_ph').onchange = async () => {
+    const f = $('#r_ph').files[0]; ac = null; if (!f) return;
+    const p = $('#r_pv'); p.src = URL.createObjectURL(f); p.style.display = 'block';
+    $('#r_ac').textContent = 'Auto-check ho raha hai...';
+    ac = await autoCheck(f);
+    $('#r_ac').innerHTML = !ac.ok ? `<span style="color:var(--give)"><b>Auto-check fail:</b> ${ac.fail.map(esc).join(', ')}. Doosri photo chuno.</span>`
+      : (ac.warnings.length ? `<span style="color:#7a5600"><b>Auto-check chetavni:</b> ${ac.warnings.map(esc).join(', ')}. Bhej sakte ho, par saaf photo behtar hai.</span>`
+      : '<span style="color:var(--get)"><b>Auto-check:</b> photo ki quality theek lag rahi hai (sirf photo ki jaanch, bill ki nahi).</span>');
   };
   $('#rf').onsubmit = async ev => {
     ev.preventDefault();
     const f = $('#r_ph').files[0], amount = parseFloat($('#r_am').value);
     if (!f) return ($('#r_er').textContent = 'Bill ki photo chuno.');
+    if (!ac) ac = await autoCheck(f);
+    if (!ac.ok) return ($('#r_er').textContent = 'Photo theek nahi: ' + ac.fail.join(', '));
     if (!(amount > 0)) return ($('#r_er').textContent = 'Sahi raqam daalo.');
     $('#r_bt').disabled = true; $('#r_er').textContent = 'Bhej raha hai...';
     try {
-      const blob = await compress(f);
-      const path = `${S.me.id}/${Date.now()}.jpg`;
+      const blob = await compress(f), path = `${S.me.id}/${Date.now()}.jpg`;
       const up = await sb.storage.from('bills').upload(path, blob, { contentType:'image/jpeg' });
       if (up.error) throw up.error;
-      const row = { requester:S.me.id, amount, description:$('#r_ds').value.trim(), category:$('#r_ct').value, date:$('#r_dt').value, bill_path:path };
-      const ins = await sb.from('expense_requests').insert(row);
+      const ins = await sb.from('expense_requests').insert({ requester:S.me.id, amount, description:$('#r_ds').value.trim(), category:$('#r_ct').value, date:$('#r_dt').value, bill_path:path,
+        auto_check:{ ok:ac.ok, warnings:ac.warnings, blur:ac.blur, brightness:ac.brightness, w:ac.w, h:ac.h, at:ac.at } });
       if (ins.error){ sb.storage.from('bills').remove([path]); throw ins.error; }
-      closeModal(); toast('Bill admin ko bhej diya'); loadAll();
-    } catch (e) {
-      $('#r_er').textContent = 'Nahi bheja ja saka: ' + errMsg(e); $('#r_bt').disabled = false;
-    }
+      closeModal(); toast('Bill bhej diya. Ab verification pending hai.'); loadAll();
+    } catch (e) { $('#r_er').textContent = 'Nahi bheja ja saka: ' + errMsg(e); $('#r_bt').disabled = false; }
   };
 };
 
-/* ---------- MORE ---------- */
+/* ---------- AUR (existing menu) ---------- */
 function vMore(){
   const locked = S.locks.has(S.month);
   $('#view').innerHTML = `<div class="card">
-    <button class="menu" onclick="go('chart')"><b>Analysis chart</b><span>Mahine wise aur category wise kharcha</span></button>
-    <button class="menu" onclick="go('report')"><b>Report</b><span>PDF / Excel (CSV)</span></button>
-    ${isAdmin() ? `<button class="menu" onclick="go('members')"><b>Members</b><span>Naam, mobile number, hisaab WhatsApp par bhejna</span></button>
-    <button class="menu" onclick="toggleLock()"><b>Mahina ${locked ? 'unlock' : 'lock'} karo (${S.month})</b><span>${locked ? 'Abhi locked hai' : 'Abhi khula hai'}. Mahina badalne ke liye Hisaab tab me jao.</span></button>` : ''}
+    <button class="optbtn" style="border:0;border-radius:0;margin:0;background:none;border-bottom:1px solid var(--line)" onclick="go('chart')">${ic('chart')}<span><b>Analysis chart</b><br><span class="s">Mahine wise aur category wise kharcha</span></span></button>
+    <button class="optbtn" style="border:0;border-radius:0;margin:0;background:none;border-bottom:1px solid var(--line)" onclick="go('report')">${ic('receipt')}<span><b>Report</b><br><span class="s">PDF / Excel (CSV)</span></span></button>
+    ${isAdmin() ? `<button class="optbtn" style="border:0;border-radius:0;margin:0;background:none;border-bottom:1px solid var(--line)" onclick="go('members')">${ic('users')}<span><b>Members</b><br><span class="s">Naam, mobile number, hisaab WhatsApp par bhejna</span></span></button>
+    <button class="optbtn" style="border:0;border-radius:0;margin:0;background:none" onclick="toggleLock()">${ic('key')}<span><b>Mahina ${locked ? 'unlock' : 'lock'} karo (${S.month})</b><br><span class="s">${locked ? 'Abhi locked hai' : 'Abhi khula hai'}. Mahina badalne ke liye Hisaab tab me jao.</span></span></button>` : ''}
   </div>`;
 }
 
@@ -521,42 +1059,35 @@ function vChart(){
   let svg = `<svg viewBox="0 0 ${W} ${H + 28}" width="100%" role="img" aria-label="Mahine wise kharcha">`;
   months.forEach((m, i) => {
     const x = pad + i * (bw + gap); let y = H;
-    cats.forEach(c => {
-      const v = val(m, c), h = v / max * H;
-      if (h > 0){ y -= h; svg += `<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="${col(c)}"><title>${esc(c)}: ${fmt(v)}</title></rect>`; }
-    });
+    cats.forEach(c => { const v = val(m, c), h = v / max * H;
+      if (h > 0){ y -= h; svg += `<rect x="${x}" y="${y}" width="${bw}" height="${h}" fill="${col(c)}"><title>${esc(c)}: ${fmt(v)}</title></rect>`; } });
     svg += `<text x="${x + bw / 2}" y="${H + 16}" text-anchor="middle" font-size="11" fill="currentColor">${m.slice(5)}/${m.slice(2, 4)}</text>`;
     if (mt[i]) svg += `<text x="${x + bw / 2}" y="${H - mt[i] / max * H - 4}" text-anchor="middle" font-size="10" fill="currentColor">${Math.round(mt[i])}</text>`;
   });
-  svg += `<line x1="${pad - 4}" x2="${W - pad + 4}" y1="${H}" y2="${H}" stroke="#dde1ea"/></svg>`;
-
-  const cur = S.month, curTot = mt[5], prevTot = mt[4];
-  const rows = cats.map(c => ({ c, v: val(cur, c) })).filter(r => r.v > 0).sort((a, b) => b.v - a.v);
-  const change = prevTot > 0 ? ((curTot - prevTot) / prevTot * 100) : null;
-  const top = rows[0];
-
-  $('#view').innerHTML = `<button class="btn ghost sm back noprint" onclick="go('more')">← Wapas</button>
-  ${monthBar()}
+  svg += `<line x1="${pad - 4}" x2="${W - pad + 4}" y1="${H}" y2="${H}" stroke="#d9e1ec"/></svg>`;
+  const curTot = mt[5], prevTot = mt[4];
+  const rows = cats.map(c => ({ c, v: val(S.month, c) })).filter(r => r.v > 0).sort((a, b) => b.v - a.v);
+  const change = prevTot > 0 ? ((curTot - prevTot) / prevTot * 100) : null, top = rows[0];
+  $('#view').innerHTML = `<button class="btn ghost sm back noprint" onclick="go('more')">&larr; Wapas</button>${monthBar()}
   ${S.cat.length ? `
-  <div class="stat">
-    <div><div class="k">${cur} ka total</div><div class="v num">${fmt(curTot)}</div></div>
-    <div><div class="k">Pichhle mahine se</div><div class="v num ${change === null ? '' : change > 0 ? 'give' : 'get'}">${change === null ? '-' : (change > 0 ? '+' : '') + change.toFixed(0) + '%'}</div></div>
-  </div>
+  <div class="stat"><div><div class="k">${S.month} ka total</div><div class="v num">${fmt(curTot)}</div></div>
+    <div><div class="k">Pichhle mahine se</div><div class="v num ${change === null ? '' : change > 0 ? 'give' : 'get'}">${change === null ? '-' : (change > 0 ? '+' : '') + change.toFixed(0) + '%'}</div></div></div>
   ${top ? `<div class="stat"><div><div class="k">Sabse zyada kharcha</div><div class="v">${esc(top.c)} <span class="num" style="font-size:14px;color:var(--mute)">${(top.v / curTot * 100).toFixed(0)}%</span></div></div></div>` : ''}
   <h2>Pichhle 6 mahine</h2>
   <div class="card pad">${svg}<div class="legend">${cats.map(c => `<span><i style="background:${col(c)}"></i>${esc(c)}</span>`).join('')}</div></div>
-  <h2>${cur}: category wise</h2>
-  <div class="card">${rows.length ? rows.map(r => `<div class="pay"><div class="row"><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:${col(r.c)}"></i><b>${esc(r.c)}</b></span><span class="num">${fmt(r.v)} <span class="s" style="color:var(--mute)">(${(r.v / curTot * 100).toFixed(0)}%)</span></span></div><div class="bar"><div style="width:${(r.v / curTot * 100).toFixed(1)}%;background:${col(r.c)}"></div></div></div>`).join('') : '<div class="empty">Is mahine koi kharcha nahi.</div>'}</div>`
-  : '<div class="empty card">Abhi chart ke liye data nahi hai. Kharche add hone par yahan dikhega. (Agar SQL update nahi chalayi to pehle wo chalao.)</div>'}`;
+  <h2>${S.month}: category wise</h2>
+  <div class="card">${rows.length ? rows.map(r => `<div class="pay"><div class="row"><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:${col(r.c)}"></i><b>${esc(r.c)}</b></span><span class="num">${fmt(r.v)} <span class="s">(${(r.v / curTot * 100).toFixed(0)}%)</span></span></div><div class="bar"><div style="width:${(r.v / curTot * 100).toFixed(1)}%;background:${col(r.c)}"></div></div></div>`).join('') : '<div class="empty">Is mahine koi kharcha nahi.</div>'}</div>`
+  : '<div class="empty card">Abhi chart ke liye data nahi hai.</div>'}`;
 }
 
 /* ---------- REPORT ---------- */
 function vReport(){
   const tr = transfers(), t = totals();
-  $('#view').innerHTML = `<button class="btn ghost sm back noprint" onclick="go('more')">← Wapas</button>${monthBar()}
+  $('#view').innerHTML = `<button class="btn ghost sm back noprint" onclick="go('more')">&larr; Wapas</button>${monthBar()}
   <div class="row noprint" style="margin-bottom:14px"><button class="btn" onclick="window.print()">PDF / Print</button><button class="btn ghost" onclick="csv()">Excel (CSV)</button></div>
   <h2 style="margin-top:0">Report: ${S.month}</h2>
   <div class="stat"><div><div class="k">Total</div><div class="v num">${fmt(t.total)} ${CURRENCY}</div></div><div><div class="k">Per member</div><div class="v num">${fmt(t.per)}</div></div></div>
+  ${breakdownCard()}
   <div class="card">${S.summary.map(r => { const n = Number(r.net); return `<div class="li"><div class="t">${esc(r.name)}<div class="s num">Diya ${fmt(r.paid)} · Hissa ${fmt(r.share)}${advTxt(r)}</div></div><div class="r num ${n > 0 ? 'get' : n < 0 ? 'give' : ''}"><b>${n >= 0 ? '+' : '-'}${fmt(Math.abs(n))}</b></div></div>`; }).join('') || '<div class="empty">Data nahi hai.</div>'}</div>
   <h2>Settlement</h2>
   <div class="card">${tr.length ? tr.map(x => `<div class="pay"><b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> <span class="num" style="float:right"><b>${fmt(x.amt)}</b></span></div>`).join('') : '<div class="empty">Sab barabar hai.</div>'}</div>
@@ -570,10 +1101,9 @@ window.csv = () => {
   let out = 'Member,Diya,Hissa,Advance,Net\n' + S.summary.map(r => [q(r.name), fmt(r.paid), fmt(r.share), fmt(r.advance), fmt(r.net)].join(',')).join('\n');
   out += '\n\nDate,Member,Category,Description,Amount\n' + S.expenses.map(e => [e.date, q(nameOf(e.spender)), q(e.category), q(e.description), fmt(e.amount)].join(',')).join('\n');
   out += '\n\nDate,Kisne diya,Kis ko,Type,Amount,Note\n' + S.xfers.map(t => [t.date, q(nameOf(t.from_member)), q(nameOf(t.to_member)), t.kind, fmt(t.amount), q(t.note)].join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\ufeff' + out], { type:'text/csv;charset=utf-8' }));
-  a.download = 'shahid-sharing-' + S.month + '.csv'; a.click();
+  downloadBlob(new Blob(['\ufeff' + out], { type:'text/csv;charset=utf-8' }), 'shahid-sharing-' + S.month + '.csv');
 };
+function downloadBlob(blob, name){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); }
 
 /* ---------- MODAL ---------- */
 function modal(html){
@@ -584,6 +1114,835 @@ function modal(html){
   document.body.appendChild(o);
 }
 window.closeModal = () => { const o = $('#ov'); if (o) o.remove(); };
+
+/* ===================== PROFILE PICTURE ===================== */
+window.avatarSheet = id => {
+  const m = memberOf(id); if (!m) return;
+  const me = id === S.me.id, has = !!m.avatar_path;
+  if (!me && !isAdmin()) return;
+  modal(`<h3>${esc(m.name)}: profile picture</h3>
+  <div style="display:flex;justify-content:center;margin-bottom:14px">${av(m, 96)}</div>
+  <button class="optbtn" ${has ? '' : 'disabled'} onclick="viewAvatar('${id}')">${ic('user')}<b>View Profile Picture</b></button>
+  <button class="optbtn" ${has ? 'disabled' : ''} onclick="pickAvatar('${id}')">${ic('camera')}<b>Upload New Picture</b></button>
+  <button class="optbtn" ${has ? '' : 'disabled'} onclick="pickAvatar('${id}')">${ic('camera')}<b>Change Picture</b></button>
+  <button class="optbtn" ${has ? '' : 'disabled'} onclick="delAvatar('${id}')" style="color:var(--give)">${ic('user')}<b>Delete Picture</b></button>
+  <button class="btn ghost" style="width:100%" onclick="closeModal()">Band karo</button>`);
+};
+window.viewAvatar = id => {
+  const m = memberOf(id), u = avUrl(m);
+  modal(`<h3>${esc(m ? m.name : '')}</h3><div style="display:flex;justify-content:center">${u ? `<img src="${esc(u)}" alt="Profile picture" style="max-width:100%;max-height:70vh;border-radius:18px">` : av(m, 160)}</div>
+  <div class="row" style="margin-top:14px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>`);
+};
+async function squareCrop(file, size = 512, q = 0.85){
+  const img = await loadImg(file), s = Math.min(img.width, img.height);
+  const c = document.createElement('canvas'); c.width = size; c.height = size;
+  c.getContext('2d').drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+  return await new Promise(res => c.toBlob(res, 'image/jpeg', q));
+}
+window.pickAvatar = id => {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/jpeg,image/png,image/webp';
+  inp.onchange = async () => {
+    const f = inp.files && inp.files[0]; if (!f) return;
+    if (!hasType(f, IMG_TYPES, /\.(jpe?g|png|webp)$/i)) return toast('Sirf JPG, PNG ya WebP photo chuno');
+    if (f.size > 10 * 1024 * 1024) return toast('Photo 10 MB se badi hai');
+    try {
+      toast('Photo save ho rahi hai...');
+      const blob = await squareCrop(f), path = `${id}/${Date.now()}.jpg`, old = (memberOf(id) || {}).avatar_path;
+      const up = await sb.storage.from('avatars').upload(path, blob, { contentType:'image/jpeg' });
+      if (up.error) throw up.error;
+      const r = id === S.me.id ? await sb.rpc('set_my_avatar', { p_path:path }) : await sb.from('profiles').update({ avatar_path:path }).eq('id', id);
+      if (r.error){ sb.storage.from('avatars').remove([path]); throw r.error; }
+      if (old) sb.storage.from('avatars').remove([old]);
+      closeModal(); toast('Profile picture save ho gayi'); loadAll();
+    } catch (e) { toast('Nahi hua: ' + errMsg(e)); }
+  };
+  inp.click();
+};
+window.delAvatar = async id => {
+  const m = memberOf(id); if (!m || !m.avatar_path) return;
+  if (!confirm('Profile picture hatani hai?')) return;
+  const r = id === S.me.id ? await sb.rpc('set_my_avatar', { p_path:null }) : await sb.from('profiles').update({ avatar_path:null }).eq('id', id);
+  if (r.error) return toast(errMsg(r.error));
+  sb.storage.from('avatars').remove([m.avatar_path]);
+  closeModal(); toast('Profile picture hata di'); loadAll();
+};
+function vProfile(){
+  const m = S.me;
+  $('#view').innerHTML = `<div class="card pad" style="text-align:center">
+    <button style="background:none;border:0;padding:0;border-radius:50%" aria-label="Profile picture options" onclick="avatarSheet('${m.id}')">${av(m, 112)}</button>
+    <div style="font-size:20px;font-weight:700;margin-top:10px">${esc(m.name)}</div>
+    <div class="s">${m.role === 'admin' ? 'Admin' : 'Member'} · Member ID: ${esc(m.username)}</div>
+    <div class="acts" style="justify-content:center;margin-top:14px"><button class="btn" onclick="avatarSheet('${m.id}')">Profile picture</button><button class="btn ghost" onclick="changePass()">Password badlo</button></div></div>
+  <p class="hint">Photo par tap karke dekho, badlo ya hatao. Sirf aap apni photo badal sakte ho${isAdmin() ? '; admin Member Management se kisi ki bhi photo sambhal sakta hai' : ''}.</p>`;
+}
+
+/* ===================== STATUS ===================== */
+const seenSet = () => { try { return new Set(JSON.parse(lsGet('ss_seen') || '[]')); } catch (e) { return new Set(); } };
+const markSeenStatus = id => { const s = seenSet(); s.add(id); lsSet('ss_seen', JSON.stringify([...s].slice(-300))); };
+const alive = s => !s.expires_at || new Date(s.expires_at) > new Date();
+const activeStatuses = () => S.statuses.filter(alive);
+async function purgeExpired(){
+  const ex = S.statuses.filter(s => !alive(s) && (s.author === S.me.id || isAdmin()));
+  if (!ex.length) return;
+  const paths = ex.map(s => s.media_path).filter(Boolean);
+  try {
+    if (paths.length) await sb.storage.from('statuses').remove(paths);
+    await sb.from('statuses').delete().in('id', ex.map(s => s.id));
+    S.statuses = S.statuses.filter(s => !ex.includes(s));
+  } catch (e) {}
+}
+function vStatus(){
+  const act = activeStatuses(), seen = seenSet();
+  const by = {}; act.forEach(s => (by[s.author] = by[s.author] || []).push(s));
+  Object.values(by).forEach(l => l.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)));
+  const mine = by[S.me.id] || [];
+  const others = Object.keys(by).filter(id => id !== S.me.id).sort((a, b) => new Date(by[b][by[b].length - 1].created_at) - new Date(by[a][by[a].length - 1].created_at));
+  const ringFor = id => { const l = by[id]; return l.every(s => seen.has(s.id)) ? 'seen' : ''; };
+  const kind = k => `<span class="kbadge ${k}">${ic(k === 'text' ? 'text' : k === 'photo' ? 'camera' : 'video', 15)}</span>`;
+  $('#view').innerHTML = `<div class="sring">
+    <button class="sitem" onclick="${mine.length ? `openStatus('${S.me.id}')` : 'statusForm()'}"><span class="ring ${mine.length ? ringFor(S.me.id) : 'none'}">${av(S.me, 58)}${mine.length ? '' : '<span class="plus">+</span>'}</span><span class="nmx">Mera status</span></button>
+    ${others.map(id => `<button class="sitem" onclick="openStatus('${id}')"><span class="ring ${ringFor(id)}">${av(memberOf(id), 58)}</span><span class="nmx">${esc(nameOf(id))}</span></button>`).join('')}
+  </div>
+  <div class="acts" style="margin:0 0 6px"><button class="btn" onclick="statusForm()">+ Add Status</button></div>
+  <h2>Recent updates</h2>
+  <div class="card">${act.length ? act.map(s => `<div class="li" onclick="openStatus('${s.author}',${(by[s.author] || []).findIndex(x => x.id === s.id)})" style="cursor:pointer"><div class="row" style="justify-content:flex-start;gap:12px;min-width:0">${av(memberOf(s.author), 40)}<div style="min-width:0">
+    <div class="t">${esc(nameOf(s.author))} ${kind(s.kind)}</div><div class="s">${fdt(s.created_at)}${s.expires_at ? ' · expire: ' + fdt(s.expires_at) : ' · expire nahi hoga'}</div>
+    <div class="s" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw">${esc(s.body) || (s.kind === 'photo' ? 'Photo' : 'Video')}</div></div></div></div>`).join('') : '<div class="empty">Abhi koi status nahi. "+ Add Status" dabao.</div>'}</div>
+  <p class="hint">Status sirf room ke login kiye hue members dekh sakte hain. Expire hone ke baad status apne aap hat jata hai.</p>`;
+}
+window.statusForm = () => {
+  modal(`<h3>Naya status</h3>
+  <form class="f" id="sf">
+    <div class="seg">
+      <label><input type="radio" name="sk" value="text" checked> ${ic('text', 18)} Text</label>
+      <label><input type="radio" name="sk" value="photo"> ${ic('camera', 18)} Photo</label>
+      <label><input type="radio" name="sk" value="video"> ${ic('video', 18)} Video</label>
+    </div>
+    <div id="s_t"><label>Aapka status</label><textarea id="s_b" maxlength="500" placeholder="Kya chal raha hai?"></textarea></div>
+    <div id="s_m" style="display:none"><label id="s_ml">Photo chuno</label><input id="s_f" type="file" accept="image/jpeg,image/png,image/webp">
+      <img id="s_pi" class="preview" alt="" style="display:none"><video id="s_pv" class="preview" controls playsinline style="display:none"></video>
+      <label>Caption (optional)</label><input id="s_c" maxlength="200"></div>
+    <label>Status kab tak rahe</label>
+    <select id="s_x"><option value="6">6 ghante</option><option value="12">12 ghante</option><option value="24" selected>24 ghante</option><option value="48">48 ghante</option><option value="0">Kabhi expire nahi hoga</option></select>
+    <div class="hint" id="s_h">Photo: JPG/PNG/WebP, 10 MB tak. Video: MP4/WebM/MOV, 20 MB tak, 60 second tak.</div>
+    <div class="err" id="s_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit" id="s_bt">Publish karo</button></div>
+  </form>`);
+  const kindNow = () => document.querySelector('input[name=sk]:checked').value;
+  const sync = () => {
+    const k = kindNow(); $('#s_t').style.display = k === 'text' ? '' : 'none'; $('#s_m').style.display = k === 'text' ? 'none' : '';
+    $('#s_f').accept = k === 'photo' ? 'image/jpeg,image/png,image/webp' : 'video/mp4,video/webm,video/quicktime'; $('#s_ml').textContent = k === 'photo' ? 'Photo chuno' : 'Video chuno';
+    $('#s_f').value = ''; $('#s_pi').style.display = 'none'; $('#s_pv').style.display = 'none'; $('#s_e').textContent = '';
+  };
+  document.querySelectorAll('input[name=sk]').forEach(r => r.onchange = sync);
+  $('#s_f').onchange = () => {
+    const f = $('#s_f').files[0]; if (!f) return; const k = kindNow(), u = URL.createObjectURL(f);
+    if (k === 'photo'){ $('#s_pi').src = u; $('#s_pi').style.display = 'block'; } else { $('#s_pv').src = u; $('#s_pv').style.display = 'block'; }
+  };
+  $('#sf').onsubmit = async ev => {
+    ev.preventDefault();
+    const k = kindNow(), hrs = parseInt($('#s_x').value, 10), exp = hrs ? new Date(Date.now() + hrs * 3600000).toISOString() : null;
+    $('#s_bt').disabled = true; $('#s_e').textContent = 'Publish ho raha hai...';
+    const fail = m => { $('#s_e').textContent = m; $('#s_bt').disabled = false; };
+    try {
+      let row = { kind:k, expires_at:exp, body:'', media_path:null };
+      if (k === 'text'){
+        row.body = $('#s_b').value.trim(); if (!row.body) return fail('Kuch likho.');
+      } else {
+        const f = $('#s_f').files[0]; if (!f) return fail(k === 'photo' ? 'Photo chuno.' : 'Video chuno.');
+        row.body = $('#s_c').value.trim();
+        if (k === 'photo'){
+          if (!hasType(f, IMG_TYPES, /\.(jpe?g|png|webp)$/i)) return fail('Sirf JPG, PNG ya WebP photo chalegi.');
+          if (f.size > 10 * 1024 * 1024) return fail('Photo 10 MB se badi hai.');
+          const blob = await compress(f, 1280, 0.8), path = `${S.me.id}/${Date.now()}.jpg`;
+          const up = await sb.storage.from('statuses').upload(path, blob, { contentType:'image/jpeg' }); if (up.error) throw up.error; row.media_path = path;
+        } else {
+          if (!hasType(f, VID_TYPES, /\.(mp4|webm|mov)$/i)) return fail('Sirf MP4, WebM ya MOV video chalegi.');
+          if (f.size > 20 * 1024 * 1024) return fail('Video 20 MB se badi hai.');
+          const dur = await new Promise(res => { const v = document.createElement('video'); v.preload = 'metadata'; v.onloadedmetadata = () => res(v.duration); v.onerror = () => res(-1); v.src = URL.createObjectURL(f); setTimeout(() => res(-1), 8000); });
+          if (dur < 0) return fail('Ye video chal nahi pa rahi. Doosri video chuno.');
+          if (dur > 61) return fail('Video 60 second se badi hai.');
+          const ext = /webm/.test(f.type) ? 'webm' : /quicktime/.test(f.type) ? 'mov' : 'mp4', path = `${S.me.id}/${Date.now()}.${ext}`;
+          const up = await sb.storage.from('statuses').upload(path, f, { contentType:f.type || 'video/mp4' }); if (up.error) throw up.error; row.media_path = path;
+        }
+      }
+      const ins = await sb.from('statuses').insert(row);
+      if (ins.error){ if (row.media_path) sb.storage.from('statuses').remove([row.media_path]); throw ins.error; }
+      closeModal(); toast('Status publish ho gaya'); loadAll();
+    } catch (e) { fail('Nahi hua: ' + errMsg(e)); }
+  };
+};
+let V = null;
+window.openStatus = (authorId, idx = 0) => {
+  const list = activeStatuses().filter(s => s.author === authorId).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  if (!list.length) return;
+  V = { list, i:Math.max(0, Math.min(idx, list.length - 1)) }; showViewer();
+};
+async function showViewer(){
+  const old = $('#sv'); if (old) old.remove();
+  const s = V.list[V.i], m = memberOf(s.author), can = s.author === S.me.id || isAdmin();
+  markSeenStatus(s.id);
+  const o = document.createElement('div'); o.className = 'viewer'; o.id = 'sv';
+  o.innerHTML = `<div class="vh"><div class="prog">${V.list.map((_, i) => `<i class="${i <= V.i ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="row"><div class="row" style="justify-content:flex-start;gap:10px;min-width:0">${av(m, 40)}<div style="min-width:0"><b>${esc(nameOf(s.author))}</b><div class="s" style="color:#aab8d0">${fdt(s.created_at)}${s.expires_at ? '' : ' · expire nahi hoga'}</div></div></div>
+    <div class="row" style="gap:8px">${can ? '<button class="vclose" onclick="delStatus()">Delete</button>' : ''}<button class="vclose" onclick="closeViewer()">Band karo</button></div></div></div>
+    <div class="vb" id="svb">${s.kind === 'text' ? `<div class="vtext">${esc(s.body)}</div>` : '<div class="s" style="color:#aab8d0">Load ho raha hai...</div>'}
+      <button class="nv l" aria-label="Pichhla" onclick="stNav(-1)"></button><button class="nv r" aria-label="Agla" onclick="stNav(1)"></button></div>
+    <div class="vcap">${s.kind === 'text' ? '' : esc(s.body)}</div>`;
+  document.body.appendChild(o);
+  if (s.kind !== 'text'){
+    const { data, error } = await sb.storage.from('statuses').createSignedUrl(s.media_path, 3600);
+    const b = $('#svb'); if (!b || !V || V.list[V.i] !== s) return;
+    const media = error || !data ? '<div class="s" style="color:#ff9bab">Media khul nahi paya</div>'
+      : (s.kind === 'photo' ? `<img src="${data.signedUrl}" alt="Status photo">` : `<video src="${data.signedUrl}" controls playsinline autoplay></video>`);
+    b.insertAdjacentHTML('afterbegin', media);
+  }
+}
+window.stNav = d => { if (!V) return; V.i += d; if (V.i < 0) V.i = 0; if (V.i >= V.list.length) return closeViewer(); showViewer(); };
+window.closeViewer = () => { const o = $('#sv'); if (o) o.remove(); V = null; if (S.me) render(); };
+window.delStatus = async () => {
+  if (!V) return; const s = V.list[V.i];
+  if (!confirm('Ye status delete karna hai?')) return;
+  const { error } = await sb.from('statuses').delete().eq('id', s.id);
+  if (error) return toast(errMsg(error));
+  if (s.media_path) sb.storage.from('statuses').remove([s.media_path]);
+  S.statuses = S.statuses.filter(x => x.id !== s.id); closeViewer(); toast('Status delete ho gaya'); loadAll();
+};
+
+/* ===================== CHAT (Group Messages) ===================== */
+function chatHTML(){
+  let prev = '';
+  return S.chat.map(c => {
+    const me = c.sender === S.me.id, day = c.created_at.slice(0, 10);
+    const sep = day !== prev ? `<div class="dsep">${fday(c.created_at)}</div>` : ''; prev = day;
+    return sep + `<div class="msg ${me ? 'me' : ''}"><div class="bub">${me ? '' : `<div class="nm">${esc(nameOf(c.sender))}</div>`}${esc(c.body)}<div class="tm">${ftime(c.created_at)}${(me || isAdmin()) ? ` <a href="#" onclick="delMsg('${c.id}');return false">&times;</a>` : ''}</div></div></div>`;
+  }).join('') || '<div class="empty">Abhi koi message nahi. Pehla message bhejo.</div>';
+}
+function renderChatList(){
+  const l = $('#chatlist'); if (!l) return;
+  const near = (window.innerHeight + window.scrollY) >= document.body.scrollHeight - 160;
+  l.innerHTML = chatHTML(); if (near) window.scrollTo(0, document.body.scrollHeight);
+}
+function vChat(){
+  $('#view').innerHTML = `<div id="chatlist" class="chatlist">${chatHTML()}</div>
+  <form class="chatbar" id="cf"><input id="ci" autocomplete="off" placeholder="Message likho..." maxlength="1000" aria-label="Message"><button class="btn" type="submit">Bhejo</button></form>`;
+  const ci = $('#ci'); ci.value = S.chatDraft;
+  ci.oninput = () => S.chatDraft = ci.value; ci.onfocus = () => S.chatFocus = true; ci.onblur = () => S.chatFocus = false;
+  if (S.chatFocus) ci.focus();
+  $('#cf').onsubmit = async ev => {
+    ev.preventDefault();
+    const body = ci.value.trim(); if (!body) return;
+    ci.value = ''; S.chatDraft = '';
+    const { error } = await sb.from('chat_messages').insert({ body });
+    if (error){ ci.value = body; S.chatDraft = body; return toast(errMsg(error)); }
+    reloadChat(); ci.focus();
+  };
+  window.scrollTo(0, document.body.scrollHeight);
+}
+async function reloadChat(){
+  const { data } = await sb.from('chat_messages').select('*').order('created_at', {ascending:false}).limit(100);
+  if (!data || !S.me) return;
+  const old = S.chat; S.chat = data.slice().reverse();
+  const last = S.chat[S.chat.length - 1];
+  if (S.tab === 'chat'){ renderChatList(); markSeen('chat'); return; }
+  if (last && old.length && last.id !== old[old.length - 1].id && last.sender !== S.me.id && S.prefs.chat_on)
+    toast('Chat · ' + nameOf(last.sender) + ': ' + last.body.slice(0, 40));
+  render();
+}
+window.delMsg = async id => {
+  if (!confirm('Ye message hatana hai?')) return;
+  const { error } = await sb.from('chat_messages').delete().eq('id', id);
+  if (error) toast(errMsg(error)); else reloadChat();
+};
+const prefsRow = () => ({ member_id:S.me.id, announcements_on:S.prefs.announcements_on, chat_on:S.prefs.chat_on,
+  ann_seen_at:S.prefs.ann_seen_at || new Date().toISOString(), chat_seen_at:S.prefs.chat_seen_at || new Date().toISOString() });
+async function markSeen(kind){
+  S.prefs[kind === 'chat' ? 'chat_seen_at' : 'ann_seen_at'] = new Date().toISOString();
+  await sb.from('member_prefs').upsert(prefsRow());
+  render();
+}
+
+/* ===================== ANNOUNCEMENTS ===================== */
+const KINDS = { activity:'Room activity', notice:'Notice', suggestion:'Suggestion', urgent:'Zaroori' };
+function annCard(a){
+  const st = a.status === 'pending' ? '<span class="pill">Admin check baaki</span>' : a.status === 'rejected' ? '<span class="pill off">Reject hua</span>' : '';
+  const acts = (isAdmin() && a.status === 'pending' ? `<button class="btn sm" onclick="approveAnn('${a.id}')">Approve</button><button class="btn ghost sm give" onclick="rejectAnn('${a.id}')">Reject</button>` : '') +
+    ((isAdmin() || a.author === S.me.id) ? `<button class="btn ghost sm give" onclick="delAnn('${a.id}')">Delete</button>` : '');
+  return `<div class="card pad ann ${a.kind === 'urgent' ? 'urgent' : ''}"><div class="row"><b>${esc(a.title)}</b>${st}</div>
+    <div class="s">${KINDS[a.kind] || a.kind} · ${esc(nameOf(a.author))} · ${fdt(a.created_at)}</div>
+    ${a.body ? `<div class="body">${esc(a.body)}</div>` : ''}
+    ${a.status === 'rejected' && a.admin_note ? `<div class="s give">Wajah: ${esc(a.admin_note)}</div>` : ''}
+    ${acts ? `<div class="acts">${acts}</div>` : ''}</div>`;
+}
+function vNotice(){
+  const pending = S.anns.filter(a => a.status === 'pending' && (isAdmin() || a.author === S.me.id));
+  const rejected = S.anns.filter(a => a.status === 'rejected' && a.author === S.me.id);
+  const ok = S.anns.filter(a => a.status === 'approved');
+  $('#view').innerHTML = `
+  ${pending.length ? `<h2 style="margin-top:0">${isAdmin() ? 'Check karne wale' : 'Admin ke check ka intezaar'} (${pending.length})</h2>${pending.map(annCard).join('')}` : ''}
+  ${rejected.length ? `<h2>Reject hue</h2>${rejected.map(annCard).join('')}` : ''}
+  <h2 ${pending.length || rejected.length ? '' : 'style="margin-top:0"'}>Announcements</h2>
+  ${ok.length ? ok.map(annCard).join('') : '<div class="card"><div class="empty">Abhi koi announcement nahi.</div></div>'}`;
+}
+window.annForm = () => {
+  modal(`<h3>Naya announcement</h3>
+  <form class="f" id="af">
+    <label>Type</label><select id="a_k">${Object.entries(KINDS).map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select>
+    <label>Title</label><input id="a_t" maxlength="120" required>
+    <label>Details</label><textarea id="a_b" maxlength="2000"></textarea>
+    <div class="hint">${isAdmin() ? 'Admin ka announcement seedha sabko dikhta hai.' : 'Admin check karke approve karega, tab sabko dikhega.'}</div>
+    <div class="err" id="a_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Bhejo</button></div>
+  </form>`);
+  $('#af').onsubmit = async ev => {
+    ev.preventDefault();
+    const { error } = await sb.from('announcements').insert({ kind:$('#a_k').value, title:$('#a_t').value.trim(), body:$('#a_b').value.trim() });
+    if (error) return ($('#a_e').textContent = 'Nahi bheja: ' + errMsg(error));
+    closeModal(); toast(isAdmin() ? 'Announcement sabko dikh raha hai' : 'Admin ko check ke liye bhej diya'); loadAll();
+  };
+};
+window.approveAnn = async id => {
+  const { error } = await sb.from('announcements').update({ status:'approved', reviewed_at:new Date().toISOString() }).eq('id', id);
+  if (error) toast(errMsg(error)); else { toast('Approve ho gaya, sabko dikhega'); loadAll(); }
+};
+window.rejectAnn = async id => {
+  const why = prompt('Reject karne ki wajah (bhejne wale ko dikhegi):', ''); if (why === null) return;
+  const { error } = await sb.from('announcements').update({ status:'rejected', admin_note:why.trim(), reviewed_at:new Date().toISOString() }).eq('id', id);
+  if (error) toast(errMsg(error)); else { toast('Reject ho gaya'); loadAll(); }
+};
+window.delAnn = async id => {
+  if (!confirm('Ye announcement delete karna hai?')) return;
+  const { error } = await sb.from('announcements').delete().eq('id', id);
+  if (error) toast(errMsg(error)); else loadAll();
+};
+
+/* ===================== ROOM RENT ===================== */
+function rentTotals(rows){
+  const set = rows.filter(r => r.d);
+  return { rent:set.reduce((a, r) => a + r.due, 0), collected:rows.reduce((a, r) => a + r.paid, 0), out:set.reduce((a, r) => a + r.rem, 0),
+    paidN:set.filter(r => r.status === 'Paid').length, unpaidN:set.filter(r => r.status !== 'Paid').length };
+}
+const rentPill = s => s === 'Paid' ? '<span class="pill ok">Paid</span>' : s === 'Partially Paid' ? '<span class="pill warn">Partially Paid</span>' : s === 'Pending' ? '<span class="pill off">Pending</span>' : '<span class="pill">Rent set nahi</span>';
+function vRent(){
+  const rows = rentRows(), T = rentTotals(rows);
+  $('#view').innerHTML = `${monthBar()}
+  <div class="stat"><div><div class="k">${isAdmin() ? 'Total monthly rent' : 'Aapka rent'}</div><div class="v num">${fmt(T.rent)}</div></div><div><div class="k">Collected / Paid</div><div class="v num get">${fmt(T.collected)}</div></div></div>
+  <div class="stat"><div><div class="k">Outstanding (baaki)</div><div class="v num ${T.out > 0 ? 'give' : ''}">${fmt(T.out)}</div></div>
+    ${isAdmin() ? `<div><div class="k">Paid / Not paid</div><div class="v num">${T.paidN} / ${T.unpaidN}</div></div>` : `<div><div class="k">Status</div><div class="v" style="font-size:16px">${rows[0] ? rentPill(rows[0].status) : '-'}</div></div>`}</div>
+  ${isAdmin() ? `<div class="acts noprint" style="margin:0 0 10px"><button class="btn ghost sm" onclick="rentCopyPrev()">Pichhle mahine se copy</button><button class="btn ghost sm" onclick="rentSameAll()">Sab ke liye same rent</button></div>` : ''}
+  <div class="card"><div class="tblwrap"><table class="tbl" style="min-width:${isAdmin() ? 700 : 560}px"><thead><tr><th>No.</th><th>Member Name</th><th class="n">Monthly Rent</th><th>Rent Month</th><th class="n">Amount Paid</th><th class="n">Remaining</th><th>Status</th>${isAdmin() ? '<th></th>' : ''}</tr></thead><tbody>
+  ${rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.m.name)}</td><td class="n num">${r.d ? fmt(r.due) : '-'}</td><td>${S.month}</td><td class="n num">${fmt(r.paid)}</td><td class="n num ${r.rem > 0 ? 'give' : ''}">${r.d ? fmt(r.rem) : '-'}</td><td>${rentPill(r.status)}</td>
+    ${isAdmin() ? `<td style="white-space:nowrap"><button class="btn ghost sm" onclick="rentDueForm('${r.m.id}')">${r.d ? 'Edit rent' : 'Rent set'}</button> <button class="btn sm" ${r.d ? '' : 'disabled'} onclick="rentPayForm('${r.m.id}')">+ Payment</button> <button class="btn ghost sm" onclick="rentHistory('${r.m.id}')">History</button></td>` : ''}</tr>`).join('') : '<tr><td colspan="8" class="empty">Koi member nahi mila.</td></tr>'}</tbody></table></div></div>
+  ${!isAdmin() ? `<h2>Aapki payments (${S.month})</h2><div class="card">${S.rentPays.length ? S.rentPays.map(p => `<div class="li"><div><div class="t">${fmt(p.amount)} ${CURRENCY}</div><div class="s">${p.paid_on}${p.note ? ' · ' + esc(p.note) : ''}</div></div></div>`).join('') : '<div class="empty">Is mahine ki koi payment record nahi.</div>'}</div>` : ''}
+  <p class="hint">Room rent alag ledger hai. Ek member ka ek mahine ka ek hi rent record banta hai (dobara set karne par wahi edit hota hai), aur adjustment alag se likha jata hai.</p>`;
+}
+window.rentDueForm = id => {
+  const m = memberOf(id), d = S.rentDues.find(x => x.member_id === id && x.month === S.month);
+  modal(`<h3>${esc(m.name)}: rent (${S.month})</h3>
+  <form class="f" id="rdf">
+    <label>Monthly rent (${CURRENCY})</label>
+    <input id="rd_a" type="number" step="0.001" min="0" inputmode="decimal" value="${d ? d.amount : ''}" required>
+    <label>Adjustment (+ badhane ke liye, - ghatane ke liye)</label>
+    <input id="rd_j" type="number" step="0.001" inputmode="decimal" value="${d ? d.adjustment : 0}">
+    <label>Note (adjustment ki wajah, optional)</label><input id="rd_n" value="${d ? esc(d.note) : ''}">
+    <div class="hint">${d ? 'Is mahine ka rent pehle se hai, ye usi ko edit karega (duplicate nahi banega).' : 'Naya rent record banega.'}</div>
+    <div class="err" id="rd_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div>
+  </form>`);
+  $('#rdf').onsubmit = async ev => {
+    ev.preventDefault();
+    const amount = parseFloat($('#rd_a').value), adjustment = parseFloat($('#rd_j').value || '0') || 0;
+    if (!(amount >= 0)) return ($('#rd_e').textContent = 'Sahi raqam daalo.');
+    const { error } = await sb.from('rent_dues').upsert({ member_id:id, month:S.month, amount, adjustment, note:$('#rd_n').value.trim() }, { onConflict:'member_id,month' });
+    if (error) return ($('#rd_e').textContent = 'Save nahi hua: ' + errMsg(error));
+    closeModal(); toast('Rent save ho gaya'); loadAll();
+  };
+};
+window.rentPayForm = (id, payId) => {
+  const m = memberOf(id), r = rentRows().find(x => x.m.id === id), p = payId ? S.rentPays.find(x => x.id === payId) : null;
+  modal(`<h3>${esc(m.name)}: rent payment</h3>
+  <form class="f" id="rpf">
+    <div class="hint">Rent ${fmt(r.due)} · Paid ${fmt(r.paid)} · Baaki ${fmt(r.rem)} ${CURRENCY}</div>
+    <label>Payment ki raqam (${CURRENCY}) (adhoori payment bhi chalegi)</label>
+    <input id="rp_a" type="number" step="0.001" min="0.001" inputmode="decimal" value="${p ? p.amount : (r.rem > 0 ? r.rem.toFixed(3) : '')}" required>
+    <label>Tareekh</label><input id="rp_d" type="date" value="${p ? p.paid_on : todayStr()}" required>
+    <label>Note (optional)</label><input id="rp_n" value="${p ? esc(p.note) : ''}" placeholder="jaise: cash mila">
+    <div class="err" id="rp_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div>
+  </form>`);
+  $('#rpf').onsubmit = async ev => {
+    ev.preventDefault();
+    const amount = parseFloat($('#rp_a').value); if (!(amount > 0)) return ($('#rp_e').textContent = 'Sahi raqam daalo.');
+    const others = r.paid - (p ? Number(p.amount) : 0);
+    if (r.due > 0 && others + amount > r.due + 0.0005 && !confirm('Ye payment baaki rent se zyada hai. Phir bhi save karni hai?')) return;
+    const row = { member_id:id, month:S.month, amount, paid_on:$('#rp_d').value, note:$('#rp_n').value.trim() };
+    const { error } = p ? await sb.from('rent_payments').update(row).eq('id', p.id) : await sb.from('rent_payments').insert(row);
+    if (error) return ($('#rp_e').textContent = 'Save nahi hua: ' + errMsg(error));
+    closeModal(); toast('Payment save ho gayi'); loadAll();
+  };
+};
+window.rentHistory = id => {
+  const m = memberOf(id), list = S.rentPays.filter(p => p.member_id === id);
+  modal(`<h3>${esc(m.name)}: payments (${S.month})</h3>
+  <div class="card">${list.length ? list.map(p => `<div class="li" style="display:block"><div class="row"><div><div class="t num">${fmt(p.amount)} ${CURRENCY}</div><div class="s">${p.paid_on}${p.note ? ' · ' + esc(p.note) : ''}</div></div></div>
+    <div class="acts"><button class="btn ghost sm" onclick="rentPayForm('${id}','${p.id}')">Edit</button><button class="btn ghost sm give" onclick="delRentPay('${p.id}')">Delete</button></div></div>`).join('') : '<div class="empty">Koi payment nahi.</div>'}</div>
+  <div class="row" style="margin-top:14px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>`);
+};
+window.delRentPay = async id => {
+  if (!confirm('Ye payment delete karni hai?')) return;
+  const { error } = await sb.from('rent_payments').delete().eq('id', id);
+  if (error) return toast(errMsg(error)); closeModal(); toast('Payment hata di'); loadAll();
+};
+window.rentCopyPrev = async () => {
+  const prev = addMonths(S.month, -1);
+  const { data, error } = await sb.from('rent_dues').select('member_id,amount').eq('month', prev);
+  if (error) return toast(errMsg(error));
+  const act = new Set(S.members.filter(m => m.active).map(m => m.id));
+  const rows = (data || []).filter(d => act.has(d.member_id)).map(d => ({ member_id:d.member_id, month:S.month, amount:d.amount, adjustment:0, note:'' }));
+  if (!rows.length) return toast(prev + ' me koi rent nahi mila');
+  if (!confirm(rows.length + ' members ka rent ' + prev + ' se copy karna hai? Jinka rent pehle se set hai, wo nahi badlega.')) return;
+  const r = await sb.from('rent_dues').upsert(rows, { onConflict:'member_id,month', ignoreDuplicates:true });
+  if (r.error) return toast(errMsg(r.error)); toast('Rent copy ho gaya'); loadAll();
+};
+window.rentSameAll = async () => {
+  const v = prompt('Sab members ke liye monthly rent (' + CURRENCY + '). Jinka rent pehle se set hai, wo nahi badlega:'); if (v === null) return;
+  const a = parseFloat(v); if (!(a >= 0)) return toast('Sahi raqam daalo');
+  const rows = S.members.filter(m => m.active).map(m => ({ member_id:m.id, month:S.month, amount:a, adjustment:0, note:'' }));
+  const r = await sb.from('rent_dues').upsert(rows, { onConflict:'member_id,month', ignoreDuplicates:true });
+  if (r.error) return toast(errMsg(r.error)); toast('Rent set ho gaya'); loadAll();
+};
+
+/* ===================== PAKWAN / FOOD SCHEDULE ===================== */
+const dkey = n => String(n || '').trim().toLowerCase().replace(/\s+/g, ' ');
+const dishUrl = n => { const p = S.dishPhotos[dkey(n)]; return p ? sb.storage.from('dishes').getPublicUrl(p.photo_path).data.publicUrl : ''; };
+const foodOf = (d, meal) => S.food.filter(x => x.menu_date === d && x.meal === meal).sort((a, b) => a.sort - b.sort).map(x => x.dish);
+function mealsFor(d){ const base = S.meals.slice(); S.food.filter(x => x.menu_date === d).forEach(x => { if (!base.includes(x.meal)) base.push(x.meal); }); return base; }
+function dayHas(d){ return S.food.some(x => x.menu_date === d); }
+const mainMeal = () => S.meals.includes('Dinner') ? 'Dinner' : S.meals[0];
+const monthLabel = m => MONTHS[+m.slice(5, 7) - 1] + ' ' + m.slice(0, 4);
+function heroCard(d, label){
+  const meal = mainMeal(), dishes = foodOf(d, meal), photos = dishes.map(n => ({ n, u:dishUrl(n) })).filter(x => x.u).slice(0, 3);
+  const others = mealsFor(d).filter(m => m !== meal).map(m => ({ m, l:foodOf(d, m) })).filter(x => x.l.length);
+  const art = photos.length ? `<div class="hphotos">${photos.map(p => `<img src="${esc(p.u)}" alt="${esc(p.n)}">`).join('')}</div>`
+    : `<div class="hnone">${ic('food', 56)}<span>${dishes.length ? 'Dish ki photo abhi nahi lagi' : ''}</span></div>`;
+  return `<div class="hero">${art}<div class="hshade"></div>${isAdmin() ? `<button class="hedit noprint" onclick="dayEditor('${d}')">Edit</button>` : ''}
+    <div class="hcap"><div class="hl">${label}</div><div class="hd">${dayName(d)}, ${d.slice(8)}/${d.slice(5, 7)}/${d.slice(0, 4)}</div>
+    ${dishes.length ? `<div class="hdish">${dishes.map(x => `<span>${esc(x)}</span>`).join('')}</div>` : '<div class="hempty">Menu abhi set nahi hua</div>'}
+    ${others.map(o => `<div class="hoth">${esc(o.m)}: ${o.l.map(esc).join(', ')}</div>`).join('')}</div></div>`;
+}
+window.setFT = v => { S.fTab = v; render(); };
+window.fMonthNav = n => { S.fMonth = addMonths(S.fMonth, n); loadAll(); };
+function scheduleHTML(){
+  const t0 = todayStr(), t1 = plusDays(t0, 1), ms = S.meals.slice();
+  S.food.filter(x => x.menu_date.startsWith(S.fMonth)).forEach(x => { if (!ms.includes(x.meal)) ms.push(x.meal); });
+  const nav = `<div class="monthbar noprint"><button class="btn ghost sm" onclick="fMonthNav(-1)" aria-label="Pichhla mahina">&lsaquo;</button><div style="flex:1;text-align:center"><b>${monthLabel(S.fMonth)}</b></div><button class="btn ghost sm" onclick="fMonthNav(1)" aria-label="Agla mahina">&rsaquo;</button></div>`;
+  const rows = monthDates(S.fMonth).map(d => `<tr class="${d === t0 ? 'tod' : d === t1 ? 'tom' : ''} ${d < t0 ? 'past' : ''}" ${isAdmin() ? `onclick="dayEditor('${d}')" style="cursor:pointer"` : ''}>
+    <th class="gd">${d.slice(8)}/${d.slice(5, 7)}</th><td class="dy">${dayName(d)}${d === t0 ? '<span class="tg">Today</span>' : d === t1 ? '<span class="tg b">Tomorrow</span>' : ''}</td>
+    ${ms.map(m => `<td>${foodOf(d, m).map(esc).join(', ') || '<span class="s">-</span>'}</td>`).join('')}</tr>`).join('');
+  const adm = isAdmin() ? `<div class="hint">Kisi bhi din ki row par tap karke us din ka menu badlo.</div>
+    <div class="acts noprint"><button class="btn ghost sm" onclick="weekEditor()">Hafte ka plan</button><button class="btn ghost sm" onclick="copyWeekForm()">Hafta copy</button><button class="btn ghost sm" onclick="monthRepeatForm()">Mahine me repeat</button><button class="btn ghost sm" onclick="mealsForm()">Meal categories</button></div>` : '';
+  return `${nav}<div class="schw"><table class="sch"><thead><tr><th>Date</th><th>Day</th>${ms.map(m => `<th>${esc(m)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>${adm}`;
+}
+function vFood(){
+  const t0 = todayStr(), t1 = plusDays(t0, 1), meal = esc(mainMeal());
+  const seg = `<div class="segbar noprint"><button class="${S.fTab === 'home' ? 'on' : ''}" onclick="setFT('home')">Today &amp; Tomorrow</button><button class="${S.fTab === 'schedule' ? 'on' : ''}" onclick="setFT('schedule')">Schedule</button></div>`;
+  $('#view').innerHTML = seg + (S.fTab === 'home' ? `<div class="heroes">${heroCard(t0, "Today's " + meal)}${heroCard(t1, "Tomorrow's " + meal)}</div>` : scheduleHTML());
+}
+/* --- admin: ek din ka editor (dish ke naam + photo) --- */
+let ED = null;
+const dishList = () => [...new Set(S.food.map(x => x.dish))].sort();
+const q2 = m => JSON.stringify(m).replace(/"/g, '&quot;');
+window.dayEditor = d => {
+  ED = { date:d, draft:{} }; mealsFor(d).forEach(m => ED.draft[m] = foodOf(d, m));
+  modal(`<h3>${dayName(d)}, ${d.slice(8)}/${d.slice(5, 7)}: menu</h3>
+  <div class="acts" style="margin:0 0 6px"><button class="btn ghost sm" onclick="edCopyPrev()">Pichhle din ka copy</button></div>
+  <datalist id="dl">${dishList().map(x => `<option value="${esc(x)}">`).join('')}</datalist>
+  <div id="edbody"></div><div class="err" id="ed_e" style="color:var(--give)"></div>
+  <div class="row" style="margin-top:16px"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="edSave()">Save karo</button></div>`);
+  edRender();
+};
+function edRender(){
+  $('#edbody').innerHTML = Object.keys(ED.draft).map(m => `<div class="meal"><b>${esc(m)}</b>
+    ${ED.draft[m].map((x, i) => { const u = dishUrl(x); return `<div class="dedit"><div class="row" style="gap:8px">${u ? `<img class="dthumb" src="${esc(u)}" alt="">` : ''}<input list="dl" value="${esc(x)}" placeholder="Dish ka naam" oninput="edSet(${q2(m)},${i},this.value)" style="flex:1;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px" aria-label="Dish"></div>
+      <div class="acts"><button class="btn ghost sm" onclick="edPhoto(${q2(m)},${i})">${u ? 'Photo badlo' : 'Photo lagao'}</button>${u ? `<button class="btn ghost sm give" onclick="edPhotoDel(${q2(m)},${i})">Photo hatao</button>` : ''}<button class="btn ghost sm give" onclick="edDel(${q2(m)},${i})">Dish hatao</button></div></div>`; }).join('')}
+    <div class="acts"><button class="btn ghost sm" onclick="edAdd(${q2(m)})">+ Dish</button></div></div>`).join('');
+}
+window.edSet = (m, i, v) => { ED.draft[m][i] = v; };
+window.edDel = (m, i) => { ED.draft[m].splice(i, 1); edRender(); };
+window.edAdd = m => { ED.draft[m].push(''); edRender(); };
+window.edCopyPrev = () => {
+  const p = plusDays(ED.date, -1);
+  if (!dayHas(p)) return toast('Pichhle din ka menu nahi hai');
+  Object.keys(ED.draft).forEach(m => ED.draft[m] = foodOf(p, m)); edRender(); toast('Copy ho gaya. Save karna na bhoolo.');
+};
+window.edSave = async () => {
+  const rows = Object.keys(ED.draft).map(m => ({ date:ED.date, meal:m, dishes:ED.draft[m].map(x => x.trim()).filter(Boolean) }));
+  const { error } = await sb.rpc('save_menu_days', { p_rows:rows });
+  if (error) return ($('#ed_e').textContent = 'Save nahi hua: ' + errMsg(error));
+  closeModal(); toast('Menu save ho gaya'); loadAll();
+};
+window.edPhoto = (m, i) => {
+  const name = (ED.draft[m][i] || '').trim(); if (!name) return toast('Pehle dish ka naam likho');
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/jpeg,image/png,image/webp';
+  inp.onchange = async () => {
+    const f = inp.files && inp.files[0]; if (!f) return;
+    if (!hasType(f, IMG_TYPES, /\.(jpe?g|png|webp)$/i)) return toast('Sirf JPG, PNG ya WebP photo chuno');
+    if (f.size > 10 * 1024 * 1024) return toast('Photo 10 MB se badi hai');
+    try {
+      toast('Photo save ho rahi hai...');
+      const blob = await compress(f, 1000, 0.82), path = Date.now() + '.jpg', old = S.dishPhotos[dkey(name)];
+      const up = await sb.storage.from('dishes').upload(path, blob, { contentType:'image/jpeg' }); if (up.error) throw up.error;
+      const row = { name_key:dkey(name), name, photo_path:path, updated_at:new Date().toISOString() };
+      const r = await sb.from('dish_photos').upsert(row);
+      if (r.error){ sb.storage.from('dishes').remove([path]); throw r.error; }
+      if (old) sb.storage.from('dishes').remove([old.photo_path]);
+      S.dishPhotos[row.name_key] = row; toast('Dish ki photo lag gayi'); if ($('#edbody')) edRender(); render();
+    } catch (e) { toast('Nahi hua: ' + errMsg(e)); }
+  };
+  inp.click();
+};
+window.edPhotoDel = async (m, i) => {
+  const k = dkey(ED.draft[m][i]), p = S.dishPhotos[k]; if (!p) return;
+  if (!confirm('Is dish ki photo hatani hai?')) return;
+  const { error } = await sb.from('dish_photos').delete().eq('name_key', k);
+  if (error) return toast(errMsg(error));
+  sb.storage.from('dishes').remove([p.photo_path]); delete S.dishPhotos[k]; edRender(); render(); toast('Photo hata di');
+};
+/* --- admin: hafte ka plan --- */
+window.weekPick = async () => { const v = $('#we_d').value; if (!v) return; S.fWeek = weekStart(v); await loadAll(); weekEditor(); };
+window.weekEditor = () => {
+  const days = Array.from({ length:7 }, (_, i) => plusDays(S.fWeek, i)), ms = S.meals;
+  modal(`<h3>Hafte ka plan (${dmy(days[0])} se ${dmy(days[6])})</h3>
+  <div class="monthbar"><input type="date" id="we_d" value="${S.fWeek}" aria-label="Hafte ki koi tareekh"><button class="btn ghost sm" onclick="weekPick()">Ye hafta kholo</button></div>
+  <div class="hint">Har dish nayi line me likho. Khali chhodne par us din ka us meal ka menu hat jayega. Hafta badalne par bina save kiya badlav chale jate hain.</div>
+  <form class="f" id="wf">${days.map(d => `<div class="meal"><b>${dayName(d)} ${dmy(d)}</b>${ms.map(m => `<label>${esc(m)}</label><textarea data-d="${d}" data-m="${esc(m)}" style="min-height:64px">${esc(foodOf(d, m).join('\n'))}</textarea>`).join('')}</div>`).join('')}
+  <div class="err" id="w_e" style="color:var(--give)"></div>
+  <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div></form>`);
+  $('#wf').onsubmit = async ev => {
+    ev.preventDefault();
+    const rows = [...document.querySelectorAll('#wf textarea')].map(t => ({ date:t.dataset.d, meal:t.dataset.m, dishes:t.value.split('\n').map(x => x.trim()).filter(Boolean) }));
+    const { error } = await sb.rpc('save_menu_days', { p_rows:rows });
+    if (error) return ($('#w_e').textContent = 'Save nahi hua: ' + errMsg(error));
+    closeModal(); toast('Hafte ka menu save ho gaya'); loadAll();
+  };
+};
+/* --- admin: hafta copy / mahine me repeat (pure logic) --- */
+function copyWeekRows(food, meals, srcStart, dstStart){
+  const rows = [];
+  for (let i = 0; i < 7; i++){
+    const s = plusDays(srcStart, i), d = plusDays(dstStart, i);
+    const ms = [...new Set(meals.concat(food.filter(x => x.menu_date === s).map(x => x.meal)))];
+    ms.forEach(m => rows.push({ date:d, meal:m, dishes:food.filter(x => x.menu_date === s && x.meal === m).sort((a, b) => a.sort - b.sort).map(x => x.dish) }));
+  }
+  return rows;
+}
+function monthRepeatRows(food, meals, srcStart, month, onlyEmpty){
+  const rows = [];
+  monthDates(month).forEach(d => {
+    if (onlyEmpty && food.some(x => x.menu_date === d)) return;
+    const s = plusDays(srcStart, dow(d));
+    const ms = [...new Set(meals.concat(food.filter(x => x.menu_date === s).map(x => x.meal)))];
+    ms.forEach(m => rows.push({ date:d, meal:m, dishes:food.filter(x => x.menu_date === s && x.meal === m).sort((a, b) => a.sort - b.sort).map(x => x.dish) }));
+  });
+  return rows;
+}
+const weekLoaded = ws => !!S.foodFrom && ws >= S.foodFrom && plusDays(ws, 6) <= S.foodTo;
+window.copyWeekForm = () => {
+  modal(`<h3>Hafta copy karo</h3><form class="f" id="cwf">
+    <label>Kis hafte se (us hafte ki koi bhi tareekh)</label><input type="date" id="cw_s" value="${S.fWeek}" required>
+    <label>Kis hafte me (us hafte ki koi bhi tareekh)</label><input type="date" id="cw_d" value="${plusDays(S.fWeek, 7)}" required>
+    <div class="hint">Hafta Sunday se Saturday tak maana jata hai. Neeche wale hafte ka purana menu badal jayega.</div><div class="err" id="cw_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Copy karo</button></div></form>`);
+  $('#cwf').onsubmit = async ev => {
+    ev.preventDefault();
+    const s = weekStart($('#cw_s').value), d = weekStart($('#cw_d').value);
+    if (s === d) return ($('#cw_e').textContent = 'Dono hafte alag chuno.');
+    if (!weekLoaded(s)) return ($('#cw_e').textContent = 'Wo hafta abhi load nahi hai. Pehle "Hafte ka plan" me wo hafta kholo, phir copy karo.');
+    const rows = copyWeekRows(S.food, S.meals, s, d);
+    if (!confirm(dmy(s) + ' wale hafte ka menu ' + dmy(d) + ' wale hafte me copy karna hai?')) return;
+    const { error } = await sb.rpc('save_menu_days', { p_rows:rows });
+    if (error) return ($('#cw_e').textContent = 'Nahi hua: ' + errMsg(error));
+    closeModal(); toast('Hafta copy ho gaya'); loadAll();
+  };
+};
+window.monthRepeatForm = () => {
+  modal(`<h3>Mahine me repeat karo</h3><form class="f" id="mrf">
+    <label>Kis hafte ka pattern (us hafte ki koi bhi tareekh)</label><input type="date" id="mr_s" value="${S.fWeek}" required>
+    <div class="hint">Us hafte ka har din (Sunday, Monday...) ${monthLabel(S.fMonth)} ke saare waise din par laga diya jayega.</div>
+    <label class="chk" style="border:0;padding:0"><input type="checkbox" id="mr_o" checked style="width:auto"> Sirf wahi din bharo jinka menu abhi khali hai</label>
+    <div class="err" id="mr_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Laga do</button></div></form>`);
+  $('#mrf').onsubmit = async ev => {
+    ev.preventDefault();
+    const ws = weekStart($('#mr_s').value);
+    if (!weekLoaded(ws)) return ($('#mr_e').textContent = 'Wo hafta abhi load nahi hai. Pehle "Hafte ka plan" me wo hafta kholo.');
+    const rows = monthRepeatRows(S.food, S.meals, ws, S.fMonth, $('#mr_o').checked);
+    if (!rows.length) return ($('#mr_e').textContent = 'Koi din bharne ke liye nahi mila.');
+    if (!confirm(rows.length + ' menu entries ' + monthLabel(S.fMonth) + ' me lagani hain?')) return;
+    const { error } = await sb.rpc('save_menu_days', { p_rows:rows });
+    if (error) return ($('#mr_e').textContent = 'Nahi hua: ' + errMsg(error));
+    closeModal(); toast('Mahine ka menu lag gaya'); loadAll();
+  };
+};
+window.mealsForm = () => {
+  const list = S.meals.slice();
+  const draw = () => { $('#ml').innerHTML = list.map((m, i) => `<div class="row" style="margin-top:6px"><input value="${esc(m)}" oninput="MLset(${i},this.value)" maxlength="30" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:10px" aria-label="Meal"><button class="btn ghost sm give" onclick="MLdel(${i})">Hatao</button></div>`).join(''); };
+  window.MLset = (i, v) => { list[i] = v; }; window.MLdel = i => { if (list.length > 1){ list.splice(i, 1); draw(); } else toast('Kam se kam ek meal chahiye'); };
+  modal(`<h3>Meal categories</h3><div class="hint">Jo meals room me chalte hain wahi rakho (jaise Breakfast, Lunch, Dinner). Default sirf Dinner hai. Pehle page par "Dinner" ki photo dikhti hai.</div>
+    <div id="ml"></div><div class="acts"><button class="btn ghost sm" id="mladd">+ Meal</button><button class="btn ghost sm" id="mlq">Breakfast / Lunch / Dinner</button></div>
+    <div class="err" id="ml_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" id="mlsave">Save karo</button></div>`);
+  draw();
+  $('#mladd').onclick = () => { list.push(''); draw(); };
+  $('#mlq').onclick = () => { list.length = 0; list.push('Breakfast', 'Lunch', 'Dinner'); draw(); };
+  $('#mlsave').onclick = async () => {
+    const clean = [...new Set(list.map(x => x.trim()).filter(Boolean))];
+    if (!clean.length) return ($('#ml_e').textContent = 'Kam se kam ek meal chahiye.');
+    const { error } = await sb.from('app_settings').upsert({ key:'meals', value:clean, updated_at:new Date().toISOString() });
+    if (error) return ($('#ml_e').textContent = 'Save nahi hua: ' + errMsg(error));
+    closeModal(); toast('Meal categories save ho gayi'); loadAll();
+  };
+};
+
+/* ===================== MEMBER MANAGEMENT (admin) ===================== */
+const normPhone = v => { let d = String(v || '').replace(/\D/g, ''); if (d.startsWith('00')) d = d.slice(2); if (d.length === 8) d = '965' + d; return d; };
+const showPhone = p => p ? '+' + p : '';
+function vMem(){
+  $('#view').innerHTML = `<h2 style="margin-top:0">Members (${S.members.filter(m => m.active).length} active)</h2>
+  <p class="hint" style="margin:0 0 10px">"Hisaab bhejo" us mahine ka hisaab bhejta hai jo neeche chuna hai (<b>${S.month}</b>).</p>
+  <div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button></div>
+  <div class="card">${S.members.map(m => {
+    const ph = S.phones[m.id];
+    return `<div class="li" style="display:block"><div class="row" style="justify-content:flex-start;gap:12px">${av(m, 44)}<div style="min-width:0"><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Band</span>'}</div>
+    <div class="s">Member ID: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div></div></div>
+    <div class="acts">
+      <button class="btn sm" onclick="sendHisaab('${m.id}')">Hisaab bhejo</button>
+      <button class="btn ghost sm" onclick="phoneForm('${m.id}')">${ph ? 'Mobile edit' : 'Mobile add'}</button>
+      <button class="btn ghost sm" onclick="avatarSheet('${m.id}')">Photo</button>
+      <button class="btn ghost sm" onclick="memEdit('${m.id}')">Naam badlo</button>
+      <button class="btn ghost sm" onclick="toggleMem('${m.id}')">${m.active ? 'Deactivate' : 'Activate'}</button>
+      ${m.id === S.me.id ? '' : `<button class="btn ghost sm give" onclick="delMem('${m.id}')">Delete</button>`}
+    </div></div>`;
+  }).join('')}</div>
+  <p class="hint">Deactivate kiya member login nahi kar sakta. Purana record safe rehta hai. Password reset aur Member ID badalna "Password Reset" screen me hai. Mobile number sirf admin dekh sakta hai.</p>`;
+}
+window.phoneForm = id => {
+  const m = memberOf(id), cur = S.phones[id];
+  modal(`<h3>${esc(m.name)}: mobile number</h3>
+  <form class="f" id="pf">
+    <label>Mobile number</label>
+    <input id="p_n" type="tel" inputmode="tel" value="${cur ? esc(showPhone(cur)) : ''}" placeholder="Kuwait: 8 digit, ya country code ke saath" required>
+    <div class="hint">Kuwait ka number 8 digit me likho to +965 apne aap lag jayega. Doosre desh ka ho to country code ke saath likho (jaise +91...).</div>
+    <div class="err" id="p_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div>
+    ${cur ? '<button type="button" class="btn ghost" id="p_del" style="width:100%;margin-top:10px;color:var(--give)">Number hatao</button>' : ''}
+  </form>`);
+  $('#pf').onsubmit = async ev => {
+    ev.preventDefault();
+    const d = normPhone($('#p_n').value);
+    if (d.length < 10 || d.length > 15) return ($('#p_e').textContent = 'Number sahi nahi lag raha. Country code ke saath check karo.');
+    const { error } = await sb.from('member_phones').upsert({ member_id:id, phone:d, updated_at:new Date().toISOString() });
+    if (error) return ($('#p_e').textContent = 'Save nahi hua: ' + errMsg(error));
+    closeModal(); toast('Number save ho gaya'); loadAll();
+  };
+  const del = $('#p_del');
+  if (del) del.onclick = async () => {
+    if (!confirm('Ye number hatana hai?')) return;
+    const { error } = await sb.from('member_phones').delete().eq('member_id', id);
+    if (error) return ($('#p_e').textContent = errMsg(error));
+    closeModal(); toast('Number hata diya'); loadAll();
+  };
+};
+function hisaabMsg(r){
+  const n = Number(r.net), tr = transfers().filter(t => t.from === r.name || t.to === r.name);
+  const lines = [`*Shahid Sharing: Hisaab (${S.month}${S.carry ? ', shuru se ab tak' : ''})*`, `Naam: ${r.name}`,
+    `Kharcha diya: ${fmt(r.paid)} ${CURRENCY}`, `Aapka hissa: ${fmt(r.share)} ${CURRENCY}`];
+  if (Number(r.advance || 0)) lines.push(`Advance: ${Number(r.advance) > 0 ? '+' : ''}${fmt(r.advance)} ${CURRENCY}`);
+  lines.push(n > 0.0005 ? `*Net: Aapko ${fmt(n)} ${CURRENCY} milenge*` : n < -0.0005 ? `*Net: Aapko ${fmt(-n)} ${CURRENCY} dene hain*` : '*Net: Hisaab barabar hai*');
+  if (tr.length){ lines.push('', 'Kisko dena hai:'); tr.forEach(t => lines.push(`• ${t.from} → ${t.to}: ${fmt(t.amt)} ${CURRENCY}`)); }
+  lines.push('', 'Shukriya');
+  return lines.join('\n');
+}
+window.sendHisaab = id => {
+  const ph = S.phones[id];
+  if (!ph){ toast('Pehle mobile number add karo'); return phoneForm(id); }
+  const r = S.summary.find(x => x.member_id === id);
+  if (!r) return toast('Is mahine ka hisaab nahi mila');
+  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent(hisaabMsg(r)), '_blank');
+};
+window.memForm = () => {
+  modal(`<h3>Naya member</h3>
+  <form class="f" id="mf">
+    <label>Pura naam</label><input id="m_n" required>
+    <label>Member ID / Username (chhota, english me, bina space)</label><input id="m_u" autocapitalize="none" pattern="[a-zA-Z0-9_.]+" required>
+    <label>Password (kam se kam 6 akshar)</label><input id="m_p" minlength="6" required>
+    <label>Mobile number (optional)</label><input id="m_ph" type="tel" inputmode="tel" placeholder="Kuwait: 8 digit">
+    <div class="err" id="m_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Member banao</button></div>
+  </form>`);
+  $('#mf').onsubmit = async ev => {
+    ev.preventDefault();
+    const name = $('#m_n').value.trim(), u = $('#m_u').value.trim().toLowerCase(), p = $('#m_p').value;
+    const ph = $('#m_ph').value.trim() ? normPhone($('#m_ph').value) : '';
+    if (ph && (ph.length < 10 || ph.length > 15)) return ($('#m_e').textContent = 'Mobile number sahi nahi lag raha.');
+    $('#m_e').textContent = 'Ban raha hai...';
+    const tmp = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{ persistSession:false, autoRefreshToken:false, storageKey:'tmp-signup' } });
+    const { data, error } = await tmp.auth.signUp({ email:u + DOMAIN, password:p, options:{ data:{ name } } });
+    if (error) return ($('#m_e').textContent = error.message.includes('registered') ? 'Ye username pehle se hai.' : 'Nahi bana: ' + error.message);
+    if (ph && data && data.user) await sb.from('member_phones').upsert({ member_id:data.user.id, phone:ph });
+    closeModal(); toast(name + ' ban gaya'); loadAll();
+  };
+};
+window.memEdit = id => {
+  const m = memberOf(id), n = prompt('Naya naam:', m.name);
+  if (n && n.trim()) sb.from('profiles').update({ name:n.trim() }).eq('id', id).then(({ error }) => { if (error) toast('Nahi hua'); else loadAll(); });
+};
+window.toggleMem = async id => {
+  const m = memberOf(id);
+  if (m.active && m.id === S.me.id) return toast('Apne aap ko deactivate nahi kar sakte');
+  if (m.active && !confirm(m.name + ' ko deactivate karna hai? Wo login nahi kar payega.')) return;
+  const { error } = await sb.rpc('admin_set_active', { p_member:id, p_active:!m.active });
+  if (error) toast(errMsg(error)); else { toast(m.active ? 'Deactivate ho gaya' : 'Activate ho gaya'); loadAll(); }
+};
+window.delMem = async id => {
+  const m = memberOf(id);
+  if (!confirm(m.name + ' ko delete karna hai?')) return;
+  const { error } = await sb.from('profiles').delete().eq('id', id);
+  if (error) alert('Delete nahi ho sakta kyunki iske kharche, advance ya rent record me hain. "Deactivate" use karo.');
+  else { toast('Delete ho gaya'); loadAll(); }
+};
+
+/* ===================== PASSWORD RESET (admin) ===================== */
+const lastReset = id => { const l = S.actlog.find(a => a.action === 'password_reset' && a.target === id); return l ? fdt(l.created_at) : null; };
+function pwList(){
+  const q = S.pwq.trim().toLowerCase(), qd = q.replace(/\D/g, '');
+  const list = S.members.filter(m => !q || m.name.toLowerCase().includes(q) || m.username.toLowerCase().includes(q) || (qd && (S.phones[m.id] || '').includes(qd)));
+  return list.map(m => { const lr = lastReset(m.id), ph = S.phones[m.id];
+    return `<div class="li" style="display:block"><div class="row" style="justify-content:flex-start;gap:12px">${av(m, 44)}<div style="min-width:0"><div class="t">${esc(m.name)} ${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Inactive</span>'}</div>
+    <div class="s">Member ID: <b>${esc(m.username)}</b>${ph ? ' · ' + esc(showPhone(ph)) : ''}</div>
+    <div class="s">Aakhri password reset: ${lr || 'abhi tak nahi'}</div></div></div>
+    <div class="acts"><button class="btn sm" onclick="resetPw('${m.id}')">Password reset</button><button class="btn ghost sm" onclick="changeMemberId('${m.id}')">Member ID badlo</button>
+    <button class="btn ghost sm" onclick="toggleMem('${m.id}')">${m.active ? 'Deactivate' : 'Activate'}</button></div></div>`; }).join('') || '<div class="empty">Koi member nahi mila.</div>';
+}
+function vPwReset(){
+  $('#view').innerHTML = `<div class="info">Password kabhi dikhaya ya save nahi hota. Reset par server naya password hash karke rakhta hai aur member ke purane login band ho jate hain.</div>
+  <div class="monthbar"><input id="pwq" type="search" placeholder="Naam, mobile ya Member ID se dhundo" value="${esc(S.pwq)}" aria-label="Member search"><button class="btn ghost sm" onclick="showActLog()">Activity log</button></div>
+  <div class="card" id="pwlist">${pwList()}</div>`;
+  $('#pwq').oninput = () => { S.pwq = $('#pwq').value; $('#pwlist').innerHTML = pwList(); };
+}
+const genPw = () => { const c = 'abcdefghjkmnpqrstuvwxyz23456789'; let s = ''; for (let i = 0; i < 8; i++) s += c[Math.floor(Math.random() * c.length)]; return s; };
+window.resetPw = async id => {
+  const m = memberOf(id);
+  let pw = prompt(m.name + ' ka naya password (kam se kam 6 akshar). Khali chhodo to naya random password ban jayega:', '');
+  if (pw === null) return;
+  const auto = !pw; if (auto) pw = genPw();
+  if (pw.length < 6) return alert('Password chhota hai.');
+  if (!confirm(m.name + ' ka password reset karna hai? Unke purane login band ho jayenge.')) return;
+  const { error } = await sb.rpc('admin_reset_password', { p_member:id, p_new:pw });
+  if (error) return toast(errMsg(error));
+  if (auto) alert('Naya password: ' + pw + '\n\nIse abhi member ko bata do. Ye dobara nahi dikhega.');
+  toast(m.name + ' ka password reset ho gaya'); loadAll();
+};
+window.changeMemberId = async id => {
+  const m = memberOf(id), v = prompt(m.name + ' ka naya Member ID (3-30 akshar: a-z, 0-9, _ ya .):', m.username);
+  if (v === null || v.trim().toLowerCase() === m.username) return;
+  if (!confirm(m.username + ' ko ' + v.trim().toLowerCase() + ' karna hai? Member ko naye ID se login karna hoga.')) return;
+  const { error } = await sb.rpc('admin_change_username', { p_member:id, p_new:v });
+  if (error) return toast(errMsg(error));
+  toast('Member ID badal gaya'); loadAll();
+};
+window.showActLog = () => {
+  const lbl = { password_reset:'Password reset', member_id_change:'Member ID badla', account_activate:'Account activate', account_deactivate:'Account deactivate', restore_backup:'Backup restore' };
+  modal(`<h3>Admin activity log</h3><div class="card">${S.actlog.length ? S.actlog.map(a => `<div class="li" style="display:block"><div class="t">${lbl[a.action] || esc(a.action)}${a.target ? ' · ' + esc(nameOf(a.target)) : ''}</div>
+    <div class="s">${fdt(a.created_at)} · ${esc(nameOf(a.actor))}${a.detail ? ' · ' + esc(a.detail) : ''}</div></div>`).join('') : '<div class="empty">Abhi koi activity nahi.</div>'}</div>
+  <div class="row" style="margin-top:14px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>`);
+};
+
+/* ===================== BACKUP & RESTORE (admin) ===================== */
+function vBackup(){
+  const f = lsGet('ss_bkfreq') || 'none', last = lsGet('ss_lastbk'), kl = { daily:'Daily', weekly:'Weekly', monthly:'Monthly', manual:'Manual' };
+  $('#view').innerHTML = `<div class="card pad"><b>Backup (download)</b>
+    <div class="hint">Members ki list, kharche, advance, rent, menu, announcements ek JSON file me.${last ? ' Aakhri download: ' + fday(last) : ''}</div>
+    <div class="acts"><button class="btn sm" onclick="doBackupDownload()">Download karo</button><button class="btn ghost sm" onclick="doBackupSave()">Supabase me save karo</button></div></div>
+  <div class="card pad"><b>Restore</b>
+    <div class="hint">Backup file se kharche, advance, rent aur menu wapas jodta hai. Jo records pehle se hain unhe nahi chhedta aur kuch delete nahi karta. Locked mahine ke records chhod diye jate hain. Members/passwords restore nahi hote.</div>
+    <div class="acts"><button class="btn sm" onclick="restoreFile()">Backup file se restore</button></div></div>
+  <div class="card pad"><b>Yaad dilao</b><div class="hint">Is phone par backup lene ka reminder (Hisaab tab par dikhega).</div>
+    <select onchange="setBkFreq(this.value)" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;margin-top:8px;background:#fff" aria-label="Backup reminder">
+      ${[['none', 'Reminder nahi'], ['daily', 'Roz'], ['weekly', 'Har hafte'], ['monthly', 'Har mahine']].map(([v, l]) => `<option value="${v}" ${f === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+  <h2>Supabase me save backup (${S.backups.length})</h2>
+  <div class="card">${S.backups.length ? S.backups.map(b => `<div class="li"><div><div class="t">${kl[b.kind] || b.kind}</div><div class="s">${fdt(b.created_at)}</div></div>
+    <div class="acts" style="margin:0"><button class="btn ghost sm" onclick="dlSnapshot('${b.id}')">Download</button><button class="btn ghost sm" onclick="restoreSnapshot('${b.id}')">Restore</button></div></div>`).join('') : '<div class="empty">Abhi koi saved backup nahi. Roz apne aap ke liye supabase_backup_cron.sql chalao.</div>'}</div>
+  <p class="hint">Chat, status, profile pictures aur bill ki photos is backup me shamil nahi hain.</p>`;
+}
+window.setBkFreq = v => { lsSet('ss_bkfreq', v); toast('Reminder set ho gaya'); };
+const bkDue = () => { const f = lsGet('ss_bkfreq'); if (!f || f === 'none') return false; const last = lsGet('ss_lastbk'); if (!last) return true;
+  return (Date.now() - new Date(last).getTime()) / 86400000 >= ({ daily:1, weekly:7, monthly:30 }[f] || 9999); };
+window.doBackupDownload = async () => {
+  const { data, error } = await sb.rpc('export_all');
+  if (error) return toast(errMsg(error));
+  downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type:'application/json' }), 'shahid-sharing-backup-' + todayStr() + '.json');
+  lsSet('ss_lastbk', new Date().toISOString()); toast('Backup download ho gaya'); render();
+};
+window.doBackupSave = async () => {
+  const { error } = await sb.rpc('take_backup', { p_kind:'manual' });
+  if (error) return toast(errMsg(error)); toast('Backup Supabase me save ho gaya'); loadAll();
+};
+window.dlSnapshot = async id => {
+  const { data, error } = await sb.from('backups').select('data,kind,created_at').eq('id', id).single();
+  if (error) return toast(errMsg(error));
+  downloadBlob(new Blob([JSON.stringify(data.data, null, 2)], { type:'application/json' }), 'backup-' + data.kind + '-' + data.created_at.slice(0, 10) + '.json');
+};
+async function runRestore(obj, label){
+  if (!obj || obj.app !== 'shahid-sharing') return alert('Ye Shahid Sharing ki backup file nahi lag rahi.');
+  const c = k => Array.isArray(obj[k]) ? obj[k].length : 0;
+  if (!confirm(label + ' me: kharche ' + c('expenses') + ', advance ' + c('transfers') + ', rent due ' + c('rent_dues') + ', rent payment ' + c('rent_payments') + ', menu ' + c('food_menu') + '.\n\nSirf wo records jodenge jo abhi maujood nahi hain. Aage badhein?')) return;
+  const { data, error } = await sb.rpc('restore_backup', { p_data:obj });
+  if (error) return toast(errMsg(error));
+  alert('Restore ho gaya.\nNaye jude: kharche ' + data.expenses + ', advance ' + data.transfers + ', rent due ' + data.rent_dues + ', rent payment ' + data.rent_payments + ', menu ' + data.food_menu + '.');
+  loadAll();
+}
+window.restoreFile = () => {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/json,.json';
+  inp.onchange = async () => {
+    const f = inp.files && inp.files[0]; if (!f) return;
+    if (f.size > 20 * 1024 * 1024) return toast('File bahut badi hai');
+    try { await runRestore(JSON.parse(await f.text()), 'File'); } catch (e) { toast('File padhi nahi ja saki'); }
+  };
+  inp.click();
+};
+window.restoreSnapshot = async id => {
+  const { data, error } = await sb.from('backups').select('data').eq('id', id).single();
+  if (error) return toast(errMsg(error)); runRestore(data.data, 'Saved backup');
+};
+
+/* ===================== SETTINGS (Reports & Settings) ===================== */
+function vSettings(){
+  $('#view').innerHTML = `<h2 style="margin-top:0">Reports</h2>
+  <div class="card"><button class="optbtn" style="border:0;border-radius:0;margin:0;background:none;border-bottom:1px solid var(--line)" onclick="go('report')">${ic('receipt')}<b>Report (PDF / Excel)</b></button>
+  <button class="optbtn" style="border:0;border-radius:0;margin:0;background:none" onclick="go('chart')">${ic('chart')}<b>Analysis chart</b></button></div>
+  <h2>Notifications</h2>
+  <div class="card">
+    <label class="sw"><input type="checkbox" ${S.prefs.announcements_on ? 'checked' : ''} onchange="setPref('announcements_on',this.checked)"><span>Announcement ke message (ON/OFF)</span></label>
+    <label class="sw"><input type="checkbox" ${S.prefs.chat_on ? 'checked' : ''} onchange="setPref('chat_on',this.checked)"><span>Group message ke alert (ON/OFF)</span></label></div>
+  <p class="hint">OFF karne par us ke naye message ka badge aur alert nahi aayega. Aap fir bhi screen kholkar padh sakte hain. App band hone par phone notification abhi nahi aati.</p>
+  <h2>Account</h2>
+  <div class="card"><div class="li"><div><div class="t">${esc(S.me.name)}</div><div class="s">Member ID: ${esc(S.me.username)}</div></div></div>
+  <div class="li"><button class="btn ghost sm" onclick="changePass()">Apna password badlo</button></div></div>
+  <p class="hint" style="text-align:center;margin-top:20px">Shahid Sharing</p>`;
+}
+window.setPref = async (col, val) => {
+  S.prefs[col] = val;
+  const { error } = await sb.from('member_prefs').upsert(prefsRow());
+  if (error) toast(errMsg(error)); else render();
+};
+window.changePass = async () => {
+  const p = prompt('Naya password (kam se kam 6 akshar):');
+  if (!p) return;
+  if (p.length < 6) return alert('Password chhota hai.');
+  const { error } = await sb.auth.updateUser({ password:p });
+  toast(error ? 'Password nahi badla' : 'Password badal gaya');
+};
 
 /* ---------- EXPENSE FORM (admin) ---------- */
 window.expForm = id => {
@@ -601,7 +1960,7 @@ window.expForm = id => {
     <label>Category</label>
     <select id="e_ct">${CATS.map(c => `<option ${e && e.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select>
     <label>Tareekh</label>
-    <input id="e_dt" type="date" value="${e ? e.date : new Date().toISOString().slice(0, 10)}" required>
+    <input id="e_dt" type="date" value="${e ? e.date : todayStr()}" required>
     <label>Hissa kaise bantna hai</label>
     <div class="seg">
       <label><input type="radio" name="sm" value="all" ${sel === 'all' ? 'checked' : ''}> Sab me barabar</label>
@@ -634,16 +1993,14 @@ window.delExp = async id => {
   if (error) toast(errMsg(error)); else { toast('Delete ho gaya'); loadAll(); }
 };
 
-/* ---------- ADVANCE FORM (admin, multi-select) ---------- */
+/* ---------- ADVANCE FORM (multi-select) ---------- */
 window.xForm = id => {
   const t = id ? S.xfers.find(x => x.id === id) : null;
   const act = S.members.filter(m => m.active);
-  const toOpts = sel => (sel ? '' : '<option value="">-- chuno --</option>') + S.members
-    .filter(m => m.active || (t && m.id === t.to_member))
+  const toOpts = sel => (sel ? '' : '<option value="">-- chuno --</option>') + S.members.filter(m => m.active || (t && m.id === t.to_member))
     .map(m => `<option value="${m.id}" ${sel === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('');
   const fromBlock = t
-    ? `<label>Kisne paisa diya</label>
-       <select id="x_f">${S.members.filter(m => m.active || m.id === t.from_member).map(m => `<option value="${m.id}" ${t.from_member === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>`
+    ? `<label>Kisne paisa diya</label><select id="x_f">${S.members.filter(m => m.active || m.id === t.from_member).map(m => `<option value="${m.id}" ${t.from_member === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>`
     : `<label>Kisne paisa diya (ek ya zyada member chuno)</label>
        <div class="row" style="margin-bottom:6px"><button type="button" class="btn ghost sm" id="x_all">Sab chuno</button><span id="x_cnt" class="hint"></span></div>
        <div class="chk" id="x_ch">${act.map(m => `<label><input type="checkbox" value="${m.id}"> ${esc(m.name)}</label>`).join('')}</div>`;
@@ -656,35 +2013,20 @@ window.xForm = id => {
     <input id="x_a" type="number" step="0.001" min="0.001" inputmode="decimal" value="${t ? t.amount : ''}" required>
     ${t ? '' : '<div class="hint" id="x_sum"></div>'}
     <label>Type</label>
-    <select id="x_k">
-      <option value="advance" ${!t || t.kind === 'advance' ? 'selected' : ''}>Advance (mahine ke liye jama)</option>
-      <option value="settlement" ${t && t.kind === 'settlement' ? 'selected' : ''}>Settlement (purana hisaab chukaya)</option>
-    </select>
-    <label>Tareekh</label>
-    <input id="x_d" type="date" value="${t ? t.date : new Date().toISOString().slice(0, 10)}" required>
-    <label>Note (optional)</label>
-    <input id="x_n" value="${t ? esc(t.note) : ''}" placeholder="jaise: cash diya">
+    <select id="x_k"><option value="advance" ${!t || t.kind === 'advance' ? 'selected' : ''}>Advance (mahine ke liye jama)</option>
+      <option value="settlement" ${t && t.kind === 'settlement' ? 'selected' : ''}>Settlement (purana hisaab chukaya)</option></select>
+    <label>Tareekh</label><input id="x_d" type="date" value="${t ? t.date : todayStr()}" required>
+    <label>Note (optional)</label><input id="x_n" value="${t ? esc(t.note) : ''}" placeholder="jaise: cash diya">
     <div class="err" id="x_e" style="color:var(--give)"></div>
     <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit" id="x_bt">Save karo</button></div>
   </form>`);
-  const chosen = () => {
-    const to = $('#x_t').value;
-    return [...document.querySelectorAll('#x_ch input:checked')].map(i => i.value).filter(v => v !== to);
-  };
-  const upd = () => {
-    if (t) return;
-    const n = chosen().length, a = parseFloat($('#x_a').value) || 0;
+  const chosen = () => { const to = $('#x_t').value; return [...document.querySelectorAll('#x_ch input:checked')].map(i => i.value).filter(v => v !== to); };
+  const upd = () => { if (t) return; const n = chosen().length, a = parseFloat($('#x_a').value) || 0;
     $('#x_cnt').textContent = n + ' member chune';
-    $('#x_sum').textContent = n && a ? `${n} x ${fmt(a)} = ${fmt(n * a)} ${CURRENCY} total (jis ko diya, uska naam apne aap hat jata hai)` : '';
-  };
+    $('#x_sum').textContent = n && a ? `${n} x ${fmt(a)} = ${fmt(n * a)} ${CURRENCY} total (jis ko diya, uska naam apne aap hat jata hai)` : ''; };
   if (!t){
-    $('#x_all').onclick = () => {
-      const boxes = [...document.querySelectorAll('#x_ch input')];
-      const all = boxes.every(b => b.checked);
-      boxes.forEach(b => b.checked = !all); upd();
-    };
-    document.querySelectorAll('#x_ch input').forEach(b => b.onchange = upd);
-    $('#x_a').oninput = upd; $('#x_t').onchange = upd; upd();
+    $('#x_all').onclick = () => { const b = [...document.querySelectorAll('#x_ch input')], all = b.every(x => x.checked); b.forEach(x => x.checked = !all); upd(); };
+    document.querySelectorAll('#x_ch input').forEach(b => b.onchange = upd); $('#x_a').oninput = upd; $('#x_t').onchange = upd; upd();
   }
   $('#xf').onsubmit = async ev => {
     ev.preventDefault();
@@ -701,7 +2043,7 @@ window.xForm = id => {
       const ids = chosen();
       if (!ids.length) return ($('#x_e').textContent = 'Kam se kam ek dene wala member chuno.');
       $('#x_bt').disabled = true;
-      res = await sb.from('transfers').insert(ids.map(f => ({ ...base, from_member: f })));
+      res = await sb.from('transfers').insert(ids.map(f => ({ ...base, from_member:f })));
     }
     if (res.error){ $('#x_bt').disabled = false; return ($('#x_e').textContent = 'Save nahi hua: ' + errMsg(res.error)); }
     closeModal(); toast('Save ho gaya'); loadAll();
@@ -711,134 +2053,6 @@ window.delX = async id => {
   if (!confirm('Ye entry delete karni hai?')) return;
   const { error } = await sb.from('transfers').delete().eq('id', id);
   if (error) toast(errMsg(error)); else { toast('Delete ho gaya'); loadAll(); }
-};
-
-/* ---------- MEMBERS (admin) ---------- */
-const normPhone = v => { let d = String(v || '').replace(/\D/g, ''); if (d.startsWith('00')) d = d.slice(2); if (d.length === 8) d = '965' + d; return d; };
-const showPhone = p => p ? '+' + p : '';
-
-function vMem(){
-  $('#view').innerHTML = `<button class="btn ghost sm back noprint" onclick="go('more')">← Wapas</button>
-  <h2 style="margin-top:0">Members (${S.members.filter(m => m.active).length} active)</h2>
-  <p class="hint" style="margin:0 0 10px">"Hisaab bhejo" us mahine ka hisaab dikhata hai jo neeche chuna hai (<b>${S.month}</b>).</p>
-  ${monthBar()}
-  <div class="card">${S.members.map(m => {
-    const ph = S.phones[m.id];
-    return `<div class="li" style="display:block"><div class="row"><div><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${m.active ? '' : '<span class="pill off">Band</span>'}</div>
-    <div class="s">Username: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div></div></div>
-    <div class="acts">
-      <button class="btn sm" onclick="sendHisaab('${m.id}')">Hisaab bhejo</button>
-      <button class="btn ghost sm" onclick="phoneForm('${m.id}')">${ph ? 'Mobile edit' : 'Mobile add'}</button>
-      <button class="btn ghost sm" onclick="memEdit('${m.id}')">Naam badlo</button>
-      <button class="btn ghost sm" onclick="toggleMem('${m.id}')">${m.active ? 'Band karo' : 'Chalu karo'}</button>
-      ${m.id === S.me.id ? '' : `<button class="btn ghost sm give" onclick="delMem('${m.id}')">Delete</button>`}
-    </div></div>`;
-  }).join('')}</div>
-  <p class="hint">Band kiya hua member naye kharche ke hisse me nahi aata. Purana record safe rehta hai. Mobile number sirf admin dekh sakta hai.</p>`;
-}
-
-window.phoneForm = id => {
-  const m = S.members.find(x => x.id === id), cur = S.phones[id];
-  modal(`<h3>${esc(m.name)}: mobile number</h3>
-  <form class="f" id="pf">
-    <label>Mobile number</label>
-    <input id="p_n" type="tel" inputmode="tel" value="${cur ? esc(showPhone(cur)) : ''}" placeholder="Kuwait: 8 digit, ya country code ke saath" required>
-    <div class="hint">Kuwait ka number 8 digit me likho to +965 apne aap lag jayega. Doosre desh ka ho to country code ke saath likho (jaise +91...).</div>
-    <div class="err" id="p_e" style="color:var(--give)"></div>
-    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div>
-    ${cur ? '<button type="button" class="btn ghost give" id="p_del" style="width:100%;margin-top:10px">Number hatao</button>' : ''}
-  </form>`);
-  $('#pf').onsubmit = async ev => {
-    ev.preventDefault();
-    const d = normPhone($('#p_n').value);
-    if (d.length < 10 || d.length > 15) return ($('#p_e').textContent = 'Number sahi nahi lag raha. Country code ke saath check karo.');
-    const { error } = await sb.from('member_phones').upsert({ member_id:id, phone:d, updated_at:new Date().toISOString() });
-    if (error) return ($('#p_e').textContent = 'Save nahi hua: ' + errMsg(error));
-    closeModal(); toast('Number save ho gaya'); loadAll();
-  };
-  const del = $('#p_del');
-  if (del) del.onclick = async () => {
-    if (!confirm('Ye number hatana hai?')) return;
-    const { error } = await sb.from('member_phones').delete().eq('member_id', id);
-    if (error) return ($('#p_e').textContent = errMsg(error));
-    closeModal(); toast('Number hata diya'); loadAll();
-  };
-};
-
-function hisaabMsg(r){
-  const n = Number(r.net), tr = transfers().filter(t => t.from === r.name || t.to === r.name);
-  const lines = [
-    `*Shahid Sharing: Hisaab (${S.month}${S.carry ? ', shuru se ab tak' : ''})*`,
-    `Naam: ${r.name}`,
-    `Kharcha diya: ${fmt(r.paid)} ${CURRENCY}`,
-    `Aapka hissa: ${fmt(r.share)} ${CURRENCY}`
-  ];
-  if (Number(r.advance || 0)) lines.push(`Advance: ${Number(r.advance) > 0 ? '+' : ''}${fmt(r.advance)} ${CURRENCY}`);
-  lines.push(n > 0.0005 ? `*Net: Aapko ${fmt(n)} ${CURRENCY} milenge*` : n < -0.0005 ? `*Net: Aapko ${fmt(-n)} ${CURRENCY} dene hain*` : '*Net: Hisaab barabar hai*');
-  if (tr.length){
-    lines.push('', 'Kisko dena hai:');
-    tr.forEach(t => lines.push(`• ${t.from} → ${t.to}: ${fmt(t.amt)} ${CURRENCY}`));
-  }
-  lines.push('', 'Shukriya');
-  return lines.join('\n');
-}
-window.sendHisaab = id => {
-  const m = S.members.find(x => x.id === id), ph = S.phones[id];
-  if (!ph){ toast('Pehle mobile number add karo'); return phoneForm(id); }
-  const r = S.summary.find(x => x.member_id === id);
-  if (!r) return toast('Is mahine ka hisaab nahi mila');
-  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent(hisaabMsg(r)), '_blank');
-};
-
-window.memForm = () => {
-  modal(`<h3>Naya member</h3>
-  <form class="f" id="mf">
-    <label>Pura naam</label><input id="m_n" required>
-    <label>Username (chhota, english me, bina space)</label><input id="m_u" autocapitalize="none" pattern="[a-zA-Z0-9_.]+" required>
-    <label>Password (kam se kam 6 akshar)</label><input id="m_p" minlength="6" required>
-    <label>Mobile number (optional)</label><input id="m_ph" type="tel" inputmode="tel" placeholder="Kuwait: 8 digit">
-    <div class="err" id="m_e" style="color:var(--give)"></div>
-    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Member banao</button></div>
-  </form>`);
-  $('#mf').onsubmit = async ev => {
-    ev.preventDefault();
-    const name = $('#m_n').value.trim(), u = $('#m_u').value.trim().toLowerCase(), p = $('#m_p').value;
-    const ph = $('#m_ph').value.trim() ? normPhone($('#m_ph').value) : '';
-    if (ph && (ph.length < 10 || ph.length > 15)) return ($('#m_e').textContent = 'Mobile number sahi nahi lag raha.');
-    $('#m_e').textContent = 'Ban raha hai...';
-    const tmp = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{ persistSession:false, autoRefreshToken:false, storageKey:'tmp-signup' } });
-    const { data, error } = await tmp.auth.signUp({ email:u + DOMAIN, password:p, options:{ data:{ name } } });
-    if (error) return ($('#m_e').textContent = error.message.includes('registered') ? 'Ye username pehle se hai.' : 'Nahi bana: ' + error.message);
-    if (ph && data && data.user) await sb.from('member_phones').upsert({ member_id:data.user.id, phone:ph });
-    closeModal(); toast(name + ' ban gaya'); loadAll();
-  };
-};
-window.memEdit = id => {
-  const m = S.members.find(x => x.id === id);
-  const n = prompt('Naya naam:', m.name);
-  if (n && n.trim()) sb.from('profiles').update({ name:n.trim() }).eq('id', id).then(({ error }) => { if (error) toast('Nahi hua'); else loadAll(); });
-};
-window.toggleMem = async id => {
-  const m = S.members.find(x => x.id === id);
-  if (m.active && m.id === S.me.id) return toast('Apne aap ko band nahi kar sakte');
-  const { error } = await sb.from('profiles').update({ active:!m.active }).eq('id', id);
-  if (error) toast('Nahi hua'); else loadAll();
-};
-window.delMem = async id => {
-  const m = S.members.find(x => x.id === id);
-  if (!confirm(m.name + ' ko delete karna hai?')) return;
-  const { error } = await sb.from('profiles').delete().eq('id', id);
-  if (error) alert('Delete nahi ho sakta kyunki iske kharche ya advance record me hain. "Band karo" use karo.');
-  else { toast('Delete ho gaya'); loadAll(); }
-};
-
-/* ---------- PASSWORD ---------- */
-window.changePass = async () => {
-  const p = prompt('Naya password (kam se kam 6 akshar):');
-  if (!p) return;
-  if (p.length < 6) return alert('Password chhota hai.');
-  const { error } = await sb.auth.updateUser({ password:p });
-  toast(error ? 'Password nahi badla' : 'Password badal gaya');
 };
 
 boot();

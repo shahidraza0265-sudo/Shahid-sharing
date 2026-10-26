@@ -343,6 +343,26 @@ h2::before{content:"";width:5px;height:18px;border-radius:3px;background:linear-
 .dedit{margin-top:8px;padding:8px;border:1px solid var(--line);border-radius:12px;background:#fafcfe}
 .dthumb{width:46px;height:46px;border-radius:10px;object-fit:cover;flex:none}
 @media (prefers-reduced-motion:reduce){.wrap.enter,.tab.on .ic{animation:none}}
+
+/* ---- member photo + naam (round ring) ---- */
+.av{box-shadow:0 0 0 2px #fff,0 0 0 3.5px #13a39c}
+.ring .av{box-shadow:none}
+.pn{display:inline-flex;align-items:center;gap:8px;vertical-align:middle;max-width:100%;min-width:0}
+.pn .av{margin:4px 3px 4px 4px}
+.pn .pt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xlt thead th .gh{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:3px}
+.xlt thead th .gh .av{margin:2px}
+.xlt thead th .gh span.gn{max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chk label .av{margin:2px}
+.top .who .pn .pt{color:#fff}
+/* ---- dinner marquee ---- */
+.mq{display:flex;align-items:center;overflow:hidden;border-radius:12px;margin-bottom:12px;background:linear-gradient(90deg,#0f1b3a,#1d3b6e);color:#fff}
+.mq .mqi{flex:none;padding:0 10px 0 12px;display:flex;align-items:center;color:#e9b44c}
+.mq .mqv{flex:1;overflow:hidden;white-space:nowrap;padding:10px 0}
+.mq .mqt{display:inline-block;white-space:nowrap;will-change:transform;animation:mqrun 30s linear infinite}
+.mq .mqt span{display:inline-block;padding-right:56px;font-weight:600;font-size:14px}
+@keyframes mqrun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.periodlbl{margin:-6px 0 12px;font-size:13px;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -384,6 +404,25 @@ const errMsg = e => (e && e.message) ? e.message : 'Kuch gadbad hui';
 function range(m){ const [y, mo] = m.split('-').map(Number); const last = new Date(y, mo, 0).getDate(); return [m + '-01', m + '-' + p2(last)]; }
 function addMonths(m, n){ const [y, mo] = m.split('-').map(Number); const d = new Date(y, mo - 1 + n, 1); return d.getFullYear() + '-' + p2(d.getMonth() + 1); }
 function monthDates(m){ const [a, b] = range(m); const out = []; for (let d = a; d <= b; d = plusDays(d, 1)) out.push(d); return out; }
+
+/* ---------- HISAAB PERIOD (admin ne jo from-to tareekh chuni) ---------- */
+const normPeriod = v => { const f = Math.round(Number(v && v.from)), t = Math.round(Number(v && v.to));
+  return (f >= 1 && f <= 31 && t >= 1 && t <= 31 && f !== t) ? { from:f, to:t } : { from:1, to:31 }; };
+const clampDay = (y, mo, d) => Math.min(d, new Date(y, mo, 0).getDate());
+function prange(m){
+  const fd = S.period.from, td = S.period.to, [y, mo] = m.split('-').map(Number);
+  let ey = y, em = mo;
+  if (td < fd){ em = mo + 1; if (em > 12){ em = 1; ey = y + 1; } }
+  return [y + '-' + p2(mo) + '-' + p2(clampDay(y, mo, fd)), ey + '-' + p2(em) + '-' + p2(clampDay(ey, em, td))];
+}
+function periodDates(m){ const [a, b] = prange(m); const out = []; for (let d = a; d <= b; d = plusDays(d, 1)) out.push(d); return out; }
+function periodMonthOf(d){
+  const m0 = d.slice(0, 7);
+  for (const m of [m0, addMonths(m0, -1), addMonths(m0, 1)]){ const [a, b] = prange(m); if (d >= a && d <= b) return m; }
+  return m0;
+}
+const dLabel = s => Number(s.slice(8)) + ' ' + MONTHS[Number(s.slice(5, 7)) - 1].slice(0, 3) + ' ' + s.slice(0, 4);
+const periodLabel = m => { const [a, b] = prange(m); return dLabel(a) + ' se ' + dLabel(b) + ' tak'; };
 function toast(msg){ const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3400); }
 const loadImg = file => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Photo khul nahi paayi')); i.src = URL.createObjectURL(file); });
 const hasType = (f, types, exts) => types.includes(f.type) || (!f.type && exts.test(f.name || ''));
@@ -415,7 +454,7 @@ const ic = (n, s = 22) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" f
 const S = { me:null, members:[], expenses:[], summary:[], xfers:[], reqs:[], cat:[], phones:{}, locks:new Set(),
   ledger:[], statuses:[], chat:[], anns:[], rentDues:[], rentPays:[], food:[], meals:['Dinner'], backups:[], actlog:[],
   prefs:{ announcements_on:true, chat_on:true, ann_seen_at:null, chat_seen_at:null },
-  knownAnn:null, lastPend:null, carry:false, tab:'home', month:todayStr().slice(0, 7), live:false,
+  knownAnn:null, lastPend:null, carry:false, tab:'home', month:todayStr().slice(0, 7), live:false, period:{ from:1, to:31 }, autoMonth:true,
   hv:lsGet('ss_hv') === 'list' ? 'list' : 'table', hSort:{ k:'day', d:-1 }, hCat:'',
   fView:'today', fDate:todayStr(), fMonth:todayStr().slice(0, 7), fWeek:weekStart(todayStr()),
   chatDraft:'', chatFocus:false, pwq:'', dishPhotos:{}, fTab:'home', showPay:false, _enter:false, foodFrom:'', foodTo:'' };
@@ -437,6 +476,11 @@ function av(m, size = 40){
   return u ? `<span class="av" style="width:${size}px;height:${size}px"><img src="${esc(u)}" alt="" loading="lazy"></span>`
            : `<span class="av ph" style="width:${size}px;height:${size}px">${ic('user', Math.round(size * .56))}</span>`;
 }
+
+
+const pnM = (m, size, fb) => `<span class="pn">${av(m, size)}<span class="pt">${esc(m ? m.name : fb)}</span></span>`;
+const pnId = (id, size = 24) => pnM(memberOf(id), size, nameOf(id));
+const pnName = (name, size = 24) => pnM(S.members.find(z => z.name === name), size, name);
 
 /* ---------- AUTH ---------- */
 function showLogin(msg){
@@ -477,13 +521,15 @@ async function boot(){
     return showLogin('Aapka account active nahi hai. Admin se baat karo.');
   }
   S.me = data;
+  try { const pr = await sb.from('app_settings').select('*').eq('key', 'period').maybeSingle(); if (pr && pr.data) S.period = normPeriod(pr.data.value); } catch (e) {}
+  S.month = periodMonthOf(todayStr());
   await loadAll();
   subscribe();
 }
 
 /* ---------- DATA ---------- */
 async function loadAll(){
-  const [from, to] = range(S.month), t0 = todayStr();
+  const [from, to] = prange(S.month), t0 = todayStr();
   const fMo = range(S.fMonth), fwk = S.fWeek;
   const fFrom = [fMo[0], fwk, plusDays(t0, -60)].sort()[0];
   const fTo = [fMo[1], plusDays(fwk, 6), plusDays(t0, 60)].sort().pop();
@@ -497,7 +543,7 @@ async function loadAll(){
       .order('date', {ascending:false}).order('created_at', {ascending:false}),                          // 3
     sb.from('expense_requests').select('*').order('created_at', {ascending:false}).limit(100),          // 4
     sb.from('month_locks').select('month'),                                                              // 5
-    sb.rpc('get_category_totals', { p_from: addMonths(S.month, -5) + '-01', p_to: to }),                // 6
+    sb.rpc('get_ledger', { p_from: prange(addMonths(S.month, -5))[0], p_to: to }),                      // 6 (6 hisaab-period ka category data)
     sb.rpc('get_ledger', { p_from: from, p_to: to }),                                                   // 7
     sb.from('statuses').select('*').order('created_at', {ascending:false}).limit(200),                  // 8
     sb.from('chat_messages').select('*').order('created_at', {ascending:false}).limit(100),             // 9
@@ -508,7 +554,8 @@ async function loadAll(){
     sb.from('food_menu').select('*').gte('menu_date', fFrom).lte('menu_date', fTo)
       .order('menu_date').order('sort').limit(3000),                                                     // 14
     sb.from('app_settings').select('*').eq('key', 'meals').maybeSingle(),                               // 15
-    sb.from('dish_photos').select('*')                                                                   // 16
+    sb.from('dish_photos').select('*'),                                                                  // 16
+    sb.from('app_settings').select('*').eq('key', 'period').maybeSingle()                                // 17
   ];
   if (isAdmin()){
     q.push(sb.from('member_phones').select('*'));                                                        // 16
@@ -516,14 +563,23 @@ async function loadAll(){
     q.push(sb.from('admin_activity_log').select('*').order('created_at', {ascending:false}).limit(150)); // 18
   }
   const R = await Promise.all(q);
-  const [m, e, s, x, rq, lk, ct, lg, st, ch, an, pf, rd, rp, fm, ms, dp, ph, bk, al] = R;
+  const [m, e, s, x, rq, lk, ct, lg, st, ch, an, pf, rd, rp, fm, ms, dp, pd, ph, bk, al] = R;
+  if (pd && !pd.error){
+    const np = normPeriod(pd.data && pd.data.value);
+    if (np.from !== S.period.from || np.to !== S.period.to){ S.period = np; if (S.autoMonth) S.month = periodMonthOf(todayStr()); return loadAll(); }
+  }
   if (m.data) S.members = m.data;
   if (e.data) S.expenses = e.data;
   if (s.data) S.summary = s.data;
   if (x.data) S.xfers = x.data;
   if (rq.data) S.reqs = rq.data;
   if (lk.data) S.locks = new Set(lk.data.map(r => r.month));
-  if (ct.data) S.cat = ct.data;
+  if (ct.data){
+    const cat = {};
+    for (let i = -5; i <= 0; i++){ const mk = addMonths(S.month, i), [a, b] = prange(mk);
+      ct.data.forEach(r => { if (r.day >= a && r.day <= b){ const k = mk + '|' + r.category; cat[k] = (cat[k] || 0) + Number(r.amount); } }); }
+    S.cat = Object.keys(cat).map(k => ({ month:k.split('|')[0], category:k.split('|').slice(1).join('|'), total:cat[k] }));
+  }
   if (lg.data) S.ledger = lg.data;
   if (st.data) S.statuses = st.data;
   if (ch.data) S.chat = ch.data.slice().reverse();
@@ -615,7 +671,7 @@ function render(){
   <div class="top">
     <div class="row">
       <div class="row" style="gap:10px;min-width:0"><button class="icon-btn" aria-label="Sidebar menu" onclick="openDrawer()">&#9776;${dotOn ? '<i class="dot"></i>' : ''}</button>
-        <div class="who"><span id="livedot" class="live${S.live ? '' : ' off'}"></span><b>${esc(S.me.name)}</b></div></div>
+        <div class="who"><span id="livedot" class="live${S.live ? '' : ' off'}"></span><b>${pnM(S.me, 28, S.me.name)}</b></div></div>
       <div><button class="icon-btn" onclick="changePass()">Password</button> <button class="icon-btn" onclick="logout()">Logout</button></div>
     </div>
     <div class="balance ${cls}"><div><div class="lbl">${lbl}</div>
@@ -681,9 +737,10 @@ function monthBar(){
   const carry = showCarry
     ? `<label class="carry noprint"><input type="checkbox" id="carry" ${S.carry ? 'checked' : ''} onchange="setCarry()"> Pichhle mahino ka baaki bhi jodo</label>` : '';
   return `<div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button>${lockBtn}</div>
+  <div class="periodlbl">${periodLabel(S.month)}</div>
   ${locked ? '<div class="lockpill">Ye mahina locked hai: kharcha aur advance badal nahi sakte.</div>' : ''}${carry}`;
 }
-window.setMonth = async () => { const v = $('#mon').value; if (v){ S.month = v; await loadAll(); } };
+window.setMonth = async () => { const v = $('#mon').value; if (v){ S.month = v; S.autoMonth = false; await loadAll(); } };
 window.setCarry = async () => { S.carry = $('#carry').checked; await loadAll(); };
 window.toggleLock = async () => {
   const locked = S.locks.has(S.month);
@@ -708,7 +765,7 @@ function baseRows(){
     amount:Number(e.amount), np:null, share:null, byMe:e.spender === S.me.id }));
 }
 function txRows(){
-  const [from, to] = range(S.month);
+  const [from, to] = prange(S.month);
   const rows = baseRows().map(r => Object.assign({}, r, { status:'Counted', pending:false }));
   S.reqs.filter(r => r.status === 'pending' && r.date >= from && r.date <= to).forEach(r =>
     rows.push({ id:'req:' + r.id, reqId:r.id, day:r.date, desc:r.description || r.category, cat:r.category, amount:Number(r.amount),
@@ -733,7 +790,7 @@ function txTotals(rows){
 }
 const gridRows = () => baseRows();
 function gridModel(rows, month){
-  const dates = monthDates(month), spent = new Set(rows.map(r => r.by));
+  const dates = periodDates(month), spent = new Set(rows.map(r => r.by));
   const cols = S.members.filter(m => m.active || spent.has(m.id)).sort((a, b) => a.name.localeCompare(b.name));
   const cell = {}, colTot = {}, rowTot = {}; let grand = 0;
   rows.forEach(r => {
@@ -745,7 +802,7 @@ function gridModel(rows, month){
 function gridHTML(rows){
   const G = gridModel(rows, S.month), t0 = todayStr();
   const sum = (d, id) => (G.cell[d + '|' + id] || []).reduce((a, r) => a + r.amount, 0);
-  return `<div class="xl"><table class="xlt"><thead><tr><th class="gd corner">Date</th>${G.cols.map(m => `<th title="${esc(m.name)}">${esc(m.name)}</th>`).join('')}<th class="tt">Din ka total</th></tr></thead><tbody>
+  return `<div class="xl"><table class="xlt"><thead><tr><th class="gd corner">Date</th>${G.cols.map(m => `<th title="${esc(m.name)}"><div class="gh">${av(m, 30)}<span class="gn">${esc(m.name)}</span></div></th>`).join('')}<th class="tt">Din ka total</th></tr></thead><tbody>
   ${G.dates.map(d => `<tr class="${d === t0 ? 'tod' : ''}"><th class="gd"><b>${d.slice(8)}</b> <span class="s">${dayName(d).slice(0, 3)}</span></th>
     ${G.cols.map(m => (G.cell[d + '|' + m.id] ? `<td class="has" onclick="cellInfo('${d}','${m.id}')">${fmt(sum(d, m.id))}</td>` : '<td></td>')).join('')}
     <td class="tt">${G.rowTot[d] ? fmt(G.rowTot[d]) : ''}</td></tr>`).join('')}</tbody>
@@ -754,9 +811,9 @@ function gridHTML(rows){
 window.cellInfo = (d, id) => {
   const l = gridRows().filter(r => r.day === d && r.by === id); if (!l.length) return;
   const tot = l.reduce((a, r) => a + r.amount, 0);
-  modal(`<h3>${dayName(d)} ${dmy(d)} · ${esc(nameOf(id))}</h3>
+  modal(`<h3>${dayName(d)} ${dmy(d)} · ${pnId(id, 28)}</h3>
   <div class="card">${l.map(r => `<div class="li" style="display:block"><div class="row"><div class="t">${esc(r.desc)}</div><b class="num">${fmt(r.amount)}</b></div>
-    <div class="s">Kya kharida: <b>${esc(r.desc)}</b></div><div class="s">Kisne kharida: <b>${esc(r.byName)}</b>${r.np ? ' · ' + r.np + ' members me baanta' : ''}</div>
+    <div class="s">Kya kharida: <b>${esc(r.desc)}</b></div><div class="s">Kisne kharida: <b>${pnM(memberOf(r.by), 22, r.byName)}</b>${r.np ? ' · ' + r.np + ' members me baanta' : ''}</div>
     ${isAdmin() ? `<div class="acts"><button class="btn ghost sm" onclick="closeModal();expForm('${r.id}')">Edit</button></div>` : ''}</div>`).join('')}</div>
   ${l.length > 1 ? `<div class="s" style="margin-top:8px">Us din ka total: <b class="num">${fmt(tot)} ${CURRENCY}</b></div>` : ''}
   <div class="row" style="margin-top:14px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>`);
@@ -775,12 +832,12 @@ window.setHSort = v => { const [k, d] = v.split(':'); S.hSort = { k, d:Number(d)
 window.togglePay = () => { S.showPay = !S.showPay; render(); };
 function payCard(){
   const tr = transfers();
-  return `<div class="card" style="margin-bottom:12px">${tr.length ? tr.map(x => `<div class="pay"><b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> <span class="num give" style="float:right"><b>${fmt(x.amt)} ${CURRENCY}</b></span></div>`).join('') : '<div class="empty">Koi lena-dena baaki nahi.</div>'}</div>`;
+  return `<div class="card" style="margin-bottom:12px">${tr.length ? tr.map(x => `<div class="pay"><b>${pnName(x.from, 26)}</b> → <b>${pnName(x.to, 26)}</b> <span class="num give" style="float:right"><b>${fmt(x.amt)} ${CURRENCY}</b></span></div>`).join('') : '<div class="empty">Koi lena-dena baaki nahi.</div>'}</div>`;
 }
 function membersCard(){
   return `<h2 style="margin-top:6px">Sab members ka hisaab</h2><div class="card" style="margin-bottom:12px">${S.summary.length ? S.summary.map(r => {
     const n = Number(r.net);
-    return `<div class="li"><div><div class="t">${esc(r.name)}</div><div class="s num">Diya ${fmt(r.paid)} · Hissa ${fmt(r.share)}${advTxt(r)}</div></div>
+    return `<div class="li"><div><div class="t">${pnId(r.member_id, 36)}</div><div class="s num">Diya ${fmt(r.paid)} · Hissa ${fmt(r.share)}${advTxt(r)}</div></div>
     <div class="r num ${n > 0.0005 ? 'get' : n < -0.0005 ? 'give' : ''}"><b>${n > 0.0005 ? '+' : n < -0.0005 ? '-' : ''}${fmt(Math.abs(n))}</b><div class="s">${n > 0.0005 ? 'milenge' : n < -0.0005 ? 'dene hain' : 'barabar'}</div></div></div>`;
   }).join('') : '<div class="empty">Is mahine abhi koi kharcha nahi hai.</div>'}</div>`;
 }
@@ -803,7 +860,7 @@ function txBlock(){
       <div class="s" style="margin:0 0 8px">${T.n} kharche · Total <b class="num">${fmt(T.total)}</b> · Aapka hissa <b class="num">${fmt(T.share)}</b> ${CURRENCY}${T.pendN ? ` · <span style="color:#7a5600">${T.pendN} bill pending (${fmt(T.pend)}), abhi hisaab me nahi</span>` : ''}</div>
       ${rows.length ? rows.map(r => `<div class="txc ${r.pending ? 'pend' : ''}" onclick="txDetail('${r.id}')"><div class="row"><div class="row" style="justify-content:flex-start;gap:10px;min-width:0"><span class="ico">${ic('receipt', 18)}</span><div style="min-width:0"><div class="t" style="font-weight:600">${esc(r.desc)}</div>
         <div class="s">${r.day} · ${dayName(r.day)}</div></div></div><div class="big num">${fmt(r.amount)}</div></div>
-        <div class="row" style="margin-top:6px"><div class="s">Paid by: <b>${esc(r.byName)}</b>${r.share == null ? '' : ' · Aapka hissa: <b class="num">' + fmt(r.share) + '</b>'}</div>
+        <div class="row" style="margin-top:6px"><div class="s">Paid by: <b>${pnM(memberOf(r.by), 22, r.byName)}</b>${r.share == null ? '' : ' · Aapka hissa: <b class="num">' + fmt(r.share) + '</b>'}</div>
         ${r.pending ? '<span class="pill warn">Pending</span>' : '<span class="pill ok">Counted</span>'}</div></div>`).join('') : '<div class="card"><div class="empty">Is mahine koi kharcha nahi mila.</div></div>'}`;
   }
   return sw + payBtn + body;
@@ -813,7 +870,7 @@ window.txDetail = id => {
   const per = r.np ? r.amount / Math.max(r.np, 1) : null;
   modal(`<h3>${esc(r.desc)}</h3>
   <div class="card"><div class="li"><span>Date</span><b>${r.day}</b></div>
-  <div class="li"><span>Total amount</span><b class="num">${fmt(r.amount)} ${CURRENCY}</b></div><div class="li"><span>Paid by</span><b>${esc(r.byName)}</b></div>
+  <div class="li"><span>Total amount</span><b class="num">${fmt(r.amount)} ${CURRENCY}</b></div><div class="li"><span>Paid by</span><b>${pnM(memberOf(r.by), 26, r.byName)}</b></div>
   ${r.pending ? '<div class="li"><span>Status</span><span class="pill warn">Pending approval, abhi hisaab me nahi</span></div>'
    : `<div class="li"><span>Kitne members me baanta</span><b>${r.np}</b></div><div class="li"><span>Per member</span><b class="num">${fmt(per)}</b></div>
       <div class="li"><span>Aapka hissa</span><b class="num">${fmt(r.share)}</b></div><div class="li"><span>Status</span><span class="pill ok">Counted</span></div>`}</div>
@@ -850,10 +907,23 @@ function breakdownCard(){
   <p class="hint">Rent alag ledger hai (Room Rent). Wo kharche ke hisaab me dobara nahi judta.</p>`;
 }
 
+
+/* ---------- DINNER MARQUEE (home) ---------- */
+const mqOn = () => lsGet('ss_mq') !== 'off';
+function marqueeHTML(){
+  if (!mqOn()) return '';
+  const meal = mainMeal(), dishes = foodOf(todayStr(), meal);
+  const txt = dishes.length ? 'Aaj ka ' + meal + ': ' + dishes.join('  •  ') : 'Aaj ke ' + meal + ' ka menu abhi set nahi hua';
+  const one = `<span>${esc(txt)}</span>`, half = one.repeat(4);
+  const dur = Math.max(18, Math.round((txt.length + 8) * 4 * 0.2));
+  return `<div class="mq noprint" aria-label="Aaj ka dinner"><div class="mqi">${ic('food', 20)}</div><div class="mqv"><div class="mqt" style="animation-duration:${dur}s">${half}${half}</div></div></div>`;
+}
+window.setMq = on => { lsSet('ss_mq', on ? 'on' : 'off'); render(); };
+
 function vHome(){
   const t = totals();
   const bkBanner = isAdmin() && bkDue() ? `<div class="lockpill noprint">Backup lene ka time ho gaya. <a href="#" onclick="doBackupDownload();return false" style="color:inherit;font-weight:700">Abhi lo</a></div>` : '';
-  $('#view').innerHTML = `${monthBar()}${bkBanner}
+  $('#view').innerHTML = `${marqueeHTML()}${monthBar()}${bkBanner}
   <div class="stat">
     <div><div class="k">${S.carry ? 'Total (shuru se)' : 'Total kharcha'}</div><div class="v num">${fmt(t.total)}</div></div>
     <div><div class="k">Per member (${t.active})</div><div class="v num">${fmt(t.per)}</div></div>
@@ -868,7 +938,7 @@ function expRow(e, withActs){
   const bill = e.bill_path ? `<button class="btn ghost sm" onclick="viewBill('${e.bill_path}')">Bill dekho</button>` : '';
   const edit = withActs ? `<button class="btn ghost sm" onclick="expForm('${e.id}')">Edit</button><button class="btn ghost sm give" onclick="delExp('${e.id}')">Delete</button>` : '';
   return `<div class="li" style="display:block"><div class="row"><div><div class="t">${esc(e.description || e.category)}</div>
-  <div class="s">${esc(nameOf(e.spender))} · ${esc(e.category)} · ${e.date} · ${sp}</div></div>
+  <div class="s">${pnId(e.spender, 22)} · ${esc(e.category)} · ${e.date} · ${sp}</div></div>
   <div class="r num"><b>${fmt(e.amount)}</b></div></div>
   ${(bill || edit) ? `<div class="acts">${bill}${edit}</div>` : ''}</div>`;
 }
@@ -882,7 +952,7 @@ function vExp(){
 /* ---------- ADVANCE ---------- */
 function xRow(t, acts){
   return `<div class="li" style="display:block"><div class="row"><div>
-    <div class="t">${esc(nameOf(t.from_member))} → ${esc(nameOf(t.to_member))}</div>
+    <div class="t">${pnId(t.from_member, 26)} → ${pnId(t.to_member, 26)}</div>
     <div class="s">${t.kind === 'advance' ? 'Advance' : 'Settlement'} · ${t.date}${t.note ? ' · ' + esc(t.note) : ''}</div></div>
     <div class="r num get"><b>${fmt(t.amount)}</b></div></div>
     ${acts ? `<div class="acts"><button class="btn ghost sm" onclick="xForm('${t.id}')">Edit</button><button class="btn ghost sm give" onclick="delX('${t.id}')">Delete</button></div>` : ''}</div>`;
@@ -938,7 +1008,7 @@ function stepsHTML(r){
 function reqCard(r, adminView){
   const st = r.status === 'pending' ? '<span class="pill">Pending</span>' : r.status === 'approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill off">Rejected</span>';
   return `<div class="li" style="display:block"><div class="row"><div>
-    <div class="t">${adminView ? esc(nameOf(r.requester)) + ' · ' : ''}${esc(r.description || r.category)}</div>
+    <div class="t">${adminView ? pnId(r.requester, 24) + ' · ' : ''}${esc(r.description || r.category)}</div>
     <div class="s">${esc(r.category)} · ${r.date} · ${st}</div>
     ${r.status === 'rejected' && r.admin_note ? `<div class="s give">Wajah: ${esc(r.admin_note)}</div>` : ''}</div>
     <div class="r num"><b>${fmt(r.amount)}</b></div></div>${stepsHTML(r)}
@@ -1085,12 +1155,12 @@ function vReport(){
   const tr = transfers(), t = totals();
   $('#view').innerHTML = `<button class="btn ghost sm back noprint" onclick="go('more')">&larr; Wapas</button>${monthBar()}
   <div class="row noprint" style="margin-bottom:14px"><button class="btn" onclick="window.print()">PDF / Print</button><button class="btn ghost" onclick="csv()">Excel (CSV)</button></div>
-  <h2 style="margin-top:0">Report: ${S.month}</h2>
+  <h2 style="margin-top:0">Report: ${S.month} <span class="s" style="font-weight:400">(${periodLabel(S.month)})</span></h2>
   <div class="stat"><div><div class="k">Total</div><div class="v num">${fmt(t.total)} ${CURRENCY}</div></div><div><div class="k">Per member</div><div class="v num">${fmt(t.per)}</div></div></div>
   ${breakdownCard()}
-  <div class="card">${S.summary.map(r => { const n = Number(r.net); return `<div class="li"><div class="t">${esc(r.name)}<div class="s num">Diya ${fmt(r.paid)} · Hissa ${fmt(r.share)}${advTxt(r)}</div></div><div class="r num ${n > 0 ? 'get' : n < 0 ? 'give' : ''}"><b>${n >= 0 ? '+' : '-'}${fmt(Math.abs(n))}</b></div></div>`; }).join('') || '<div class="empty">Data nahi hai.</div>'}</div>
+  <div class="card">${S.summary.map(r => { const n = Number(r.net); return `<div class="li"><div class="t">${pnId(r.member_id, 32)}<div class="s num">Diya ${fmt(r.paid)} · Hissa ${fmt(r.share)}${advTxt(r)}</div></div><div class="r num ${n > 0 ? 'get' : n < 0 ? 'give' : ''}"><b>${n >= 0 ? '+' : '-'}${fmt(Math.abs(n))}</b></div></div>`; }).join('') || '<div class="empty">Data nahi hai.</div>'}</div>
   <h2>Settlement</h2>
-  <div class="card">${tr.length ? tr.map(x => `<div class="pay"><b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> <span class="num" style="float:right"><b>${fmt(x.amt)}</b></span></div>`).join('') : '<div class="empty">Sab barabar hai.</div>'}</div>
+  <div class="card">${tr.length ? tr.map(x => `<div class="pay"><b>${pnName(x.from, 26)}</b> → <b>${pnName(x.to, 26)}</b> <span class="num" style="float:right"><b>${fmt(x.amt)}</b></span></div>`).join('') : '<div class="empty">Sab barabar hai.</div>'}</div>
   <h2>${isAdmin() ? 'Sab kharche' : 'Aapke kharche'}</h2>
   <div class="card">${S.expenses.map(e => expRow(e, false)).join('') || '<div class="empty">Koi kharcha nahi.</div>'}</div>
   <h2>Advance / Payment</h2>
@@ -1315,7 +1385,7 @@ function chatHTML(){
   return S.chat.map(c => {
     const me = c.sender === S.me.id, day = c.created_at.slice(0, 10);
     const sep = day !== prev ? `<div class="dsep">${fday(c.created_at)}</div>` : ''; prev = day;
-    return sep + `<div class="msg ${me ? 'me' : ''}"><div class="bub">${me ? '' : `<div class="nm">${esc(nameOf(c.sender))}</div>`}${esc(c.body)}<div class="tm">${ftime(c.created_at)}${(me || isAdmin()) ? ` <a href="#" onclick="delMsg('${c.id}');return false">&times;</a>` : ''}</div></div></div>`;
+    return sep + `<div class="msg ${me ? 'me' : ''}"><div class="bub">${me ? '' : `<div class="nm">${pnId(c.sender, 22)}</div>`}${esc(c.body)}<div class="tm">${ftime(c.created_at)}${(me || isAdmin()) ? ` <a href="#" onclick="delMsg('${c.id}');return false">&times;</a>` : ''}</div></div></div>`;
   }).join('') || '<div class="empty">Abhi koi message nahi. Pehla message bhejo.</div>';
 }
 function renderChatList(){
@@ -1369,7 +1439,7 @@ function annCard(a){
   const acts = (isAdmin() && a.status === 'pending' ? `<button class="btn sm" onclick="approveAnn('${a.id}')">Approve</button><button class="btn ghost sm give" onclick="rejectAnn('${a.id}')">Reject</button>` : '') +
     ((isAdmin() || a.author === S.me.id) ? `<button class="btn ghost sm give" onclick="delAnn('${a.id}')">Delete</button>` : '');
   return `<div class="card pad ann ${a.kind === 'urgent' ? 'urgent' : ''}"><div class="row"><b>${esc(a.title)}</b>${st}</div>
-    <div class="s">${KINDS[a.kind] || a.kind} · ${esc(nameOf(a.author))} · ${fdt(a.created_at)}</div>
+    <div class="s">${KINDS[a.kind] || a.kind} · ${pnId(a.author, 22)} · ${fdt(a.created_at)}</div>
     ${a.body ? `<div class="body">${esc(a.body)}</div>` : ''}
     ${a.status === 'rejected' && a.admin_note ? `<div class="s give">Wajah: ${esc(a.admin_note)}</div>` : ''}
     ${acts ? `<div class="acts">${acts}</div>` : ''}</div>`;
@@ -1431,14 +1501,14 @@ function vRent(){
     ${isAdmin() ? `<div><div class="k">Paid / Not paid</div><div class="v num">${T.paidN} / ${T.unpaidN}</div></div>` : `<div><div class="k">Status</div><div class="v" style="font-size:16px">${rows[0] ? rentPill(rows[0].status) : '-'}</div></div>`}</div>
   ${isAdmin() ? `<div class="acts noprint" style="margin:0 0 10px"><button class="btn ghost sm" onclick="rentCopyPrev()">Pichhle mahine se copy</button><button class="btn ghost sm" onclick="rentSameAll()">Sab ke liye same rent</button></div>` : ''}
   <div class="card"><div class="tblwrap"><table class="tbl" style="min-width:${isAdmin() ? 700 : 560}px"><thead><tr><th>No.</th><th>Member Name</th><th class="n">Monthly Rent</th><th>Rent Month</th><th class="n">Amount Paid</th><th class="n">Remaining</th><th>Status</th>${isAdmin() ? '<th></th>' : ''}</tr></thead><tbody>
-  ${rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.m.name)}</td><td class="n num">${r.d ? fmt(r.due) : '-'}</td><td>${S.month}</td><td class="n num">${fmt(r.paid)}</td><td class="n num ${r.rem > 0 ? 'give' : ''}">${r.d ? fmt(r.rem) : '-'}</td><td>${rentPill(r.status)}</td>
+  ${rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td>${pnM(r.m, 28, r.m.name)}</td><td class="n num">${r.d ? fmt(r.due) : '-'}</td><td>${S.month}</td><td class="n num">${fmt(r.paid)}</td><td class="n num ${r.rem > 0 ? 'give' : ''}">${r.d ? fmt(r.rem) : '-'}</td><td>${rentPill(r.status)}</td>
     ${isAdmin() ? `<td style="white-space:nowrap"><button class="btn ghost sm" onclick="rentDueForm('${r.m.id}')">${r.d ? 'Edit rent' : 'Rent set'}</button> <button class="btn sm" ${r.d ? '' : 'disabled'} onclick="rentPayForm('${r.m.id}')">+ Payment</button> <button class="btn ghost sm" onclick="rentHistory('${r.m.id}')">History</button></td>` : ''}</tr>`).join('') : '<tr><td colspan="8" class="empty">Koi member nahi mila.</td></tr>'}</tbody></table></div></div>
   ${!isAdmin() ? `<h2>Aapki payments (${S.month})</h2><div class="card">${S.rentPays.length ? S.rentPays.map(p => `<div class="li"><div><div class="t">${fmt(p.amount)} ${CURRENCY}</div><div class="s">${p.paid_on}${p.note ? ' · ' + esc(p.note) : ''}</div></div></div>`).join('') : '<div class="empty">Is mahine ki koi payment record nahi.</div>'}</div>` : ''}
   <p class="hint">Room rent alag ledger hai. Ek member ka ek mahine ka ek hi rent record banta hai (dobara set karne par wahi edit hota hai), aur adjustment alag se likha jata hai.</p>`;
 }
 window.rentDueForm = id => {
   const m = memberOf(id), d = S.rentDues.find(x => x.member_id === id && x.month === S.month);
-  modal(`<h3>${esc(m.name)}: rent (${S.month})</h3>
+  modal(`<h3>${pnM(m, 30, m.name)}: rent (${S.month})</h3>
   <form class="f" id="rdf">
     <label>Monthly rent (${CURRENCY})</label>
     <input id="rd_a" type="number" step="0.001" min="0" inputmode="decimal" value="${d ? d.amount : ''}" required>
@@ -1460,7 +1530,7 @@ window.rentDueForm = id => {
 };
 window.rentPayForm = (id, payId) => {
   const m = memberOf(id), r = rentRows().find(x => x.m.id === id), p = payId ? S.rentPays.find(x => x.id === payId) : null;
-  modal(`<h3>${esc(m.name)}: rent payment</h3>
+  modal(`<h3>${pnM(m, 30, m.name)}: rent payment</h3>
   <form class="f" id="rpf">
     <div class="hint">Rent ${fmt(r.due)} · Paid ${fmt(r.paid)} · Baaki ${fmt(r.rem)} ${CURRENCY}</div>
     <label>Payment ki raqam (${CURRENCY}) (adhoori payment bhi chalegi)</label>
@@ -1483,7 +1553,7 @@ window.rentPayForm = (id, payId) => {
 };
 window.rentHistory = id => {
   const m = memberOf(id), list = S.rentPays.filter(p => p.member_id === id);
-  modal(`<h3>${esc(m.name)}: payments (${S.month})</h3>
+  modal(`<h3>${pnM(m, 30, m.name)}: payments (${S.month})</h3>
   <div class="card">${list.length ? list.map(p => `<div class="li" style="display:block"><div class="row"><div><div class="t num">${fmt(p.amount)} ${CURRENCY}</div><div class="s">${p.paid_on}${p.note ? ' · ' + esc(p.note) : ''}</div></div></div>
     <div class="acts"><button class="btn ghost sm" onclick="rentPayForm('${id}','${p.id}')">Edit</button><button class="btn ghost sm give" onclick="delRentPay('${p.id}')">Delete</button></div></div>`).join('') : '<div class="empty">Koi payment nahi.</div>'}</div>
   <div class="row" style="margin-top:14px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>`);
@@ -1709,7 +1779,7 @@ const normPhone = v => { let d = String(v || '').replace(/\D/g, ''); if (d.start
 const showPhone = p => p ? '+' + p : '';
 function vMem(){
   $('#view').innerHTML = `<h2 style="margin-top:0">Members (${S.members.filter(m => m.active).length} active)</h2>
-  <p class="hint" style="margin:0 0 10px">"Hisaab bhejo" us mahine ka hisaab bhejta hai jo neeche chuna hai (<b>${S.month}</b>).</p>
+  <p class="hint" style="margin:0 0 10px">"Hisaab bhejo" us mahine ka hisaab bhejta hai jo neeche chuna hai (<b>${S.month}</b>: ${periodLabel(S.month)}).</p>
   <div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button></div>
   <div class="card">${S.members.map(m => {
     const ph = S.phones[m.id];
@@ -1728,7 +1798,7 @@ function vMem(){
 }
 window.phoneForm = id => {
   const m = memberOf(id), cur = S.phones[id];
-  modal(`<h3>${esc(m.name)}: mobile number</h3>
+  modal(`<h3>${pnM(m, 30, m.name)}: mobile number</h3>
   <form class="f" id="pf">
     <label>Mobile number</label>
     <input id="p_n" type="tel" inputmode="tel" value="${cur ? esc(showPhone(cur)) : ''}" placeholder="Kuwait: 8 digit, ya country code ke saath" required>
@@ -1853,8 +1923,8 @@ window.changeMemberId = async id => {
 };
 window.showActLog = () => {
   const lbl = { password_reset:'Password reset', member_id_change:'Member ID badla', account_activate:'Account activate', account_deactivate:'Account deactivate', restore_backup:'Backup restore' };
-  modal(`<h3>Admin activity log</h3><div class="card">${S.actlog.length ? S.actlog.map(a => `<div class="li" style="display:block"><div class="t">${lbl[a.action] || esc(a.action)}${a.target ? ' · ' + esc(nameOf(a.target)) : ''}</div>
-    <div class="s">${fdt(a.created_at)} · ${esc(nameOf(a.actor))}${a.detail ? ' · ' + esc(a.detail) : ''}</div></div>`).join('') : '<div class="empty">Abhi koi activity nahi.</div>'}</div>
+  modal(`<h3>Admin activity log</h3><div class="card">${S.actlog.length ? S.actlog.map(a => `<div class="li" style="display:block"><div class="t">${lbl[a.action] || esc(a.action)}${a.target ? ' · ' + pnId(a.target, 20) : ''}</div>
+    <div class="s">${fdt(a.created_at)} · ${pnId(a.actor, 20)}${a.detail ? ' · ' + esc(a.detail) : ''}</div></div>`).join('') : '<div class="empty">Abhi koi activity nahi.</div>'}</div>
   <div class="row" style="margin-top:14px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>`);
 };
 
@@ -1917,17 +1987,49 @@ window.restoreSnapshot = async id => {
 };
 
 /* ===================== SETTINGS (Reports & Settings) ===================== */
+
+function periodCard(){
+  const f = S.period.from, t = S.period.to, opt = (sel) => Array.from({ length:31 }, (_, i) => `<option value="${i + 1}" ${sel === i + 1 ? 'selected' : ''}>${i + 1}</option>`).join('');
+  const info = `<div class="s" id="pd_info" style="margin-top:6px">${periodSentence(f, t)}</div>`;
+  if (!isAdmin()) return `<div class="card pad"><div class="t">${periodSentence(f, t)}</div><div class="s" style="margin-top:6px">Ye range admin tay karta hai. Abhi chalu mahina: <b>${periodLabel(S.month)}</b></div></div>`;
+  return `<div class="card pad"><div class="row" style="gap:10px;align-items:flex-end">
+    <div style="flex:1"><label class="s" for="pd_f">From (tareekh)</label><select id="pd_f" onchange="pdPrev()" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff">${opt(f)}</select></div>
+    <div style="flex:1"><label class="s" for="pd_t">To (tareekh)</label><select id="pd_t" onchange="pdPrev()" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff">${opt(t)}</select></div></div>
+    ${info}
+    <div class="s" style="margin-top:6px">Abhi chalu mahina: <b>${periodLabel(S.month)}</b></div>
+    <div class="row" style="margin-top:12px"><span></span><button class="btn" onclick="savePeriod()">Save karo</button></div>
+    <p class="hint" style="margin:10px 0 0">Table, total, hisaab, report, chart aur rent sab isi From-To tareekh ke hisaab se judenge. Save karte hi sabke app me ye range lag jati hai. Default: 1 se 31 (poora calendar mahina).</p></div>`;
+}
+const periodSentence = (f, t) => (t < f)
+  ? `Mahina <b>${f}</b> tareekh se shuru hoga aur agle mahine ki <b>${t}</b> tareekh tak chalega.`
+  : (f === 1 && t === 31 ? 'Mahina <b>1 se 31</b> (poora calendar mahina).' : `Mahina <b>${f}</b> tareekh se <b>${t}</b> tareekh tak chalega (usi mahine me).`);
+window.pdPrev = () => { const f = +$('#pd_f').value, t = +$('#pd_t').value; $('#pd_info').innerHTML = f === t ? 'From aur To alag honi chahiye.' : periodSentence(f, t); };
+window.savePeriod = async () => {
+  if (!isAdmin()) return;
+  const f = +$('#pd_f').value, t = +$('#pd_t').value;
+  if (f === t) return toast('From aur To tareekh alag honi chahiye');
+  const { error } = await sb.from('app_settings').upsert({ key:'period', value:{ from:f, to:t }, updated_at:new Date().toISOString() });
+  if (error) return toast('Save nahi hua: ' + errMsg(error));
+  S.period = { from:f, to:t }; S.autoMonth = true; S.month = periodMonthOf(todayStr());
+  toast('Hisaab ka mahina set ho gaya'); loadAll();
+};
+
 function vSettings(){
   $('#view').innerHTML = `<h2 style="margin-top:0">Reports</h2>
   <div class="card"><button class="optbtn" style="border:0;border-radius:0;margin:0;background:none;border-bottom:1px solid var(--line)" onclick="go('report')">${ic('receipt')}<b>Report (PDF / Excel)</b></button>
   <button class="optbtn" style="border:0;border-radius:0;margin:0;background:none" onclick="go('chart')">${ic('chart')}<b>Analysis chart</b></button></div>
+
+  <h2>Home screen</h2>
+  <div class="card"><label class="sw"><input type="checkbox" ${mqOn() ? 'checked' : ''} onchange="setMq(this.checked)"><span>Aaj ke dinner ki chalti patti / Marquee (ON/OFF)</span></label></div>
+  <h2>Hisaab ka mahina (date range)</h2>
+  ${periodCard()}
   <h2>Notifications</h2>
   <div class="card">
     <label class="sw"><input type="checkbox" ${S.prefs.announcements_on ? 'checked' : ''} onchange="setPref('announcements_on',this.checked)"><span>Announcement ke message (ON/OFF)</span></label>
     <label class="sw"><input type="checkbox" ${S.prefs.chat_on ? 'checked' : ''} onchange="setPref('chat_on',this.checked)"><span>Group message ke alert (ON/OFF)</span></label></div>
   <p class="hint">OFF karne par us ke naye message ka badge aur alert nahi aayega. Aap fir bhi screen kholkar padh sakte hain. App band hone par phone notification abhi nahi aati.</p>
   <h2>Account</h2>
-  <div class="card"><div class="li"><div><div class="t">${esc(S.me.name)}</div><div class="s">Member ID: ${esc(S.me.username)}</div></div></div>
+  <div class="card"><div class="li"><div><div class="t">${pnM(S.me, 40, S.me.name)}</div><div class="s">Member ID: ${esc(S.me.username)}</div></div></div>
   <div class="li"><button class="btn ghost sm" onclick="changePass()">Apna password badlo</button></div></div>
   <p class="hint" style="text-align:center;margin-top:20px">Shahid Sharing</p>`;
 }
@@ -1966,7 +2068,7 @@ window.expForm = id => {
       <label><input type="radio" name="sm" value="all" ${sel === 'all' ? 'checked' : ''}> Sab me barabar</label>
       <label><input type="radio" name="sm" value="sel" ${sel === 'sel' ? 'checked' : ''}> Kuch members me</label>
     </div>
-    <div class="chk" id="e_ch" style="${sel === 'sel' ? '' : 'display:none'}">${S.members.filter(m => m.active).map(m => `<label><input type="checkbox" value="${m.id}" ${e && e.split_members && e.split_members.includes(m.id) ? 'checked' : ''}> ${esc(m.name)}</label>`).join('')}</div>
+    <div class="chk" id="e_ch" style="${sel === 'sel' ? '' : 'display:none'}">${S.members.filter(m => m.active).map(m => `<label><input type="checkbox" value="${m.id}" ${e && e.split_members && e.split_members.includes(m.id) ? 'checked' : ''}> ${av(m, 22)} ${esc(m.name)}</label>`).join('')}</div>
     <div class="err" id="e_er" style="color:var(--give)"></div>
     <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Save karo</button></div>
   </form>`);
@@ -2003,7 +2105,7 @@ window.xForm = id => {
     ? `<label>Kisne paisa diya</label><select id="x_f">${S.members.filter(m => m.active || m.id === t.from_member).map(m => `<option value="${m.id}" ${t.from_member === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>`
     : `<label>Kisne paisa diya (ek ya zyada member chuno)</label>
        <div class="row" style="margin-bottom:6px"><button type="button" class="btn ghost sm" id="x_all">Sab chuno</button><span id="x_cnt" class="hint"></span></div>
-       <div class="chk" id="x_ch">${act.map(m => `<label><input type="checkbox" value="${m.id}"> ${esc(m.name)}</label>`).join('')}</div>`;
+       <div class="chk" id="x_ch">${act.map(m => `<label><input type="checkbox" value="${m.id}"> ${av(m, 22)} ${esc(m.name)}</label>`).join('')}</div>`;
   modal(`<h3>${t ? 'Entry edit karo' : 'Naya advance / payment'}</h3>
   <form class="f" id="xf">
     ${fromBlock}

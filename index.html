@@ -363,6 +363,21 @@ h2::before{content:"";width:5px;height:18px;border-radius:3px;background:linear-
 .mq .mqt span{display:inline-block;padding-right:56px;font-weight:600;font-size:14px}
 @keyframes mqrun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .periodlbl{margin:-6px 0 12px;font-size:13px;color:var(--mute)}
+
+/* ---- receipt + reactions ---- */
+.balico{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.balico:active{transform:scale(.94)}
+.rx{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.rx button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:1px 8px;font-size:13px;line-height:1.6;color:var(--text)}
+.rx button.mine{background:#e3f6f4;border-color:#13a39c}
+.rx button.add{color:var(--mute)}
+.rpick{display:flex;justify-content:space-around;margin:6px 0 14px}
+.rpick button{border:0;background:none;font-size:30px;padding:6px 8px;border-radius:12px}
+.rpick button.on{background:#e3f6f4}
+.mq .mqr{flex:none;display:flex;gap:6px;padding:0 10px 0 6px}
+.mq .mqr button{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:99px;padding:5px 9px;font-size:14px}
+.mq .mqr button.mine{background:#fff;color:#0f1b3a}
+.rcpt{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
 </style>
 </head>
 <body>
@@ -454,7 +469,7 @@ const ic = (n, s = 22) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" f
 const S = { me:null, members:[], expenses:[], summary:[], xfers:[], reqs:[], cat:[], phones:{}, locks:new Set(),
   ledger:[], statuses:[], chat:[], anns:[], rentDues:[], rentPays:[], food:[], meals:['Dinner'], backups:[], actlog:[],
   prefs:{ announcements_on:true, chat_on:true, ann_seen_at:null, chat_seen_at:null },
-  knownAnn:null, lastPend:null, carry:false, tab:'home', month:todayStr().slice(0, 7), live:false, period:{ from:1, to:31 }, autoMonth:true,
+  knownAnn:null, lastPend:null, carry:false, tab:'home', month:todayStr().slice(0, 7), live:false, period:{ from:1, to:31 }, autoMonth:true, reacts:[],
   hv:lsGet('ss_hv') === 'list' ? 'list' : 'table', hSort:{ k:'day', d:-1 }, hCat:'',
   fView:'today', fDate:todayStr(), fMonth:todayStr().slice(0, 7), fWeek:weekStart(todayStr()),
   chatDraft:'', chatFocus:false, pwq:'', dishPhotos:{}, fTab:'home', showPay:false, _enter:false, foodFrom:'', foodTo:'' };
@@ -555,7 +570,8 @@ async function loadAll(){
       .order('menu_date').order('sort').limit(3000),                                                     // 14
     sb.from('app_settings').select('*').eq('key', 'meals').maybeSingle(),                               // 15
     sb.from('dish_photos').select('*'),                                                                  // 16
-    sb.from('app_settings').select('*').eq('key', 'period').maybeSingle()                                // 17
+    sb.from('app_settings').select('*').eq('key', 'period').maybeSingle(),                               // 17
+    sb.from('reactions').select('*').limit(5000)                                                         // 18
   ];
   if (isAdmin()){
     q.push(sb.from('member_phones').select('*'));                                                        // 16
@@ -563,7 +579,7 @@ async function loadAll(){
     q.push(sb.from('admin_activity_log').select('*').order('created_at', {ascending:false}).limit(150)); // 18
   }
   const R = await Promise.all(q);
-  const [m, e, s, x, rq, lk, ct, lg, st, ch, an, pf, rd, rp, fm, ms, dp, pd, ph, bk, al] = R;
+  const [m, e, s, x, rq, lk, ct, lg, st, ch, an, pf, rd, rp, fm, ms, dp, pd, rc, ph, bk, al] = R;
   if (pd && !pd.error){
     const np = normPeriod(pd.data && pd.data.value);
     if (np.from !== S.period.from || np.to !== S.period.to){ S.period = np; if (S.autoMonth) S.month = periodMonthOf(todayStr()); return loadAll(); }
@@ -590,6 +606,7 @@ async function loadAll(){
   if (fm.data) S.food = fm.data;
   if (ms && ms.data && Array.isArray(ms.data.value) && ms.data.value.length) S.meals = ms.data.value;
   if (dp && dp.data){ S.dishPhotos = {}; dp.data.forEach(d => S.dishPhotos[d.name_key] = d); }
+  if (rc && rc.data) S.reacts = rc.data.map(r => Object.assign({}, r, { target_id:String(r.target_id) }));
   if (ph && ph.data){ S.phones = {}; ph.data.forEach(p => S.phones[p.member_id] = p.phone); }
   if (bk && bk.data) S.backups = bk.data;
   if (al && al.data) S.actlog = al.data;
@@ -619,6 +636,7 @@ function subscribe(){
   channel = sb.channel('shahid-sync')
     .on('postgres_changes', { event:'*', schema:'public', table:'sync_ping' }, () => loadAll())
     .on('postgres_changes', { event:'*', schema:'public', table:'chat_messages' }, () => reloadChat())
+    .on('postgres_changes', { event:'*', schema:'public', table:'reactions' }, () => loadReacts())
     .subscribe(status => { S.live = status === 'SUBSCRIBED'; const d = $('#livedot'); if (d) d.className = 'live' + (S.live ? '' : ' off'); });
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.me) loadAll(); });
@@ -675,7 +693,7 @@ function render(){
       <div><button class="icon-btn" onclick="changePass()">Password</button> <button class="icon-btn" onclick="logout()">Logout</button></div>
     </div>
     <div class="balance ${cls}"><div><div class="lbl">${lbl}</div>
-      <div class="amt num">${fmt(Math.abs(net))}<small>${CURRENCY}</small></div></div><div class="balico">${ic('wallet', 30)}</div></div>
+      <div class="amt num">${fmt(Math.abs(net))}<small>${CURRENCY}</small></div></div><div class="balico" role="button" tabindex="0" aria-label="Hisaab receipt" onclick="showReceipt('${S.me.id}')">${ic('wallet', 30)}</div></div>
   </div>
   <div class="wrap${enter ? ' enter' : ''}" id="view"></div>
   <nav class="nav" aria-label="Neeche ka menu"><div class="in">${tabs.map(t => `<button class="tab ${navOn === t[0] ? 'on' : ''}" onclick="go('${t[0]}')"><span class="ic">${ic(t[2])}</span><span>${t[1]}${t[3]}</span></button>`).join('')}</div></nav>
@@ -916,7 +934,7 @@ function marqueeHTML(){
   const txt = dishes.length ? 'Aaj ka ' + meal + ': ' + dishes.join('  •  ') : 'Aaj ke ' + meal + ' ka menu abhi set nahi hua';
   const one = `<span>${esc(txt)}</span>`, half = one.repeat(4);
   const dur = Math.max(18, Math.round((txt.length + 8) * 4 * 0.2));
-  return `<div class="mq noprint" aria-label="Aaj ka dinner"><div class="mqi">${ic('food', 20)}</div><div class="mqv"><div class="mqt" style="animation-duration:${dur}s">${half}${half}</div></div></div>`;
+  return `<div class="mq noprint" aria-label="Aaj ka dinner"><div class="mqi">${ic('food', 20)}</div><div class="mqv"><div class="mqt" style="animation-duration:${dur}s;animation-delay:-${((Date.now() / 1000) % dur).toFixed(2)}s">${half}${half}</div></div><div class="mqr" id="mqr">${mqRx()}</div></div>`;
 }
 window.setMq = on => { lsSet('ss_mq', on ? 'on' : 'off'); render(); };
 
@@ -1385,7 +1403,7 @@ function chatHTML(){
   return S.chat.map(c => {
     const me = c.sender === S.me.id, day = c.created_at.slice(0, 10);
     const sep = day !== prev ? `<div class="dsep">${fday(c.created_at)}</div>` : ''; prev = day;
-    return sep + `<div class="msg ${me ? 'me' : ''}"><div class="bub">${me ? '' : `<div class="nm">${pnId(c.sender, 22)}</div>`}${esc(c.body)}<div class="tm">${ftime(c.created_at)}${(me || isAdmin()) ? ` <a href="#" onclick="delMsg('${c.id}');return false">&times;</a>` : ''}</div></div></div>`;
+    return sep + `<div class="msg ${me ? 'me' : ''}"><div class="bub">${me ? '' : `<div class="nm">${pnId(c.sender, 22)}</div>`}${esc(c.body)}${rxBar('chat', c.id)}<div class="tm">${ftime(c.created_at)}${(me || isAdmin()) ? ` <a href="#" onclick="delMsg('${c.id}');return false">&times;</a>` : ''}</div></div></div>`;
   }).join('') || '<div class="empty">Abhi koi message nahi. Pehla message bhejo.</div>';
 }
 function renderChatList(){
@@ -1441,6 +1459,7 @@ function annCard(a){
   return `<div class="card pad ann ${a.kind === 'urgent' ? 'urgent' : ''}"><div class="row"><b>${esc(a.title)}</b>${st}</div>
     <div class="s">${KINDS[a.kind] || a.kind} · ${pnId(a.author, 22)} · ${fdt(a.created_at)}</div>
     ${a.body ? `<div class="body">${esc(a.body)}</div>` : ''}
+    ${a.status === 'approved' ? rxBar('ann', a.id) : ''}
     ${a.status === 'rejected' && a.admin_note ? `<div class="s give">Wajah: ${esc(a.admin_note)}</div>` : ''}
     ${acts ? `<div class="acts">${acts}</div>` : ''}</div>`;
 }
@@ -1833,7 +1852,7 @@ function hisaabMsg(r){
   lines.push('', 'Shukriya');
   return lines.join('\n');
 }
-window.sendHisaab = id => {
+window.sendHisaabText = id => {
   const ph = S.phones[id];
   if (!ph){ toast('Pehle mobile number add karo'); return phoneForm(id); }
   const r = S.summary.find(x => x.member_id === id);
@@ -2155,6 +2174,123 @@ window.delX = async id => {
   if (!confirm('Ye entry delete karni hai?')) return;
   const { error } = await sb.from('transfers').delete().eq('id', id);
   if (error) toast(errMsg(error)); else { toast('Delete ho gaya'); loadAll(); }
+};
+
+/* ===================== REACTIONS (like / emoji) ===================== */
+const EMO = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
+const rxFor = (t, id) => S.reacts.filter(r => r.target_type === t && String(r.target_id) === String(id));
+function rxBar(t, id){
+  const by = {}; rxFor(t, id).forEach(r => (by[r.emoji] = by[r.emoji] || []).push(r.member_id));
+  const chips = Object.keys(by).map(e => `<button class="${by[e].includes(S.me.id) ? 'mine' : ''}" onclick="event.stopPropagation();rxToggle('${t}','${id}','${e}')">${e} ${by[e].length}</button>`).join('');
+  return `<div class="rx">${chips}<button class="add" aria-label="React karo" onclick="event.stopPropagation();rxPick('${t}','${id}')">☺ +</button></div>`;
+}
+const mqRx = () => { const d = todayStr(), l = rxFor('dinner', d);
+  return ['👍', '❤️'].map(e => { const x = l.filter(r => r.emoji === e); return `<button class="${x.some(r => r.member_id === S.me.id) ? 'mine' : ''}" aria-label="${e}" onclick="rxToggle('dinner','${d}','${e}')">${e}${x.length ? ' ' + x.length : ''}</button>`; }).join('')
+    + `<button aria-label="Kisne react kiya" onclick="rxPick('dinner','${d}')">👥</button>`; };
+function rxRefresh(){
+  if (S.tab === 'chat') renderChatList();
+  else if (S.tab === 'notice') vNotice();
+  else if (S.tab === 'home'){ const m = $('#mqr'); if (m) m.innerHTML = mqRx(); }
+}
+async function loadReacts(){
+  if (!S.me) return;
+  const { data } = await sb.from('reactions').select('*').limit(5000);
+  if (data){ S.reacts = data.map(r => Object.assign({}, r, { target_id:String(r.target_id) })); rxRefresh(); }
+}
+window.rxToggle = async (t, id, e) => {
+  id = String(id);
+  const i = S.reacts.findIndex(r => r.target_type === t && r.target_id === id && r.member_id === S.me.id && r.emoji === e);
+  let res;
+  if (i >= 0){
+    S.reacts.splice(i, 1); rxRefresh();
+    res = await sb.from('reactions').delete().eq('target_type', t).eq('target_id', id).eq('member_id', S.me.id).eq('emoji', e);
+  } else {
+    S.reacts.push({ target_type:t, target_id:id, member_id:S.me.id, emoji:e }); rxRefresh();
+    res = await sb.from('reactions').insert({ target_type:t, target_id:id, member_id:S.me.id, emoji:e });
+  }
+  if (res.error){ toast('React nahi hua: ' + errMsg(res.error)); loadReacts(); }
+};
+window.rxPick = (t, id) => {
+  const l = rxFor(t, id), mine = new Set(l.filter(r => r.member_id === S.me.id).map(r => r.emoji));
+  modal(`<div class="rpick">${EMO.map(e => `<button class="${mine.has(e) ? 'on' : ''}" onclick="closeModal();rxToggle('${t}','${id}','${e}')">${e}</button>`).join('')}</div>
+  ${l.length ? `<div class="card">${l.map(r => `<div class="li"><span>${pnId(r.member_id, 28)}</span><span style="font-size:22px">${r.emoji}</span></div>`).join('')}</div>` : '<div class="s" style="text-align:center">Abhi kisi ne react nahi kiya.</div>'}
+  <div class="row" style="margin-top:12px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>`);
+};
+
+/* ===================== HISAB RECEIPT (JPEG) ===================== */
+const trimN = x => String(+Number(x).toFixed(3));
+const MON3 = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+async function receiptData(memberId){
+  const [a, b] = prange(periodMonthOf(todayStr()));
+  const { data, error } = await sb.rpc('get_summary', { p_from:a, p_to:b });
+  if (error || !data) throw new Error(error ? errMsg(error) : 'Hisaab nahi mila');
+  const r = data.find(x => x.member_id === memberId);
+  if (!r) throw new Error('Is member ka hisaab nahi mila');
+  return { a, b, r, total:data.reduce((s, x) => s + Number(x.paid), 0), active:S.members.filter(m => m.active).length || 1, m:memberOf(memberId) };
+}
+const loadImgUrl = u => new Promise(res => { if (!u) return res(null); const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = () => res(null); i.src = u; });
+async function makeReceipt(memberId){
+  const d = await receiptData(memberId), m = d.m || { name:'Member' };
+  const share = Number(d.r.share), paid = Number(d.r.paid), adv = Number(d.r.advance || 0), net = Number(d.r.net);
+  const kind = net < -0.0005 ? 'give' : net > 0.0005 ? 'get' : 'even';
+  const label = kind === 'give' ? 'BAKI DENA HAI' : kind === 'get' ? 'BAKI LENA HAI' : 'HISAB BARABAR HAI';
+  const bg = kind === 'give' ? '#fde2e8' : kind === 'get' ? '#dff3e3' : '#eef1f4';
+  const calc = kind === 'get' ? `${trimN(paid)} + ${trimN(adv)} - ${trimN(share)} = ${trimN(net)} KD`
+    : `${trimN(share)} - ${trimN(paid)} ${adv >= 0 ? '- ' + trimN(adv) : '+ ' + trimN(-adv)} = ${trimN(-net)} KD`;
+  const dt = `${p2(+d.a.slice(8))}/${MON3[+d.a.slice(5, 7) - 1]} - ${p2(+d.b.slice(8))}/${MON3[+d.b.slice(5, 7) - 1]} - ${d.b.slice(0, 4)}`;
+  const img = await loadImgUrl(avUrl(m));
+  const W = 1080, H = 1400, cx = 60, cw = 960, ch = 1280, mid = W / 2, F = '"DejaVu Sans Mono","Courier New",monospace';
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  c.fillStyle = '#f0f0f0'; c.fillRect(0, 0, W, H);
+  c.fillStyle = '#fff'; c.fillRect(cx, 60, cw, ch); c.strokeStyle = '#cccccc'; c.lineWidth = 4; c.strokeRect(cx, 60, cw, ch);
+  // profile picture (gol, ring ke andar)
+  const R = 80, py = 60 + 60 + R;
+  c.save(); c.beginPath(); c.arc(mid, py, R, 0, Math.PI * 2); c.closePath(); c.clip();
+  if (img){ const s = Math.max(2 * R / img.width, 2 * R / img.height), w = img.width * s, h = img.height * s; c.drawImage(img, mid - w / 2, py - h / 2, w, h); }
+  else { const g = c.createLinearGradient(mid - R, py - R, mid + R, py + R); g.addColorStop(0, '#13a39c'); g.addColorStop(1, '#2f6fed'); c.fillStyle = g; c.fillRect(mid - R, py - R, 2 * R, 2 * R);
+    c.fillStyle = '#fff'; c.font = `bold 84px ${F}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText((m.name || '?').trim().charAt(0).toUpperCase(), mid, py + 4); }
+  c.restore();
+  c.beginPath(); c.arc(mid, py, R + 6, 0, Math.PI * 2); c.lineWidth = 8; c.strokeStyle = '#0b3d2e'; c.stroke();
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  let y = py + R + 110;
+  c.fillStyle = '#0b3d2e'; c.font = `bold 72px ${F}`; c.fillText('HISAB RECEIPT', mid, y);
+  let fs = 56; do { c.font = `bold ${fs}px ${F}`; fs -= 2; } while (c.measureText(m.name).width > cw - 100 && fs > 24);
+  c.fillStyle = '#000'; y += 80; c.fillText(m.name, mid, y);
+  c.fillStyle = '#333'; c.font = `38px ${F}`; y += 62; c.fillText('Date: ' + dt, mid, y);
+  const dash = yy => { c.save(); c.setLineDash([16, 9]); c.lineWidth = 4; c.strokeStyle = '#000'; c.beginPath(); c.moveTo(cx + 50, yy); c.lineTo(cx + cw - 50, yy); c.stroke(); c.restore(); };
+  y += 36; dash(y);
+  const rows = [['Total Kharch', fmt(d.total) + ' KD'], ['Members', String(d.active)], ['Per Member Share', fmt(share) + ' KD'], ['Aapka Kharch', fmt(paid) + ' KD'], ['Aapka Advance', fmt(adv) + ' KD']];
+  y += 40;
+  rows.forEach(rw => { y += 62; c.textAlign = 'left'; c.fillStyle = '#333'; c.font = `40px ${F}`; c.fillText(rw[0], cx + 80, y);
+    c.textAlign = 'right'; c.fillStyle = '#000'; c.font = `bold 42px ${F}`; c.fillText(rw[1], cx + cw - 80, y); y += 40; });
+  y += 4; dash(y);
+  // lena = light green, dena = light pink
+  y += 40; const bh = 150; c.fillStyle = bg; c.beginPath(); c.roundRect ? c.roundRect(cx + 40, y, cw - 80, bh, 18) : c.rect(cx + 40, y, cw - 80, bh); c.fill();
+  c.textAlign = 'left'; c.fillStyle = '#0b3d2e'; c.font = `bold 40px ${F}`; c.fillText(label, cx + 80, y + 88);
+  c.textAlign = 'right'; c.font = `bold 64px ${F}`; c.fillText(fmt(Math.abs(net)) + ' KD', cx + cw - 80, y + 96);
+  y += bh + 80; c.textAlign = 'center'; c.fillStyle = '#666'; c.font = `italic 32px ${F}`; c.fillText('Calculation: ' + calc, mid, y);
+  y += 90; c.fillStyle = '#9a9a9a'; c.font = `34px ${F}`; c.fillText('*** Thank You ***', mid, y);
+  const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.92));
+  if (!blob) throw new Error('Receipt ban nahi paayi');
+  return { blob, url:URL.createObjectURL(blob), fname:'hisab-receipt-' + (m.name || 'member').replace(/[^\w]+/g, '_') + '-' + d.a + '.jpg' };
+}
+window.showReceipt = async id => {
+  toast('Receipt ban rahi hai...');
+  try {
+    const R = await makeReceipt(id); window._rc = R;
+    const adm = isAdmin() && id !== S.me.id;
+    modal(`<h3>Hisab Receipt</h3><img class="rcpt" src="${R.url}" alt="Hisab receipt">
+    <div class="acts" style="margin-top:12px"><button class="btn" onclick="rcShare()">Share / WhatsApp</button><button class="btn ghost" onclick="rcDownload()">JPEG download</button>
+    ${adm ? `<button class="btn ghost" onclick="closeModal();sendHisaabText('${id}')">Text message (number par)</button>` : ''}</div>
+    <div class="row" style="margin-top:12px"><span></span><button class="btn ghost" onclick="closeModal()">Band karo</button></div>`);
+  } catch (e) { toast(errMsg(e)); }
+};
+window.rcDownload = () => { if (window._rc) downloadBlob(window._rc.blob, window._rc.fname); };
+window.rcShare = async () => {
+  const R = window._rc; if (!R) return;
+  const f = new File([R.blob], R.fname, { type:'image/jpeg' });
+  if (navigator.canShare && navigator.canShare({ files:[f] })){ try { await navigator.share({ files:[f], title:'Hisab Receipt' }); } catch (e) {} }
+  else { downloadBlob(R.blob, R.fname); toast('Share is browser me nahi hota, image download ho gayi'); }
 };
 
 boot();

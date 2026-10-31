@@ -1852,6 +1852,7 @@ function hisaabMsg(r){
   lines.push('', 'Shukriya');
   return lines.join('\n');
 }
+window.sendHisaab = id => showReceipt(id);
 window.sendHisaabText = id => {
   const ph = S.phones[id];
   if (!ph){ toast('Pehle mobile number add karo'); return phoneForm(id); }

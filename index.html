@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0f1b3a">
+<meta name="theme-color" content="#9f1239">
 <title>Shahid Sharing</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -378,6 +378,258 @@ h2::before{content:"";width:5px;height:18px;border-radius:3px;background:linear-
 .mq .mqr button{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:99px;padding:5px 9px;font-size:14px}
 .mq .mqr button.mine{background:#fff;color:#0f1b3a}
 .rcpt{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+
+/* ===== v7: GLASSY WATER THEME + smooth transitions + new dashboard ===== */
+:root{--accent:#14a7c4;--accent2:#2f6fed;--glass:rgba(255,255,255,.58);--glass-b:rgba(255,255,255,.78);--ease:cubic-bezier(.2,.7,.2,1)}
+html{background:linear-gradient(165deg,#d9f6fb 0%,#cde8fa 45%,#e3ecff 100%) fixed;min-height:100%;scroll-behavior:smooth}
+body{background:transparent!important}
+body::before,body::after{content:"";position:fixed;z-index:0;pointer-events:none;border-radius:50%;filter:blur(46px);opacity:.6}
+body::before{width:340px;height:340px;left:-90px;top:12%;background:radial-gradient(circle,#4fd8e8,transparent 68%);animation:drift1 16s ease-in-out infinite alternate}
+body::after{width:380px;height:380px;right:-120px;bottom:6%;background:radial-gradient(circle,#5b9bff,transparent 68%);animation:drift2 19s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(70px,90px) scale(1.15)}}
+@keyframes drift2{to{transform:translate(-80px,-70px) scale(1.12)}}
+#app{position:relative;z-index:1}
+
+/* header with moving water waves */
+.top{background:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 26' preserveAspectRatio='none'%3E%3Cpath d='M0 13Q80-2 160 13T320 13T480 13T640 13V26H0Z' fill='%23fff' fill-opacity='.22'/%3E%3C/svg%3E") 0 100%/640px 26px repeat-x,
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 20' preserveAspectRatio='none'%3E%3Cpath d='M0 10Q60 0 120 10T240 10T360 10T480 10V20H0Z' fill='%23fff' fill-opacity='.14'/%3E%3C/svg%3E") 0 100%/480px 20px repeat-x,
+  linear-gradient(160deg,#0a5a8c 0,#1288b5 55%,#27b6cf 100%);
+  border-radius:0 0 30px 30px;padding-bottom:34px;animation:waveMove 14s linear infinite;box-shadow:0 14px 34px rgba(10,90,140,.28)}
+@keyframes waveMove{to{background-position:640px 100%,-480px 100%,0 0}}
+.balance{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.balico{background:linear-gradient(135deg,#5ad1e6,#2f6fed);transition:transform .3s var(--ease)}
+
+/* glass surfaces */
+.card,.stat>div,.txc,.food,.schw,.xl,.dash,.dcat{background:var(--glass);backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%);
+  border:1px solid var(--glass-b);box-shadow:0 10px 32px rgba(11,93,143,.12),inset 0 1px 0 rgba(255,255,255,.85);
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease),background .4s}
+.stat>div{border-top:3px solid var(--accent)}
+.stat>div:nth-child(2){border-top-color:var(--accent2)}
+.txc{border-left:5px solid var(--get)}
+.txc.pend{background:rgba(255,246,220,.72);border-left-color:#e0a21b}
+.food.today{background:linear-gradient(180deg,rgba(205,248,244,.8),rgba(255,255,255,.6))}
+.food.tomorrow{background:linear-gradient(180deg,rgba(220,232,253,.8),rgba(255,255,255,.6))}
+.info{background:rgba(214,246,250,.7);border:1px solid rgba(255,255,255,.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.mq{background:linear-gradient(90deg,#0b4f7a,#1597b8)}
+@media (hover:hover){
+  .card:hover,.txc:hover,.stat>div:hover,.dash:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(11,93,143,.18),inset 0 1px 0 rgba(255,255,255,.9)}
+  .li:hover,.pay:hover{background:rgba(255,255,255,.5)}
+}
+.li,.pay,.dr-i,.optbtn,.chip,.pill{transition:background .3s var(--ease),transform .3s var(--ease),color .3s}
+.chip.ok{background:#d6f4e8;color:var(--get);font-weight:600}
+
+/* buttons, tabs, nav */
+.btn{background:linear-gradient(135deg,#0f6aa3,#0b4a78);transition:transform .25s var(--ease),box-shadow .3s,filter .3s}
+.btn:hover{filter:brightness(1.08)}
+.btn.gold,.fab{background:linear-gradient(135deg,#27b6cf,#2f6fed);box-shadow:0 10px 24px rgba(39,182,207,.4)}
+.btn.ghost{background:rgba(255,255,255,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.85);color:var(--ink)}
+.fab{transition:transform .3s var(--ease),box-shadow .3s}.fab:active{transform:scale(.95)}
+.segbar button{background:rgba(255,255,255,.66);border:1px solid rgba(255,255,255,.85);transition:background .35s var(--ease),color .3s,box-shadow .35s,transform .25s}
+.segbar button.on{background:linear-gradient(135deg,#27b6cf,#2f6fed);box-shadow:0 8px 18px rgba(39,182,207,.35)}
+.nav{background:rgba(255,255,255,.62);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%);border-top:1px solid rgba(255,255,255,.85)}
+.tab{transition:color .3s,transform .3s var(--ease)}
+.tab .ic{transition:background .4s var(--ease),color .3s,box-shadow .4s,transform .4s var(--ease)}
+.tab.on .ic{background:linear-gradient(135deg,#27b6cf,#2f6fed)}
+.dr-i.on{background:linear-gradient(90deg,rgba(214,246,250,.9),rgba(255,255,255,.2))}
+.monthbar input,.f input,.f select,.f textarea{background:rgba(255,255,255,.82);transition:border-color .25s,box-shadow .25s}
+.monthbar input:focus,.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(20,167,196,.18);outline:0}
+
+/* modal / drawer */
+.ov,.dr-ov{animation:fadeIn .28s ease both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.sheet{background:rgba(255,255,255,.84);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border:1px solid rgba(255,255,255,.9)}
+.drawer{background:rgba(255,255,255,.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.dr-head{background:linear-gradient(160deg,#0a5a8c,#1288b5 60%,#27b6cf)}
+.toast{background:linear-gradient(135deg,#0a5a8c,#1597b8);animation:rise .4s var(--ease) both}
+
+/* page change: har cheez ek ke baad ek smooth upar aati hai */
+.wrap.enter{animation:none}
+.wrap.enter>*{animation:rise .55s var(--ease) both}
+.wrap.enter>*:nth-child(2){animation-delay:.05s}.wrap.enter>*:nth-child(3){animation-delay:.1s}
+.wrap.enter>*:nth-child(4){animation-delay:.15s}.wrap.enter>*:nth-child(5){animation-delay:.2s}
+.wrap.enter>*:nth-child(6){animation-delay:.25s}.wrap.enter>*:nth-child(n+7){animation-delay:.3s}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+
+/* NEW DASHBOARD (Hisaab page) */
+.dash{position:relative;overflow:hidden;padding:18px 16px 14px;margin-bottom:14px;border-radius:24px;background:linear-gradient(150deg,rgba(255,255,255,.74),rgba(200,238,250,.55))}
+.dash::before{content:"";position:absolute;right:-40px;top:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(56,198,224,.5),transparent 70%);animation:drift1 9s ease-in-out infinite alternate;pointer-events:none}
+.dash>*{position:relative}
+.dtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.dk{font-size:13px;color:var(--mute)}
+.dbig{font-size:38px;font-weight:800;letter-spacing:-.02em;line-height:1.15;background:linear-gradient(135deg,#0b4a78,#1597b8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.dbig small{font-size:15px;font-weight:600;margin-left:6px;-webkit-text-fill-color:#4a7893}
+.ddrop{width:52px;height:52px;border-radius:18px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#5ad1e6,#2f6fed);box-shadow:0 10px 22px rgba(47,111,237,.35);animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.dc{background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.88);border-radius:16px;padding:10px 10px 9px;min-width:0;transition:transform .35s var(--ease)}
+.dc:hover{transform:translateY(-2px)}
+.dc .dk{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dv{font-size:17px;font-weight:800;color:var(--ink2)}
+.dcat{padding:14px;margin-bottom:14px;border-radius:20px}
+.dh{font-weight:700;margin-bottom:10px}
+.dcr{margin-bottom:11px}.dcr:last-child{margin-bottom:0}
+.dcr i{display:inline-block;width:10px;height:10px;border-radius:4px;margin-right:7px}
+.dcr small{color:var(--mute);font-weight:500}
+.dcr .bar{background:rgba(11,93,143,.09)}
+.dcr .bar>div{transform-origin:left;animation:grow 1s var(--ease) both}
+@keyframes grow{from{transform:scaleX(0)}}
+
+@media (prefers-reduced-motion:reduce){
+  body::before,body::after,.top,.ddrop,.dash::before,.wrap.enter>*,.dcr .bar>div,.ov,.dr-ov{animation:none!important}
+  *{transition:none!important}
+}
+@media print{body::before,body::after{display:none}.card,.dash,.dcat{backdrop-filter:none;box-shadow:none}}
+
+/* ===== excel table: cells white, heading row + date column glassy aqua ===== */
+.xl{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none;border-color:#d9e1ec}
+.xlt th,.xlt td{border-right-color:#d9e1ec;border-bottom-color:#d9e1ec}
+.xlt td,.xlt td.has,.xlt tr.tod td:not(.has){background:#fff}
+.xlt thead th,.xlt thead .gd,.xlt .gd,.xlt tr.tod .gd,.xlt td.tt,.xlt th.tt,.xlt tfoot td,.xlt tfoot th{background:linear-gradient(180deg,#e4f8fc,#cdeaf6);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+/* ===== 4 widgets + upar ka lena/dena highlight ===== */
+.dgrid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.dgrid4 .dc{padding:12px 13px;border-radius:18px;background:var(--glass);backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%);border:1px solid var(--glass-b);box-shadow:0 8px 24px rgba(11,93,143,.1),inset 0 1px 0 rgba(255,255,255,.85)}
+.dgrid4 .dk{font-size:13px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dgrid4 .dv{font-size:20px;font-weight:700;color:var(--ink2);margin-top:2px}
+.balance .lbl{font-size:15px;font-weight:700;color:#e6f6ff}
+.balance .amt{font-size:48px;font-weight:900;letter-spacing:-.02em;text-shadow:0 3px 14px rgba(0,0,0,.28)}
+.balance .amt small{font-size:17px;font-weight:700}
+.balance.get .amt{color:#6dffbf}
+.balance.give .amt{color:#ffd0d8}
+.balance.get{box-shadow:0 0 0 1px rgba(109,255,191,.35),0 8px 24px rgba(0,0,0,.12)}
+.balance.give{box-shadow:0 0 0 1px rgba(255,160,180,.4),0 8px 24px rgba(0,0,0,.12)}
+.dgrid4 .dsub{font-size:12px;color:var(--mute);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ===== v8: modern indigo-violet-pink glass theme (sirf colour) ===== */
+:root{--ink:#1e1b4b;--ink2:#312e81;--accent:#6366f1;--accent2:#ec4899;--line:#e3def8;--mute:#6b6a8a;--text:#1b1940}
+html{background:linear-gradient(165deg,#efeaff 0%,#e6ecff 48%,#fde9f6 100%) fixed}
+body::before{background:radial-gradient(circle,#a78bfa,transparent 68%)}
+body::after{background:radial-gradient(circle,#f9a8d4,transparent 68%)}
+.top{background:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 26' preserveAspectRatio='none'%3E%3Cpath d='M0 13Q80-2 160 13T320 13T480 13T640 13V26H0Z' fill='%23fff' fill-opacity='.22'/%3E%3C/svg%3E") 0 100%/640px 26px repeat-x,
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 20' preserveAspectRatio='none'%3E%3Cpath d='M0 10Q60 0 120 10T240 10T360 10T480 10V20H0Z' fill='%23fff' fill-opacity='.14'/%3E%3C/svg%3E") 0 100%/480px 20px repeat-x,
+  linear-gradient(150deg,#2a1d78 0,#4f46e5 52%,#a855f7 100%);box-shadow:0 14px 34px rgba(79,70,229,.32)}
+.top::before{background:radial-gradient(circle,rgba(236,72,153,.55),transparent 70%)}
+.top::after{background:radial-gradient(circle,rgba(56,189,248,.45),transparent 70%)}
+.balico,.ring,.av,.lart,.hero,.viewer .vtext{background:linear-gradient(135deg,#6366f1,#ec4899)}
+.ring.seen{background:#c9c6e0}.ring.none{background:#e9e6f7}
+.av{box-shadow:0 0 0 2px #fff,0 0 0 3.5px #8b5cf6}.ring .av{box-shadow:none}
+.balico{box-shadow:0 8px 18px rgba(0,0,0,.3)}
+.btn{background:linear-gradient(135deg,#4f46e5,#312e81)}
+.btn.gold,.fab{background:linear-gradient(135deg,#6366f1,#ec4899);box-shadow:0 10px 24px rgba(236,72,153,.35)}
+.btn.ghost{color:var(--ink2)}
+.segbar button.on{background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 8px 18px rgba(99,102,241,.35)}
+.tab.on{color:#6366f1}
+.tab.on .ic{background:linear-gradient(135deg,#6366f1,#ec4899);box-shadow:0 6px 14px rgba(236,72,153,.35)}
+.dr-head{background:linear-gradient(150deg,#2a1d78,#4f46e5 60%,#a855f7)}
+.dr-head::after{background:radial-gradient(circle,rgba(236,72,153,.55),transparent 70%)}
+.dr-i.on{background:linear-gradient(90deg,rgba(237,233,254,.95),rgba(255,255,255,.2));border-left-color:#8b5cf6}
+.dr-i.on svg{color:#6366f1}
+.toast{background:linear-gradient(135deg,#312e81,#6366f1)}
+.mq{background:linear-gradient(90deg,#312e81,#7c3aed)}
+.info{background:rgba(237,233,254,.75);border-color:rgba(255,255,255,.85);color:#3730a3}
+h2::before{background:linear-gradient(180deg,#6366f1,#ec4899)}
+.stat>div{border-top-color:#6366f1}.stat>div:nth-child(2){border-top-color:#ec4899}
+.stat .v{background:linear-gradient(135deg,#312e81,#7c3aed);-webkit-background-clip:text;background-clip:text}
+.dgrid4 .dc:nth-child(1){border-top:3px solid #6366f1}.dgrid4 .dc:nth-child(2){border-top:3px solid #8b5cf6}
+.dgrid4 .dc:nth-child(3){border-top:3px solid #ec4899}.dgrid4 .dc:nth-child(4){border-top:3px solid #f59e0b}
+.ico,.txc .ico{background:linear-gradient(135deg,#ede9fe,#fce7f3);color:#6366f1}
+.food.today{border-color:#8b5cf6;background:linear-gradient(180deg,rgba(237,233,254,.85),rgba(255,255,255,.6))}
+.food.tomorrow{border-color:#f0abfc;background:linear-gradient(180deg,rgba(253,232,247,.85),rgba(255,255,255,.6))}
+.food .tag{background:#6366f1}.food.tomorrow .tag{background:#ec4899}
+.sch tr.tod td,.sch tr.tod th{background:#ede9fe}.sch tr.tom td,.sch tr.tom th{background:#fce7f3}
+.sch thead th{background:linear-gradient(180deg,#ede9fe,#ddd6fe)}.sch .tg{background:#6366f1}.sch .tg.b{background:#ec4899}
+.xlt thead th,.xlt thead .gd,.xlt .gd,.xlt tr.tod .gd,.xlt td.tt,.xlt th.tt,.xlt tfoot td,.xlt tfoot th{background:linear-gradient(180deg,#f0ecff,#ddd6fe)}
+.cal .c.today{outline-color:#8b5cf6}.cal .c.sel{background:#ede9fe}.cal .c .more{color:#6366f1}
+.chk label,.seg label{border-color:var(--line)}
+.monthbar input:focus,.f input:focus,.f select:focus,.f textarea:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.2)}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline-color:#8b5cf6}
+.login{background:radial-gradient(circle at 88% 6%,rgba(236,72,153,.4),transparent 46%),radial-gradient(circle at 8% 92%,rgba(99,102,241,.5),transparent 52%),linear-gradient(160deg,#1e1b4b,#3730a3)}
+.rx button.mine{background:#ede9fe;border-color:#8b5cf6}.rpick button.on{background:#ede9fe}
+.msg.me .bub{background:#ede9fe;border-color:#ddd6fe}
+:root{--pd:#4c0519;--pm:#be123c;--pl:#fb7185;--p1:#e11d48;--p2:#f97316;--t0:#fff1f2;--t1:#ffe4e6;--t2:#fecdd3;--t3:#ffedd5;--b2c:#fdba74;--rgb1:225,29,72;--rgb2:249,115,22;--rgbt:255,228,230;--ink:#4c0519;--ink2:#881337;--line:#f3d5da;--mute:#85606a;--text:#3b0a14;--lg1:#4c0519;--lg2:#9f1239;--hd1:#4c0519;--hd2:#be123c;--hd3:#fb7185;--accent:#e11d48;--accent2:#f97316}
+/* ===== v10: theme-able (variables set by applyTheme) (sirf colour) ===== */
+html{background:linear-gradient(165deg,var(--t0) 0%,var(--t1) 48%,var(--t3) 100%) fixed}
+body::before{background:radial-gradient(circle,var(--pl),transparent 68%)}
+body::after{background:radial-gradient(circle,var(--b2c),transparent 68%)}
+.top{background:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 26' preserveAspectRatio='none'%3E%3Cpath d='M0 13Q80-2 160 13T320 13T480 13T640 13V26H0Z' fill='%23fff' fill-opacity='.22'/%3E%3C/svg%3E") 0 100%/640px 26px repeat-x,
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 20' preserveAspectRatio='none'%3E%3Cpath d='M0 10Q60 0 120 10T240 10T360 10T480 10V20H0Z' fill='%23fff' fill-opacity='.14'/%3E%3C/svg%3E") 0 100%/480px 20px repeat-x,
+  linear-gradient(150deg,var(--hd1) 0,var(--hd2) 52%,var(--hd3) 100%);box-shadow:0 14px 34px rgba(var(--rgb1),.32)}
+.top::before{background:radial-gradient(circle,rgba(var(--rgb2),.55),transparent 70%)}
+.top::after{background:radial-gradient(circle,rgba(var(--rgb2),.45),transparent 70%)}
+.balico,.ring,.av,.lart,.hero,.viewer .vtext{background:linear-gradient(135deg,var(--p1),var(--p2))}
+.ring.seen{background:var(--t2)}.ring.none{background:var(--t1)}
+.av{box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--pl)}.ring .av{box-shadow:none}
+.balico{box-shadow:0 8px 18px rgba(0,0,0,.3)}
+.btn{background:linear-gradient(135deg,var(--pm),var(--ink2))}
+.btn.gold,.fab{background:linear-gradient(135deg,var(--p1),var(--p2));box-shadow:0 10px 24px rgba(var(--rgb2),.35)}
+.btn.ghost{color:var(--ink2)}
+.segbar button.on{background:linear-gradient(135deg,var(--p1),var(--pl));box-shadow:0 8px 18px rgba(var(--rgb1),.35)}
+.tab.on{color:var(--p1)}
+.tab.on .ic{background:linear-gradient(135deg,var(--p1),var(--p2));box-shadow:0 6px 14px rgba(var(--rgb2),.35)}
+.dr-head{background:linear-gradient(150deg,var(--hd1),var(--hd2) 60%,var(--hd3))}
+.dr-head::after{background:radial-gradient(circle,rgba(var(--rgb2),.55),transparent 70%)}
+.dr-i.on{background:linear-gradient(90deg,rgba(var(--rgbt),.95),rgba(255,255,255,.2));border-left-color:var(--pl)}
+.dr-i.on svg{color:var(--p1)}
+.toast{background:linear-gradient(135deg,var(--ink2),var(--p1))}
+.mq{background:linear-gradient(90deg,var(--ink2),var(--p1))}
+.info{background:rgba(var(--rgbt),.75);border-color:rgba(255,255,255,.85);color:var(--ink2)}
+h2::before{background:linear-gradient(180deg,var(--p1),var(--p2))}
+.stat>div{border-top-color:var(--p1)}.stat>div:nth-child(2){border-top-color:var(--p2)}
+.stat .v{background:linear-gradient(135deg,var(--ink2),var(--p1));-webkit-background-clip:text;background-clip:text}
+.dgrid4 .dc:nth-child(1){border-top:3px solid var(--p1)}.dgrid4 .dc:nth-child(2){border-top:3px solid var(--pl)}
+.dgrid4 .dc:nth-child(3){border-top:3px solid var(--p2)}.dgrid4 .dc:nth-child(4){border-top:3px solid #f59e0b}
+.ico,.txc .ico{background:linear-gradient(135deg,var(--t1),var(--t3));color:var(--p1)}
+.food.today{border-color:var(--pl);background:linear-gradient(180deg,rgba(var(--rgbt),.85),rgba(255,255,255,.6))}
+.food.tomorrow{border-color:var(--b2c);background:linear-gradient(180deg,rgba(var(--rgbt),.85),rgba(255,255,255,.6))}
+.food .tag{background:var(--p1)}.food.tomorrow .tag{background:var(--p2)}
+.sch tr.tod td,.sch tr.tod th{background:var(--t1)}.sch tr.tom td,.sch tr.tom th{background:var(--t3)}
+.sch thead th{background:linear-gradient(180deg,var(--t1),var(--t2))}.sch .tg{background:var(--p1)}.sch .tg.b{background:var(--p2)}
+.xlt thead th,.xlt thead .gd,.xlt .gd,.xlt tr.tod .gd,.xlt td.tt,.xlt th.tt,.xlt tfoot td,.xlt tfoot th{background:linear-gradient(180deg,var(--t0),var(--t2))}
+.cal .c.today{outline-color:var(--pl)}.cal .c.sel{background:var(--t1)}.cal .c .more{color:var(--p1)}
+.chk label,.seg label{border-color:var(--line)}
+.monthbar input:focus,.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--pl);box-shadow:0 0 0 3px rgba(var(--rgb1),.2)}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline-color:var(--pl)}
+.login{background:radial-gradient(circle at 88% 6%,rgba(var(--rgb2),.4),transparent 46%),radial-gradient(circle at 8% 92%,rgba(var(--rgb1),.5),transparent 52%),linear-gradient(160deg,var(--lg1),var(--lg2))}
+.rx button.mine{background:var(--t1);border-color:var(--pl)}.rpick button.on{background:var(--t1)}
+.msg.me .bub{background:var(--t1);border-color:var(--t2)}
+.balance.give .amt{color:#ffe3e8}
+.balance.give{box-shadow:0 0 0 1px rgba(255,255,255,.45),0 8px 24px rgba(0,0,0,.15)}
+
+/* white theme: header/drawer light, so text dark */
+html[data-theme=white] .top,html[data-theme=white] .top *,html[data-theme=white] .dr-head,html[data-theme=white] .dr-head *{color:#0f172a}
+html[data-theme=white] .dr-head .s{color:#64748b!important}
+html[data-theme=white] .balance{background:rgba(15,23,42,.05);border-color:rgba(15,23,42,.12)}
+html[data-theme=white] .balance.get .amt{color:#15803d;text-shadow:none}
+html[data-theme=white] .balance.give .amt{color:#b91c1c;text-shadow:none}
+html[data-theme=white] .top{box-shadow:0 10px 28px rgba(15,23,42,.12)}
+html[data-theme=white] .login{color:#fff}
+/* theme picker */
+.thgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:6px}
+.thb{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.7);border:2px solid transparent;font-weight:700;color:var(--ink);transition:transform .25s var(--ease),border-color .25s,box-shadow .25s}
+.thb:active{transform:scale(.97)}
+.thb i{width:30px;height:30px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12),0 4px 10px rgba(0,0,0,.18)}
+.thb.on{border-color:var(--p1);box-shadow:0 8px 20px rgba(var(--rgb1),.25)}
+.thb.on::after{content:"\2713";margin-left:auto;color:var(--p1)}
+/* ===== glass sirf page background par; boxes/widgets solid ===== */
+.card,.stat>div,.txc,.food,.schw,.xl,.dash,.dcat,.dgrid4 .dc,.info,.sheet,.drawer,.nav,.btn.ghost,.segbar button,.balance,.thb,.toast,.dc{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.card,.stat>div,.txc,.food,.schw,.xl,.dash,.dcat,.dgrid4 .dc,.dc,.thb{background:#fff;border:1px solid var(--line);box-shadow:0 4px 14px rgba(var(--rgb1),.10)}
+.stat>div{border-top-width:3px}
+.dgrid4 .dc:nth-child(1){border-top:3px solid var(--p1)}.dgrid4 .dc:nth-child(2){border-top:3px solid var(--pl)}
+.dgrid4 .dc:nth-child(3){border-top:3px solid var(--p2)}.dgrid4 .dc:nth-child(4){border-top:3px solid #f59e0b}
+.txc{border-left:5px solid var(--get)}
+.txc.pend{background:#fff6dc;border-left-color:#e0a21b}
+.food.today{background:var(--t1);border-color:var(--pl)}
+.food.tomorrow{background:var(--t0);border-color:var(--b2c)}
+.info{background:var(--t1);border:1px solid var(--line)}
+.sheet,.drawer,.nav{background:#fff;border-color:var(--line)}
+.btn.ghost,.segbar button{background:#fff;border:1px solid var(--line)}
+.segbar button.on{background:linear-gradient(135deg,var(--p1),var(--p2));border-color:transparent}
+.dr-i.on{background:var(--t1)}
+.toast{background:var(--ink2)}
+.balance{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.22)}
+html[data-theme=white] .balance{background:#f1f5f9;border-color:#e2e8f0}
+@media (hover:hover){.li:hover,.pay:hover{background:var(--t0)}}
 </style>
 </head>
 <body>
@@ -467,6 +719,7 @@ const ic = (n, s = 22) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" f
 
 /* ---------- STATE ---------- */
 const S = { me:null, members:[], expenses:[], summary:[], xfers:[], reqs:[], cat:[], phones:{}, locks:new Set(),
+  access:{}, entered:[],
   ledger:[], statuses:[], chat:[], anns:[], rentDues:[], rentPays:[], food:[], meals:['Dinner'], backups:[], actlog:[],
   prefs:{ announcements_on:true, chat_on:true, ann_seen_at:null, chat_seen_at:null },
   knownAnn:null, lastPend:null, carry:false, tab:'home', month:todayStr().slice(0, 7), live:false, period:{ from:1, to:31 }, autoMonth:true, reacts:[],
@@ -476,6 +729,10 @@ const S = { me:null, members:[], expenses:[], summary:[], xfers:[], reqs:[], cat
 let channel = null;
 
 const isAdmin = () => !!S.me && S.me.role === 'admin';
+/* ---- member access (kharcha entry ka haq) ---- */
+const accOf = () => (S.me && S.access[S.me.id]) || {};
+const hasAcc = () => !isAdmin() && !!(accOf().can_add || accOf().can_edit || accOf().can_delete);
+const canAddExp = () => !isAdmin() && !!accOf().can_add;
 const nameOf = id => (S.members.find(m => m.id === id) || { name:'(hata hua)' }).name;
 const memberOf = id => S.members.find(m => m.id === id);
 const advTxt = r => Number(r.advance || 0) ? ' · Advance ' + (Number(r.advance) > 0 ? '+' : '') + fmt(r.advance) : '';
@@ -527,6 +784,45 @@ function showLogin(msg){
 async function logout(){ await sb.auth.signOut(); S.me = null; S.lastPend = null; S.knownAnn = null; closeDrawer(); showLogin(); }
 window.logout = logout;
 
+/* ---------- THEME (har member apna colour khud chun sakta hai) ---------- */
+const THEME_KEYS = ['pd','pm','pl','p1','p2','t0','t1','t2','t3','b2c','rgb1','rgb2','rgbt','ink','ink2','line','mute','text','lg1','lg2'];
+const THEMES = {
+  black :['Black',  '#111827',['#0a0a0a','#1f2937','#4b5563','#111827','#f59e0b','#f3f4f6','#e5e7eb','#d1d5db','#f3f4f6','#9ca3af','17,24,39','245,158,11','229,231,235','#111827','#1f2937','#d9dce1','#6b7280','#111827','#0a0a0a','#1f2937']],
+  red   :['Red',    '#e11d48',['#4c0519','#be123c','#fb7185','#e11d48','#f97316','#fff1f2','#ffe4e6','#fecdd3','#ffedd5','#fdba74','225,29,72','249,115,22','255,228,230','#4c0519','#881337','#f3d5da','#85606a','#3b0a14','#4c0519','#9f1239']],
+  gray  :['Gray',   '#6b7280',['#374151','#6b7280','#9ca3af','#4b5563','#0ea5e9','#f4f5f7','#e9ebef','#d5d9e0','#f1f3f6','#cbd5e1','75,85,99','14,165,233','233,235,239','#1f2937','#374151','#dde0e6','#6b7280','#1f2937','#1f2937','#4b5563']],
+  purple:['Purple', '#7c3aed',['#2e1065','#6d28d9','#a78bfa','#7c3aed','#ec4899','#f5f3ff','#ede9fe','#ddd6fe','#fdf2f8','#f9a8d4','124,58,237','236,72,153','237,233,254','#2e1065','#4c1d95','#e3def8','#6b6a8a','#1b1940','#2e1065','#4c1d95']],
+  green :['Green',  '#16a34a',['#052e16','#15803d','#4ade80','#16a34a','#eab308','#f0fdf4','#dcfce7','#bbf7d0','#fefce8','#fde047','22,163,74','234,179,8','220,252,231','#052e16','#14532d','#cfe8d6','#5f7a66','#0b2a16','#052e16','#14532d']],
+  navy  :['Navy Blue','#1e3a8a',['#0b1d3a','#1e3a8a','#3b82f6','#1d4ed8','#f59e0b','#eff6ff','#dbeafe','#bfdbfe','#eef2ff','#a5b4fc','29,78,216','245,158,11','219,234,254','#0b1d3a','#1e3a8a','#d2dcef','#5b6b88','#0f1b3a','#0b1d3a','#1e3a8a']],
+  sky   :['Sky Blue','#0ea5e9',['#075985','#0284c7','#38bdf8','#0ea5e9','#6366f1','#f0f9ff','#e0f2fe','#bae6fd','#eef2ff','#a5b4fc','14,165,233','99,102,241','224,242,254','#0c4a6e','#075985','#d3e6f2','#5b7a8c','#0c2a3e','#075985','#0284c7']],
+  orange:['Orange',  '#f97316',['#7c2d12','#ea580c','#fb923c','#f97316','#dc2626','#fff7ed','#ffedd5','#fed7aa','#fef2f2','#fca5a5','249,115,22','220,38,38','255,237,213','#431407','#7c2d12','#f3dcc8','#8a6a58','#3b1405','#7c2d12','#c2410c']],
+  white :['White',   '#ffffff',['#0f172a','#475569','#94a3b8','#334155','#0ea5e9','#ffffff','#f8fafc','#e2e8f0','#ffffff','#bae6fd','51,65,85','14,165,233','241,245,249','#0f172a','#1e293b','#e2e8f0','#64748b','#0f172a','#0f172a','#334155'],['#ffffff','#f8fafc','#e2e8f0']],
+  aqua  :['Aqua',    '#14b8a6',['#134e4a','#0d9488','#2dd4bf','#14b8a6','#0ea5e9','#f0fdfa','#ccfbf1','#99f6e4','#e0f2fe','#7dd3fc','20,184,166','14,165,233','204,251,241','#134e4a','#115e59','#cdebe6','#5b8079','#0b2e2b','#134e4a','#115e59']]
+};
+const themeKeyOf = id => 'ss_theme_' + (id || 'x');
+function applyTheme(key){
+  const t = THEMES[key] || THEMES.red, r = document.documentElement, v = t[2], hd = t[3] || [v[0], v[1], v[2]];
+  THEME_KEYS.forEach((k, i) => r.style.setProperty('--' + k, v[i]));
+  r.style.setProperty('--hd1', hd[0]); r.style.setProperty('--hd2', hd[1]); r.style.setProperty('--hd3', hd[2]);
+  r.style.setProperty('--accent', v[3]); r.style.setProperty('--accent2', v[4]);
+  r.dataset.theme = THEMES[key] ? key : 'red';
+  const m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', key === 'white' ? '#ffffff' : hd[1] === v[1] ? v[1] : v[1]);
+}
+function curTheme(){ try { return localStorage.getItem(themeKeyOf(S.me && S.me.id)) || localStorage.getItem('ss_theme_last') || 'red'; } catch (e) { return 'red'; } }
+window.pickTheme = key => {
+  try { localStorage.setItem(themeKeyOf(S.me && S.me.id), key); localStorage.setItem('ss_theme_last', key); } catch (e) {}
+  applyTheme(key);
+  document.querySelectorAll('.thb').forEach(b => b.classList.toggle('on', b.dataset.k === key));
+  if (S.tab === 'settings') vSettings();
+};
+window.themeForm = () => {
+  const cur = curTheme();
+  modal(`<h3>Theme chuno</h3>
+  <p class="hint" style="margin:0 0 12px">Jo colour chunoge sirf aapke liye lagega. Dusre members apna alag colour rakh sakte hain.</p>
+  <div class="thgrid">${Object.keys(THEMES).map(k => `<button type="button" class="thb ${k === cur ? 'on' : ''}" data-k="${k}" onclick="pickTheme('${k}')"><i style="background:${THEMES[k][1]}"></i>${THEMES[k][0]}</button>`).join('')}</div>
+  <div class="row" style="margin-top:14px"><button type="button" class="btn" onclick="closeModal()">Done</button></div>`);
+};
+try { applyTheme(localStorage.getItem('ss_theme_last') || 'red'); } catch (e) {}
+
 async function boot(){
   const { data:{ session } } = await sb.auth.getSession();
   if (!session) return showLogin();
@@ -536,6 +832,7 @@ async function boot(){
     return showLogin('Aapka account active nahi hai. Admin se baat karo.');
   }
   S.me = data;
+  applyTheme(curTheme());
   try { const pr = await sb.from('app_settings').select('*').eq('key', 'period').maybeSingle(); if (pr && pr.data) S.period = normPeriod(pr.data.value); } catch (e) {}
   S.month = periodMonthOf(todayStr());
   await loadAll();
@@ -578,7 +875,10 @@ async function loadAll(){
     q.push(sb.from('backups').select('id,kind,created_at').order('created_at', {ascending:false}).limit(40)); // 17
     q.push(sb.from('admin_activity_log').select('*').order('created_at', {ascending:false}).limit(150)); // 18
   }
+  q.push(sb.from('member_access').select('*'));
+  q.push(isAdmin() ? Promise.resolve({ data:[] }) : sb.rpc('get_my_entered_expenses', { p_from:from, p_to:to }));
   const R = await Promise.all(q);
+  const accRes = R[R.length - 2], entRes = R[R.length - 1];
   const [m, e, s, x, rq, lk, ct, lg, st, ch, an, pf, rd, rp, fm, ms, dp, pd, rc, ph, bk, al] = R;
   if (pd && !pd.error){
     const np = normPeriod(pd.data && pd.data.value);
@@ -610,6 +910,8 @@ async function loadAll(){
   if (ph && ph.data){ S.phones = {}; ph.data.forEach(p => S.phones[p.member_id] = p.phone); }
   if (bk && bk.data) S.backups = bk.data;
   if (al && al.data) S.actlog = al.data;
+  if (accRes && accRes.data && !accRes.error){ S.access = {}; accRes.data.forEach(a => S.access[a.member_id] = a); }
+  if (entRes && entRes.data && !entRes.error) S.entered = entRes.data; else if (!entRes || !entRes.error) S.entered = [];
   const mine = S.members.find(z => z.id === S.me.id);
   if (mine) S.me = mine;
   if (m.data && (!mine || !mine.active)) return logout();
@@ -637,6 +939,7 @@ function subscribe(){
     .on('postgres_changes', { event:'*', schema:'public', table:'sync_ping' }, () => loadAll())
     .on('postgres_changes', { event:'*', schema:'public', table:'chat_messages' }, () => reloadChat())
     .on('postgres_changes', { event:'*', schema:'public', table:'reactions' }, () => loadReacts())
+    .on('postgres_changes', { event:'*', schema:'public', table:'member_access' }, () => loadAll())
     .subscribe(status => { S.live = status === 'SUBSCRIBED'; const d = $('#livedot'); if (d) d.className = 'live' + (S.live ? '' : ' off'); });
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.me) loadAll(); });
@@ -705,7 +1008,7 @@ function fabHTML(){
   const b = (fn, l) => `<button class="fab" onclick="${fn}">${l}</button>`;
   if (t === 'kharcha' && a) return b('expForm()', '+ Naya kharcha');
   if (t === 'advance' && a) return b('xForm()', '+ Naya advance');
-  if (t === 'requests' && !a) return b('reqForm()', '+ Bill bhejo');
+  if (t === 'requests' && !a) return b(canAddExp() ? 'accForm()' : 'reqForm()', '+ Bill bhejo');
   if (t === 'members' && a) return b('memForm()', '+ Naya member');
   if (t === 'notice') return b('annForm()', '+ Announcement');
   if (t === 'status') return b('statusForm()', '+ Status');
@@ -938,33 +1241,66 @@ function marqueeHTML(){
 }
 window.setMq = on => { lsSet('ss_mq', on ? 'on' : 'off'); render(); };
 
+const WCOL = ['#14a7c4','#2f6fed','#5ad1e6','#7c8cf8','#e9b44c','#f08aa0','#34c38f'];
+function dashHTML(t){
+  const my = S.summary.find(r => r.member_id === S.me.id), mine = my ? Number(my.paid) : 0, n = baseRows().length;
+  const sh = my ? Number(my.share) : 0;
+  const adv = my ? Number(my.advance || 0) : 0;
+  return `<div class="dgrid4">
+    <div class="dc"><div class="dk">${S.carry ? 'Total kharcha (shuru se)' : 'Total kharcha'}</div><div class="dv num" data-n="${t.total}">${fmt(t.total)}</div></div>
+    <div class="dc"><div class="dk">Active members</div><div class="dv num" data-n="${t.active}" data-d="0">${t.active}</div></div>
+    <div class="dc"><div class="dk">Aapka share</div><div class="dv num" data-n="${sh}">${fmt(sh)}</div></div>
+    <div class="dc"><div class="dk">Aapne kharch kiya</div><div class="dv num" data-n="${mine + adv}">${fmt(mine + adv)}</div>
+      <div class="dsub num">${fmt(mine)} kharch ${adv < 0 ? '−' : '+'} ${fmt(Math.abs(adv))} advance</div></div>
+  </div>`;
+}
+function countUp(){
+  const els = document.querySelectorAll('#view [data-n]');
+  if (!els.length) return;
+  const key = S.month + '|' + [...els].map(e => e.dataset.n).join('|');
+  if (S._dk === key) return; S._dk = key;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  const t0 = performance.now(), D = 800;
+  const step = now => {
+    const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+    els.forEach(el => { if (!el.isConnected) return; const v = parseFloat(el.dataset.n) || 0; el.textContent = (v * e).toFixed(el.dataset.d === '0' ? 0 : 3); });
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
 function vHome(){
   const t = totals();
   const bkBanner = isAdmin() && bkDue() ? `<div class="lockpill noprint">Backup lene ka time ho gaya. <a href="#" onclick="doBackupDownload();return false" style="color:inherit;font-weight:700">Abhi lo</a></div>` : '';
   $('#view').innerHTML = `${marqueeHTML()}${monthBar()}${bkBanner}
-  <div class="stat">
-    <div><div class="k">${S.carry ? 'Total (shuru se)' : 'Total kharcha'}</div><div class="v num">${fmt(t.total)}</div></div>
-    <div><div class="k">Per member (${t.active})</div><div class="v num">${fmt(t.per)}</div></div>
-  </div>
+  ${dashHTML(t)}
   <h2 style="margin-top:6px">Kharche (Transactions)</h2>
   ${txBlock()}`;
+  countUp();
 }
 
 /* ---------- KHARCHA ---------- */
 function expRow(e, withActs){
   const sp = e.split_members ? e.split_members.length + ' members me' : 'Sab me barabar';
   const bill = e.bill_path ? `<button class="btn ghost sm" onclick="viewBill('${e.bill_path}')">Bill dekho</button>` : '';
-  const edit = withActs ? `<button class="btn ghost sm" onclick="expForm('${e.id}')">Edit</button><button class="btn ghost sm give" onclick="delExp('${e.id}')">Delete</button>` : '';
+  const ad = isAdmin(), ac = accOf(), mineE = !!e.entered_by && e.entered_by === S.me.id;
+  const canE = withActs && (ad || (ac.can_edit && mineE)), canD = withActs && (ad || (ac.can_delete && mineE));
+  const edit = (canE ? `<button class="btn ghost sm" onclick="${ad ? 'expForm' : 'accForm'}('${e.id}')">Edit</button>` : '')
+             + (canD ? `<button class="btn ghost sm give" onclick="delExp('${e.id}')">Delete</button>` : '');
   return `<div class="li" style="display:block"><div class="row"><div><div class="t">${esc(e.description || e.category)}</div>
   <div class="s">${pnId(e.spender, 22)} · ${esc(e.category)} · ${e.date} · ${sp}</div></div>
   <div class="r num"><b>${fmt(e.amount)}</b></div></div>
   ${(bill || edit) ? `<div class="acts">${bill}${edit}</div>` : ''}</div>`;
 }
 function vExp(){
+  let list = S.expenses;
+  if (!isAdmin() && S.entered.length){
+    const ids = new Set(list.map(e => String(e.id)));
+    list = list.concat(S.entered.filter(e => !ids.has(String(e.id)))).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+  }
   const sum = S.expenses.reduce((a, e) => a + Number(e.amount), 0);
   $('#view').innerHTML = `${monthBar()}
-  <div class="stat"><div><div class="k">${isAdmin() ? 'Is mahine ka kharcha' : 'Aapne kiya'}</div><div class="v num">${fmt(sum)} ${CURRENCY}</div></div><div><div class="k">Entries</div><div class="v num">${S.expenses.length}</div></div></div>
-  <div class="card">${S.expenses.length ? S.expenses.map(e => expRow(e, isAdmin())).join('') : '<div class="empty">Koi kharcha nahi mila.</div>'}</div>`;
+  <div class="stat"><div><div class="k">${isAdmin() ? 'Is mahine ka kharcha' : 'Aapne kiya'}</div><div class="v num">${fmt(sum)} ${CURRENCY}</div></div><div><div class="k">Entries</div><div class="v num">${list.length}</div></div></div>
+  <div class="card">${list.length ? list.map(e => expRow(e, true)).join('') : '<div class="empty">Koi kharcha nahi mila.</div>'}</div>`;
 }
 
 /* ---------- ADVANCE ---------- */
@@ -1043,7 +1379,7 @@ function vReq(){
     <div class="card">${done.length ? done.map(r => reqCard(r, true)).join('') : '<div class="empty">Abhi koi nahi.</div>'}</div>
     <p class="hint">Approve karne par kharcha apne aap add ho jata hai (sab members me barabar). Amount galat ho to Reject karke wajah likho. Auto-check sirf photo ki quality dekhta hai, bill ki sachchai nahi.</p>`;
   } else {
-    $('#view').innerHTML = `<div class="info">Bill ki photo saaf aur poori dikhni chahiye. System check karke approve karega, tab kharcha hisaab me judega.</div>
+    $('#view').innerHTML = accIntro() + `<div class="info">Bill ki photo saaf aur poori dikhni chahiye. System check karke approve karega, tab kharcha hisaab me judega.</div>
     <h2 style="margin-top:0">Aapke bheje hue bill</h2>
     <div class="card">${S.reqs.length ? S.reqs.map(r => reqCard(r, false)).join('') : '<div class="empty">Abhi koi bill nahi bheja. Neeche "+ Bill bhejo" dabao.</div>'}</div>`;
   }
@@ -1801,11 +2137,14 @@ function vMem(){
   <p class="hint" style="margin:0 0 10px">"Hisaab bhejo" us mahine ka hisaab bhejta hai jo neeche chuna hai (<b>${S.month}</b>: ${periodLabel(S.month)}).</p>
   <div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button></div>
   <div class="card">${S.members.map(m => {
-    const ph = S.phones[m.id];
+    const ph = S.phones[m.id], ax = S.access[m.id] || {};
+    const axL = [ax.can_add && 'Add', ax.can_edit && 'Edit', ax.can_delete && 'Delete'].filter(Boolean);
+    const axChips = m.role === 'admin' ? '' : `<div style="margin-top:2px">${axL.length ? axL.map(x => `<span class="chip ok">${x}</span>`).join('') : '<span class="s">Kharcha entry access: nahi</span>'}</div>`;
     return `<div class="li" style="display:block"><div class="row" style="justify-content:flex-start;gap:12px">${av(m, 44)}<div style="min-width:0"><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Band</span>'}</div>
-    <div class="s">Member ID: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div></div></div>
+    <div class="s">Member ID: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div>${axChips}</div></div>
     <div class="acts">
       <button class="btn sm" onclick="sendHisaab('${m.id}')">Hisaab bhejo</button>
+      ${m.role === 'admin' ? '' : `<button class="btn ghost sm" onclick="accessForm('${m.id}')">Member access</button>`}
       <button class="btn ghost sm" onclick="phoneForm('${m.id}')">${ph ? 'Mobile edit' : 'Mobile add'}</button>
       <button class="btn ghost sm" onclick="avatarSheet('${m.id}')">Photo</button>
       <button class="btn ghost sm" onclick="memEdit('${m.id}')">Naam badlo</button>
@@ -2035,7 +2374,9 @@ window.savePeriod = async () => {
 };
 
 function vSettings(){
-  $('#view').innerHTML = `<h2 style="margin-top:0">Reports</h2>
+  $('#view').innerHTML = `<h2 style="margin-top:0">Theme</h2>
+  <div class="card"><button class="optbtn" style="border:0;border-radius:0;margin:0;background:none" onclick="themeForm()"><span style="width:26px;height:26px;border-radius:50%;background:${THEMES[curTheme()][1]};box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);flex:none"></span><b>Theme badlo (${THEMES[curTheme()][0]})</b></button></div>
+  <h2>Reports</h2>
   <div class="card"><button class="optbtn" style="border:0;border-radius:0;margin:0;background:none;border-bottom:1px solid var(--line)" onclick="go('report')">${ic('receipt')}<b>Report (PDF / Excel)</b></button>
   <button class="optbtn" style="border:0;border-radius:0;margin:0;background:none" onclick="go('chart')">${ic('chart')}<b>Analysis chart</b></button></div>
 
@@ -2109,9 +2450,98 @@ window.expForm = id => {
     closeModal(); toast('Save ho gaya'); loadAll();
   };
 };
+/* ---------- MEMBER ACCESS ---------- */
+window.accessForm = id => {
+  const m = memberOf(id); if (!m) return;
+  const a = S.access[id] || {};
+  const row = (k, t, d) => `<label class="sw"><input type="checkbox" id="ac_${k}" ${a['can_' + k] ? 'checked' : ''}><span><b>${t}</b><br><span class="s">${d}</span></span></label>`;
+  modal(`<h3>${pnM(m, 30, m.name)}: member access</h3>
+  <p class="hint" style="margin:0 0 10px">Jis kaam ke aage tick karoge, sirf wahi kaam ye member kar payega. Ye access sirf kharcha entry ke liye hai, baaki sab pehle jaisa hai.</p>
+  <div class="card">${row('add', 'Add', 'Naya kharcha daalna (kisi bhi member ka, bill zaroori nahi)')}${row('edit', 'Edit', 'Apni daali hui entry badalna')}${row('delete', 'Delete', 'Apni daali hui entry hatana')}</div>
+  <div class="err" id="ac_er" style="color:var(--give)"></div>
+  <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button type="button" class="btn" id="ac_sv">Save karo</button></div>`);
+  $('#ac_sv').onclick = async () => {
+    $('#ac_sv').disabled = true;
+    const row = { member_id:id, can_add:$('#ac_add').checked, can_edit:$('#ac_edit').checked, can_delete:$('#ac_delete').checked, updated_at:new Date().toISOString(), updated_by:S.me.id };
+    const { error } = await sb.from('member_access').upsert(row);
+    if (error){ $('#ac_er').textContent = 'Save nahi hua: ' + errMsg(error); $('#ac_sv').disabled = false; return; }
+    closeModal(); toast('Access save ho gaya'); loadAll();
+  };
+};
+function accIntro(){
+  if (!hasAcc()) return '';
+  const a = accOf(), rights = [a.can_add && 'Add', a.can_edit && 'Edit', a.can_delete && 'Delete'].filter(Boolean).join(' · ');
+  return `<div class="info">Aapke paas kharcha entry ka access hai: <b>${rights}</b>. ${a.can_add ? '"+ Bill bhejo" dabakar kisi bhi member ka kharcha seedha daal sakte ho. Bill ki photo zaroori nahi.' : ''}</div>
+  ${a.can_add ? `<button class="btn ghost payb noprint" onclick="reqForm()">${ic('receipt', 18)}<span>Bill photo bhej kar approval se add karo</span></button>` : ''}
+  ${S.entered.length ? `<h2 style="margin-top:6px">Aapki daali hui entries</h2><div class="card" style="margin-bottom:14px">${S.entered.map(e => expRow(e, true)).join('')}</div>` : ''}`;
+}
+window.accForm = id => {
+  const e = id ? (S.entered.find(x => String(x.id) === String(id)) || S.expenses.find(x => String(x.id) === String(id))) : null;
+  if (id && !e) return toast('Entry nahi mili');
+  const act = S.members.filter(m => m.active || (e && m.id === e.spender));
+  const sel = e && e.split_members ? 'sel' : 'all';
+  modal(`<h3>${e ? 'Kharcha edit karo' : 'Naya kharcha'}</h3>
+  <form class="f" id="af">
+    <label>Kisne kharcha kiya</label>
+    <select id="a_sp">${act.map(m => `<option value="${m.id}" ${(e ? e.spender : S.me.id) === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>
+    <label>Raqam (${CURRENCY})</label>
+    <input id="a_am" type="number" step="0.001" min="0.001" inputmode="decimal" value="${e ? e.amount : ''}" required>
+    <label>Kis cheez ka</label>
+    <input id="a_ds" value="${e ? esc(e.description) : ''}" placeholder="jaise: sabzi, chawal">
+    <label>Category</label>
+    <select id="a_ct">${CATS.map(c => `<option ${e && e.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select>
+    <label>Tareekh</label>
+    <input id="a_dt" type="date" value="${e ? e.date : todayStr()}" required>
+    <label>Hissa kaise bantna hai</label>
+    <div class="seg">
+      <label><input type="radio" name="asm" value="all" ${sel === 'all' ? 'checked' : ''}> Sab me barabar</label>
+      <label><input type="radio" name="asm" value="sel" ${sel === 'sel' ? 'checked' : ''}> Kuch members me</label>
+    </div>
+    <div class="chk" id="a_ch" style="${sel === 'sel' ? '' : 'display:none'}">${S.members.filter(m => m.active).map(m => `<label><input type="checkbox" value="${m.id}" ${e && e.split_members && e.split_members.includes(m.id) ? 'checked' : ''}> ${av(m, 22)} ${esc(m.name)}</label>`).join('')}</div>
+    <label>Bill ki photo (zaroori nahi)</label>
+    <input id="a_ph" type="file" accept="image/*">
+    <img id="a_pv" class="preview" alt="" style="display:none">
+    ${e && e.bill_path ? '<div class="hint">Pehle se bill laga hai. Nayi photo chunoge to wo badal jayegi.</div>' : ''}
+    <div class="err" id="a_er" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit" id="a_bt">Save karo</button></div>
+  </form>`);
+  document.querySelectorAll('input[name=asm]').forEach(r => r.onchange = () => { $('#a_ch').style.display = r.value === 'sel' && r.checked ? '' : 'none'; });
+  $('#a_ph').onchange = () => { const f = $('#a_ph').files[0], p = $('#a_pv'); if (f){ p.src = URL.createObjectURL(f); p.style.display = 'block'; } else p.style.display = 'none'; };
+  $('#af').onsubmit = async ev => {
+    ev.preventDefault();
+    const er = $('#a_er'), amount = parseFloat($('#a_am').value), date = $('#a_dt').value;
+    if (!(amount > 0)) return (er.textContent = 'Sahi raqam daalo.');
+    if (S.locks.has(periodMonthOf(date)) || (e && S.locks.has(periodMonthOf(e.date)))) return (er.textContent = 'Ye mahina locked hai, is tareekh ka kharcha nahi badal sakte.');
+    let split = null;
+    if (document.querySelector('input[name=asm]:checked').value === 'sel'){
+      split = [...document.querySelectorAll('#a_ch input:checked')].map(i => i.value);
+      if (!split.length) return (er.textContent = 'Kam se kam ek member chuno.');
+    }
+    const f = $('#a_ph').files[0];
+    if (f && !hasType(f, IMG_TYPES, /\.(jpe?g|png|webp)$/i)) return (er.textContent = 'Sirf JPG, PNG ya WebP photo chalegi.');
+    $('#a_bt').disabled = true; er.textContent = 'Save ho raha hai...';
+    let path = null;
+    try {
+      if (f){
+        const blob = await compress(f); path = `${S.me.id}/${Date.now()}.jpg`;
+        const up = await sb.storage.from('bills').upload(path, blob, { contentType:'image/jpeg' });
+        if (up.error) throw up.error;
+      }
+      const args = { p_spender:$('#a_sp').value, p_amount:amount, p_description:$('#a_ds').value.trim(), p_category:$('#a_ct').value, p_date:date, p_split:split, p_bill_path:path };
+      const r = e ? await sb.rpc('member_update_expense', Object.assign({ p_id:String(e.id) }, args)) : await sb.rpc('member_add_expense', args);
+      if (r.error) throw r.error;
+      closeModal(); toast('Save ho gaya'); loadAll();
+    } catch (x){ if (path) sb.storage.from('bills').remove([path]); er.textContent = 'Save nahi hua: ' + errMsg(x); $('#a_bt').disabled = false; }
+  };
+};
+
 window.delExp = async id => {
+  if (!isAdmin()){
+    const x = S.entered.find(z => String(z.id) === String(id)) || S.expenses.find(z => String(z.id) === String(id));
+    if (x && S.locks.has(periodMonthOf(x.date))) return toast('Ye mahina locked hai, delete nahi ho sakta');
+  }
   if (!confirm('Ye kharcha delete karna hai?')) return;
-  const { error } = await sb.from('expenses').delete().eq('id', id);
+  const { error } = isAdmin() ? await sb.from('expenses').delete().eq('id', id) : await sb.rpc('member_delete_expense', { p_id:String(id) });
   if (error) toast(errMsg(error)); else { toast('Delete ho gaya'); loadAll(); }
 };
 

@@ -719,7 +719,7 @@ const ic = (n, s = 22) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" f
 
 /* ---------- STATE ---------- */
 const S = { me:null, members:[], expenses:[], summary:[], xfers:[], reqs:[], cat:[], phones:{}, locks:new Set(),
-  access:{}, entered:[],
+  access:{}, entered:[], periods:{},
   ledger:[], statuses:[], chat:[], anns:[], rentDues:[], rentPays:[], food:[], meals:['Dinner'], backups:[], actlog:[],
   prefs:{ announcements_on:true, chat_on:true, ann_seen_at:null, chat_seen_at:null },
   knownAnn:null, lastPend:null, carry:false, tab:'home', month:todayStr().slice(0, 7), live:false, period:{ from:1, to:31 }, autoMonth:true, reacts:[],
@@ -875,10 +875,12 @@ async function loadAll(){
     q.push(sb.from('backups').select('id,kind,created_at').order('created_at', {ascending:false}).limit(40)); // 17
     q.push(sb.from('admin_activity_log').select('*').order('created_at', {ascending:false}).limit(150)); // 18
   }
+  q.push(isAdmin() ? sb.from('member_share_periods').select('*') : Promise.resolve({ data:[] }));
   q.push(sb.from('member_access').select('*'));
   q.push(isAdmin() ? Promise.resolve({ data:[] }) : sb.rpc('get_my_entered_expenses', { p_from:from, p_to:to }));
   const R = await Promise.all(q);
-  const accRes = R[R.length - 2], entRes = R[R.length - 1];
+  const perRes = R[R.length - 3], accRes = R[R.length - 2], entRes = R[R.length - 1];
+  if (perRes && perRes.data && !perRes.error){ S.periods = {}; perRes.data.forEach(x => (S.periods[x.member_id] = S.periods[x.member_id] || []).push(x)); }
   const [m, e, s, x, rq, lk, ct, lg, st, ch, an, pf, rd, rp, fm, ms, dp, pd, rc, ph, bk, al] = R;
   if (pd && !pd.error){
     const np = normPeriod(pd.data && pd.data.value);
@@ -2138,13 +2140,16 @@ function vMem(){
   <div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button></div>
   <div class="card">${S.members.map(m => {
     const ph = S.phones[m.id], ax = S.access[m.id] || {};
+    const prs = (S.periods[m.id] || []).slice().sort((a, b) => a.from_date < b.from_date ? 1 : -1), pr = prs[0];
+    const shLine = `<div class="s" style="margin-top:2px">Share: ${pr ? dmyFull(pr.from_date) + ' se' + (pr.to_date ? ' ' + dmyFull(pr.to_date) + ' tak' : '') : 'shuru se (purana member)'}</div>`;
     const axL = [ax.can_add && 'Add', ax.can_edit && 'Edit', ax.can_delete && 'Delete'].filter(Boolean);
     const axChips = m.role === 'admin' ? '' : `<div style="margin-top:2px">${axL.length ? axL.map(x => `<span class="chip ok">${x}</span>`).join('') : '<span class="s">Kharcha entry access: nahi</span>'}</div>`;
     return `<div class="li" style="display:block"><div class="row" style="justify-content:flex-start;gap:12px">${av(m, 44)}<div style="min-width:0"><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Band</span>'}</div>
-    <div class="s">Member ID: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div>${axChips}</div></div>
+    <div class="s">Member ID: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div>${shLine}${axChips}</div></div>
     <div class="acts">
       <button class="btn sm" onclick="sendHisaab('${m.id}')">Hisaab bhejo</button>
       ${m.role === 'admin' ? '' : `<button class="btn ghost sm" onclick="accessForm('${m.id}')">Member access</button>`}
+      ${m.active ? `<button class="btn ghost sm" onclick="shareDateForm('${m.id}','edit')">Share date</button>` : ''}
       <button class="btn ghost sm" onclick="phoneForm('${m.id}')">${ph ? 'Mobile edit' : 'Mobile add'}</button>
       <button class="btn ghost sm" onclick="avatarSheet('${m.id}')">Photo</button>
       <button class="btn ghost sm" onclick="memEdit('${m.id}')">Naam badlo</button>
@@ -2206,19 +2211,23 @@ window.memForm = () => {
     <label>Member ID / Username (chhota, english me, bina space)</label><input id="m_u" autocapitalize="none" pattern="[a-zA-Z0-9_.]+" required>
     <label>Password (kam se kam 6 akshar)</label><input id="m_p" minlength="6" required>
     <label>Mobile number (optional)</label><input id="m_ph" type="tel" inputmode="tel" placeholder="Kuwait: 8 digit">
+    <label>Share kis tareekh se shuru ho</label><input id="m_sd" type="date" value="${nextMonth1()}" required>
+    <div class="hint">Is tareekh se pehle ke kisi kharche mein ye member count nahi hoga.</div>
     <div class="err" id="m_e" style="color:var(--give)"></div>
     <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Member banao</button></div>
   </form>`);
   $('#mf').onsubmit = async ev => {
     ev.preventDefault();
     const name = $('#m_n').value.trim(), u = $('#m_u').value.trim().toLowerCase(), p = $('#m_p').value;
-    const ph = $('#m_ph').value.trim() ? normPhone($('#m_ph').value) : '';
+    const ph = $('#m_ph').value.trim() ? normPhone($('#m_ph').value) : '', sd = $('#m_sd').value;
+    if (!sd) return ($('#m_e').textContent = 'Share ki tareekh chuno.');
     if (ph && (ph.length < 10 || ph.length > 15)) return ($('#m_e').textContent = 'Mobile number sahi nahi lag raha.');
     $('#m_e').textContent = 'Ban raha hai...';
     const tmp = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{ persistSession:false, autoRefreshToken:false, storageKey:'tmp-signup' } });
     const { data, error } = await tmp.auth.signUp({ email:u + DOMAIN, password:p, options:{ data:{ name } } });
     if (error) return ($('#m_e').textContent = error.message.includes('registered') ? 'Ye username pehle se hai.' : 'Nahi bana: ' + error.message);
     if (ph && data && data.user) await sb.from('member_phones').upsert({ member_id:data.user.id, phone:ph });
+    if (data && data.user){ const r = await sb.rpc('admin_set_share_start', { p_member:data.user.id, p_from:sd }); if (r.error) alert('Member ban gaya, par share ki tareekh save nahi hui: ' + errMsg(r.error) + '\nMember list me "Share date" dabakar tareekh set karo.'); }
     closeModal(); toast(name + ' ban gaya'); loadAll();
   };
 };
@@ -2226,12 +2235,33 @@ window.memEdit = id => {
   const m = memberOf(id), n = prompt('Naya naam:', m.name);
   if (n && n.trim()) sb.from('profiles').update({ name:n.trim() }).eq('id', id).then(({ error }) => { if (error) toast('Nahi hua'); else loadAll(); });
 };
-window.toggleMem = async id => {
+const nextMonth1 = () => { const n = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1); return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-01'; };
+const dmyFull = d => d ? String(d).split('-').reverse().join('-') : '';
+window.toggleMem = id => {
   const m = memberOf(id);
   if (m.active && m.id === S.me.id) return toast('Apne aap ko deactivate nahi kar sakte');
-  if (m.active && !confirm(m.name + ' ko deactivate karna hai? Wo login nahi kar payega.')) return;
-  const { error } = await sb.rpc('admin_set_active', { p_member:id, p_active:!m.active });
-  if (error) toast(errMsg(error)); else { toast(m.active ? 'Deactivate ho gaya' : 'Activate ho gaya'); loadAll(); }
+  shareDateForm(id, m.active ? 'off' : 'on');
+};
+window.shareDateForm = (id, mode) => {
+  const m = memberOf(id); if (!m) return;
+  const open = (S.periods[id] || []).find(x => !x.to_date);
+  const T = {
+    on:  ['Activate karo: share kab se shuru ho?', 'Share shuru hone ki tareekh', nextMonth1(), 'Is tareekh se pehle ke kharche mein iska hissa nahi lagega.', 'Activate karo'],
+    off: ['Deactivate karo: share kab tak lage?', 'Share kis tareekh tak lage (aakhri din)', todayStr(), 'Is tareekh ke baad ke kharche mein iska hissa nahi lagega. Pehle ka hisaab waisa hi rahega. Ye member login nahi kar payega.', 'Deactivate karo'],
+    edit:['Share shuru hone ki tareekh badlo', 'Share shuru hone ki tareekh', open ? open.from_date : nextMonth1(), 'Is tareekh se pehle ke kharche mein iska hissa nahi lagega.', 'Save karo']
+  }[mode];
+  modal(`<h3>${esc(m.name)}</h3><p class="hint" style="margin:0 0 10px"><b>${T[0]}</b></p>
+  <form class="f" id="sdf"><label>${T[1]}</label><input id="sd_d" type="date" value="${T[2]}" required>
+  <div class="hint">${T[3]}</div><div class="err" id="sd_e" style="color:var(--give)"></div>
+  <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit" id="sd_b">${T[4]}</button></div></form>`);
+  $('#sdf').onsubmit = async ev => {
+    ev.preventDefault();
+    const d = $('#sd_d').value; if (!d) return ($('#sd_e').textContent = 'Tareekh chuno.');
+    $('#sd_b').disabled = true;
+    const { error } = mode === 'edit' ? await sb.rpc('admin_set_share_start', { p_member:id, p_from:d }) : await sb.rpc('admin_set_active', { p_member:id, p_active:mode === 'on', p_date:d });
+    if (error){ $('#sd_e').textContent = errMsg(error); $('#sd_b').disabled = false; return; }
+    closeModal(); toast(mode === 'off' ? 'Deactivate ho gaya' : mode === 'on' ? 'Activate ho gaya' : 'Share date save ho gayi'); loadAll();
+  };
 };
 window.delMem = async id => {
   const m = memberOf(id);

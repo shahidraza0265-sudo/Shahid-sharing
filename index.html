@@ -630,6 +630,7 @@ html[data-theme=white] .login{color:#fff}
 .balance{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.22)}
 html[data-theme=white] .balance{background:#f1f5f9;border-color:#e2e8f0}
 @media (hover:hover){.li:hover,.pay:hover{background:var(--t0)}}
+html[data-viewer] .chatbar,html[data-viewer] .fab,html[data-viewer] .noprint.actbar{display:none!important}
 </style>
 </head>
 <body>
@@ -719,7 +720,7 @@ const ic = (n, s = 22) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" f
 
 /* ---------- STATE ---------- */
 const S = { me:null, members:[], expenses:[], summary:[], xfers:[], reqs:[], cat:[], phones:{}, locks:new Set(),
-  access:{}, entered:[], periods:{},
+  access:{}, entered:[], periods:{}, allMembers:[],
   ledger:[], statuses:[], chat:[], anns:[], rentDues:[], rentPays:[], food:[], meals:['Dinner'], backups:[], actlog:[],
   prefs:{ announcements_on:true, chat_on:true, ann_seen_at:null, chat_seen_at:null },
   knownAnn:null, lastPend:null, carry:false, tab:'home', month:todayStr().slice(0, 7), live:false, period:{ from:1, to:31 }, autoMonth:true, reacts:[],
@@ -734,7 +735,32 @@ const accOf = () => (S.me && S.access[S.me.id]) || {};
 const hasAcc = () => !isAdmin() && !!(accOf().can_add || accOf().can_edit || accOf().can_delete);
 const canAddExp = () => !isAdmin() && !!accOf().can_add;
 const nameOf = id => (S.members.find(m => m.id === id) || { name:'(hata hua)' }).name;
-const memberOf = id => S.members.find(m => m.id === id);
+const memberOf = id => S.members.find(m => m.id === id) || S.allMembers.find(m => m.id === id);
+/* ---- viewer (sirf dekhne wala member) + start-date ke hisaab se member count ---- */
+const isViewer = () => !!S.me && !!S.me.is_viewer;
+const memIn = (m, from, to) => {
+  if (!m || m.is_viewer) return false;
+  const ps = S.periods[m.id];
+  if (ps && ps.length) return ps.some(x => x.from_date <= to && (!x.to_date || x.to_date >= from));
+  return !!m.active;
+};
+const memInMonth = m => { const r = prange(S.month); return memIn(m, r[0], r[1]); };
+let _sbOrig = null;
+function unlockViewer(){
+  if (!_sbOrig) return;
+  sb.from = _sbOrig.from; sb.rpc = _sbOrig.rpc; sb.storage.from = _sbOrig.sfrom; _sbOrig = null;
+  delete document.documentElement.dataset.viewer;
+}
+function lockViewer(){
+  if (_sbOrig) return;
+  _sbOrig = { from:sb.from, rpc:sb.rpc, sfrom:sb.storage.from };
+  const of = sb.from.bind(sb), orpc = sb.rpc.bind(sb), osf = sb.storage.from.bind(sb.storage);
+  const deny = () => Promise.resolve({ data:null, error:{ message:'Viewer sirf dekh sakta hai, kuch badal nahi sakta.' } });
+  sb.from = t => { const q = of(t); ['insert', 'update', 'upsert', 'delete'].forEach(k => { q[k] = deny; }); return q; };
+  sb.rpc = (n, a) => /^(get_|export_)/.test(n) ? orpc(n, a) : deny();
+  sb.storage.from = b => { const x = osf(b); x.upload = deny; x.remove = deny; return x; };
+  document.documentElement.dataset.viewer = '1';
+}
 const advTxt = r => Number(r.advance || 0) ? ' · Advance ' + (Number(r.advance) > 0 ? '+' : '') + fmt(r.advance) : '';
 const pendCount = () => S.reqs.filter(r => r.status === 'pending').length;
 const pendAnn = () => S.anns.filter(a => a.status === 'pending').length;
@@ -781,7 +807,7 @@ function showLogin(msg){
     else boot();
   };
 }
-async function logout(){ await sb.auth.signOut(); S.me = null; S.lastPend = null; S.knownAnn = null; closeDrawer(); showLogin(); }
+async function logout(){ await sb.auth.signOut(); unlockViewer(); S.me = null; S.lastPend = null; S.knownAnn = null; closeDrawer(); showLogin(); }
 window.logout = logout;
 
 /* ---------- THEME (har member apna colour khud chun sakta hai) ---------- */
@@ -831,7 +857,9 @@ async function boot(){
     await sb.auth.signOut();
     return showLogin('Aapka account active nahi hai. Admin se baat karo.');
   }
+  unlockViewer();
   S.me = data;
+  if (data.is_viewer) lockViewer();
   applyTheme(curTheme());
   try { const pr = await sb.from('app_settings').select('*').eq('key', 'period').maybeSingle(); if (pr && pr.data) S.period = normPeriod(pr.data.value); } catch (e) {}
   S.month = periodMonthOf(todayStr());
@@ -875,7 +903,7 @@ async function loadAll(){
     q.push(sb.from('backups').select('id,kind,created_at').order('created_at', {ascending:false}).limit(40)); // 17
     q.push(sb.from('admin_activity_log').select('*').order('created_at', {ascending:false}).limit(150)); // 18
   }
-  q.push(isAdmin() ? sb.from('member_share_periods').select('*') : Promise.resolve({ data:[] }));
+  q.push(sb.from('member_share_periods').select('*'));
   q.push(sb.from('member_access').select('*'));
   q.push(isAdmin() ? Promise.resolve({ data:[] }) : sb.rpc('get_my_entered_expenses', { p_from:from, p_to:to }));
   const R = await Promise.all(q);
@@ -886,7 +914,7 @@ async function loadAll(){
     const np = normPeriod(pd.data && pd.data.value);
     if (np.from !== S.period.from || np.to !== S.period.to){ S.period = np; if (S.autoMonth) S.month = periodMonthOf(todayStr()); return loadAll(); }
   }
-  if (m.data) S.members = m.data;
+  if (m.data){ S.allMembers = m.data; S.members = m.data.filter(x => !x.is_viewer); }
   if (e.data) S.expenses = e.data;
   if (s.data) S.summary = s.data;
   if (x.data) S.xfers = x.data;
@@ -914,7 +942,7 @@ async function loadAll(){
   if (al && al.data) S.actlog = al.data;
   if (accRes && accRes.data && !accRes.error){ S.access = {}; accRes.data.forEach(a => S.access[a.member_id] = a); }
   if (entRes && entRes.data && !entRes.error) S.entered = entRes.data; else if (!entRes || !entRes.error) S.entered = [];
-  const mine = S.members.find(z => z.id === S.me.id);
+  const mine = S.allMembers.find(z => z.id === S.me.id);
   if (mine) S.me = mine;
   if (m.data && (!mine || !mine.active)) return logout();
 
@@ -975,6 +1003,7 @@ const ADMIN_PAGES = ['members','pwreset','backup'];
 
 function render(){
   if (!isAdmin() && ADMIN_PAGES.includes(S.tab)) S.tab = 'home';
+  if (isViewer() && ['kharcha', 'requests'].includes(S.tab)) S.tab = 'home';
   const my = S.summary.find(r => r.member_id === S.me.id);
   const net = my ? Number(my.net) : 0;
   const cls = net > 0.0005 ? 'get' : net < -0.0005 ? 'give' : '';
@@ -987,6 +1016,7 @@ function render(){
     ['requests', isAdmin() ? 'Requests' : 'Bill bhejo', 'receipt', pc ? `<span class="badge">${pc}</span>` : ''],
     ['more', 'Aur', 'grid', '']
   ];
+  const tabsV = isViewer() ? tabs.filter(t => !['kharcha', 'requests'].includes(t[0])) : tabs;
   const navOn = ['chart', 'report'].includes(S.tab) ? 'more' : S.tab;
   const enter = S._enter; S._enter = false;
   const dotOn = chatUnread() + annUnread() + (isAdmin() ? pendAnn() : 0) > 0;
@@ -997,15 +1027,17 @@ function render(){
         <div class="who"><span id="livedot" class="live${S.live ? '' : ' off'}"></span><b>${pnM(S.me, 28, S.me.name)}</b></div></div>
       <div><button class="icon-btn" onclick="changePass()">Password</button> <button class="icon-btn" onclick="logout()">Logout</button></div>
     </div>
-    <div class="balance ${cls}"><div><div class="lbl">${lbl}</div>
-      <div class="amt num">${fmt(Math.abs(net))}<small>${CURRENCY}</small></div></div><div class="balico" role="button" tabindex="0" aria-label="Hisaab receipt" onclick="showReceipt('${S.me.id}')">${ic('wallet', 30)}</div></div>
+    ${isViewer() ? '<div class="balance"><div><div class="lbl">Viewer: sirf dekh sakte ho</div></div></div>' : ''}
+    ${isViewer() ? '' : `<div class="balance ${cls}"><div><div class="lbl">${lbl}</div>
+      <div class="amt num">${fmt(Math.abs(net))}<small>${CURRENCY}</small></div></div><div class="balico" role="button" tabindex="0" aria-label="Hisaab receipt" onclick="showReceipt('${S.me.id}')">${ic('wallet', 30)}</div></div>`}
   </div>
   <div class="wrap${enter ? ' enter' : ''}" id="view"></div>
-  <nav class="nav" aria-label="Neeche ka menu"><div class="in">${tabs.map(t => `<button class="tab ${navOn === t[0] ? 'on' : ''}" onclick="go('${t[0]}')"><span class="ic">${ic(t[2])}</span><span>${t[1]}${t[3]}</span></button>`).join('')}</div></nav>
+  <nav class="nav" aria-label="Neeche ka menu"><div class="in">${tabsV.map(t => `<button class="tab ${navOn === t[0] ? 'on' : ''}" onclick="go('${t[0]}')"><span class="ic">${ic(t[2])}</span><span>${t[1]}${t[3]}</span></button>`).join('')}</div></nav>
   ${fabHTML()}`;
   PAGES()[S.tab]();
 }
 function fabHTML(){
+  if (isViewer()) return '';
   const a = isAdmin(), t = S.tab;
   const b = (fn, l) => `<button class="fab" onclick="${fn}">${l}</button>`;
   if (t === 'kharcha' && a) return b('expForm()', '+ Naya kharcha');
@@ -1075,7 +1107,7 @@ window.toggleLock = async () => {
 };
 function totals(){
   const total = S.summary.reduce((a, r) => a + Number(r.paid), 0);
-  const active = S.members.filter(m => m.active).length || 1;
+  const active = S.members.filter(memInMonth).length || 1;
   return { total, per: total / active, active };
 }
 
@@ -1114,7 +1146,7 @@ function txTotals(rows){
 const gridRows = () => baseRows();
 function gridModel(rows, month){
   const dates = periodDates(month), spent = new Set(rows.map(r => r.by));
-  const cols = S.members.filter(m => m.active || spent.has(m.id)).sort((a, b) => a.name.localeCompare(b.name));
+  const cols = S.members.filter(m => memIn(m, dates[0], dates[dates.length - 1]) || spent.has(m.id)).sort((a, b) => a.name.localeCompare(b.name));
   const cell = {}, colTot = {}, rowTot = {}; let grand = 0;
   rows.forEach(r => {
     const k = r.day + '|' + r.by; (cell[k] = cell[k] || []).push(r);
@@ -1202,7 +1234,7 @@ window.txDetail = id => {
 
 /* Hisab ka breakdown: food / other / rent alag alag, kuch double nahi */
 function rentRows(){
-  const ids = new Set(isAdmin() ? S.members.filter(m => m.active).map(m => m.id) : [S.me.id]);
+  const ids = new Set(isAdmin() ? S.members.filter(memInMonth).map(m => m.id) : [S.me.id]);
   S.rentDues.forEach(d => ids.add(d.member_id));
   return [...ids].map(id => memberOf(id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name)).map(m => {
     const d = S.rentDues.find(x => x.member_id === m.id && x.month === S.month);
@@ -1251,9 +1283,9 @@ function dashHTML(t){
   return `<div class="dgrid4">
     <div class="dc"><div class="dk">${S.carry ? 'Total kharcha (shuru se)' : 'Total kharcha'}</div><div class="dv num" data-n="${t.total}">${fmt(t.total)}</div></div>
     <div class="dc"><div class="dk">Active members</div><div class="dv num" data-n="${t.active}" data-d="0">${t.active}</div></div>
-    <div class="dc"><div class="dk">Aapka share</div><div class="dv num" data-n="${sh}">${fmt(sh)}</div></div>
+    ${isViewer() ? '' : `    <div class="dc"><div class="dk">Aapka share</div><div class="dv num" data-n="${sh}">${fmt(sh)}</div></div>
     <div class="dc"><div class="dk">Aapne kharch kiya</div><div class="dv num" data-n="${mine + adv}">${fmt(mine + adv)}</div>
-      <div class="dsub num">${fmt(mine)} kharch ${adv < 0 ? '−' : '+'} ${fmt(Math.abs(adv))} advance</div></div>
+      <div class="dsub num">${fmt(mine)} kharch ${adv < 0 ? '−' : '+'} ${fmt(Math.abs(adv))} advance</div></div>`}
   </div>`;
 }
 function countUp(){
@@ -1924,7 +1956,7 @@ window.rentCopyPrev = async () => {
   const prev = addMonths(S.month, -1);
   const { data, error } = await sb.from('rent_dues').select('member_id,amount').eq('month', prev);
   if (error) return toast(errMsg(error));
-  const act = new Set(S.members.filter(m => m.active).map(m => m.id));
+  const act = new Set(S.members.filter(memInMonth).map(m => m.id));
   const rows = (data || []).filter(d => act.has(d.member_id)).map(d => ({ member_id:d.member_id, month:S.month, amount:d.amount, adjustment:0, note:'' }));
   if (!rows.length) return toast(prev + ' me koi rent nahi mila');
   if (!confirm(rows.length + ' members ka rent ' + prev + ' se copy karna hai? Jinka rent pehle se set hai, wo nahi badlega.')) return;
@@ -1934,7 +1966,7 @@ window.rentCopyPrev = async () => {
 window.rentSameAll = async () => {
   const v = prompt('Sab members ke liye monthly rent (' + CURRENCY + '). Jinka rent pehle se set hai, wo nahi badlega:'); if (v === null) return;
   const a = parseFloat(v); if (!(a >= 0)) return toast('Sahi raqam daalo');
-  const rows = S.members.filter(m => m.active).map(m => ({ member_id:m.id, month:S.month, amount:a, adjustment:0, note:'' }));
+  const rows = S.members.filter(memInMonth).map(m => ({ member_id:m.id, month:S.month, amount:a, adjustment:0, note:'' }));
   const r = await sb.from('rent_dues').upsert(rows, { onConflict:'member_id,month', ignoreDuplicates:true });
   if (r.error) return toast(errMsg(r.error)); toast('Rent set ho gaya'); loadAll();
 };
@@ -2135,21 +2167,22 @@ window.mealsForm = () => {
 const normPhone = v => { let d = String(v || '').replace(/\D/g, ''); if (d.startsWith('00')) d = d.slice(2); if (d.length === 8) d = '965' + d; return d; };
 const showPhone = p => p ? '+' + p : '';
 function vMem(){
-  $('#view').innerHTML = `<h2 style="margin-top:0">Members (${S.members.filter(m => m.active).length} active)</h2>
+  $('#view').innerHTML = `<h2 style="margin-top:0">Members (${S.members.filter(m => m.active).length} active${S.allMembers.some(m => m.is_viewer) ? ' + ' + S.allMembers.filter(m => m.is_viewer).length + ' viewer' : ''})</h2>
   <p class="hint" style="margin:0 0 10px">"Hisaab bhejo" us mahine ka hisaab bhejta hai jo neeche chuna hai (<b>${S.month}</b>: ${periodLabel(S.month)}).</p>
   <div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button></div>
-  <div class="card">${S.members.map(m => {
+  <div class="card">${S.allMembers.map(m => {
+    const vw = !!m.is_viewer;
     const ph = S.phones[m.id], ax = S.access[m.id] || {};
     const prs = (S.periods[m.id] || []).slice().sort((a, b) => a.from_date < b.from_date ? 1 : -1), pr = prs[0];
-    const shLine = `<div class="s" style="margin-top:2px">Share: ${pr ? dmyFull(pr.from_date) + ' se' + (pr.to_date ? ' ' + dmyFull(pr.to_date) + ' tak' : '') : 'shuru se (purana member)'}</div>`;
+    const shLine = vw ? '<div class="s" style="margin-top:2px">Sirf dekhne wala (share/kharcha me nahi)</div>' : `<div class="s" style="margin-top:2px">Share: ${pr ? dmyFull(pr.from_date) + ' se' + (pr.to_date ? ' ' + dmyFull(pr.to_date) + ' tak' : '') : 'shuru se (purana member)'}</div>`;
     const axL = [ax.can_add && 'Add', ax.can_edit && 'Edit', ax.can_delete && 'Delete'].filter(Boolean);
-    const axChips = m.role === 'admin' ? '' : `<div style="margin-top:2px">${axL.length ? axL.map(x => `<span class="chip ok">${x}</span>`).join('') : '<span class="s">Kharcha entry access: nahi</span>'}</div>`;
-    return `<div class="li" style="display:block"><div class="row" style="justify-content:flex-start;gap:12px">${av(m, 44)}<div style="min-width:0"><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Band</span>'}</div>
+    const axChips = (m.role === 'admin' || vw) ? '' : `<div style="margin-top:2px">${axL.length ? axL.map(x => `<span class="chip ok">${x}</span>`).join('') : '<span class="s">Kharcha entry access: nahi</span>'}</div>`;
+    return `<div class="li" style="display:block"><div class="row" style="justify-content:flex-start;gap:12px">${av(m, 44)}<div style="min-width:0"><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${vw ? '<span class="pill adm">Viewer</span>' : ''} ${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Band</span>'}</div>
     <div class="s">Member ID: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div>${shLine}${axChips}</div></div>
     <div class="acts">
-      <button class="btn sm" onclick="sendHisaab('${m.id}')">Hisaab bhejo</button>
-      ${m.role === 'admin' ? '' : `<button class="btn ghost sm" onclick="accessForm('${m.id}')">Member access</button>`}
-      ${m.active ? `<button class="btn ghost sm" onclick="shareDateForm('${m.id}','edit')">Share date</button>` : ''}
+      ${vw ? '' : `<button class="btn sm" onclick="sendHisaab('${m.id}')">Hisaab bhejo</button>`}
+      ${(m.role === 'admin' || vw) ? '' : `<button class="btn ghost sm" onclick="accessForm('${m.id}')">Member access</button>`}
+      ${(m.active && !vw) ? `<button class="btn ghost sm" onclick="shareDateForm('${m.id}','edit')">Share date</button>` : ''}
       <button class="btn ghost sm" onclick="phoneForm('${m.id}')">${ph ? 'Mobile edit' : 'Mobile add'}</button>
       <button class="btn ghost sm" onclick="avatarSheet('${m.id}')">Photo</button>
       <button class="btn ghost sm" onclick="memEdit('${m.id}')">Naam badlo</button>
@@ -2211,23 +2244,27 @@ window.memForm = () => {
     <label>Member ID / Username (chhota, english me, bina space)</label><input id="m_u" autocapitalize="none" pattern="[a-zA-Z0-9_.]+" required>
     <label>Password (kam se kam 6 akshar)</label><input id="m_p" minlength="6" required>
     <label>Mobile number (optional)</label><input id="m_ph" type="tel" inputmode="tel" placeholder="Kuwait: 8 digit">
-    <label>Share kis tareekh se shuru ho</label><input id="m_sd" type="date" value="${nextMonth1()}" required>
-    <div class="hint">Is tareekh se pehle ke kisi kharche mein ye member count nahi hoga.</div>
+    <label>Member ka type</label>
+    <select id="m_ty"><option value="member">Member (kharche mein share judta hai)</option><option value="viewer">Viewer (sirf dekhega, koi share/kharcha nahi)</option></select>
+    <div id="m_sdw"><label>Share kis tareekh se shuru ho</label><input id="m_sd" type="date" value="${nextMonth1()}">
+    <div class="hint">Is tareekh se pehle ke kisi kharche mein ye member count nahi hoga.</div></div>
     <div class="err" id="m_e" style="color:var(--give)"></div>
     <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Member banao</button></div>
   </form>`);
+  $('#m_ty').onchange = () => { $('#m_sdw').style.display = $('#m_ty').value === 'viewer' ? 'none' : ''; };
   $('#mf').onsubmit = async ev => {
     ev.preventDefault();
     const name = $('#m_n').value.trim(), u = $('#m_u').value.trim().toLowerCase(), p = $('#m_p').value;
-    const ph = $('#m_ph').value.trim() ? normPhone($('#m_ph').value) : '', sd = $('#m_sd').value;
-    if (!sd) return ($('#m_e').textContent = 'Share ki tareekh chuno.');
+    const ph = $('#m_ph').value.trim() ? normPhone($('#m_ph').value) : '', sd = $('#m_sd').value, vw = $('#m_ty').value === 'viewer';
+    if (!vw && !sd) return ($('#m_e').textContent = 'Share ki tareekh chuno.');
     if (ph && (ph.length < 10 || ph.length > 15)) return ($('#m_e').textContent = 'Mobile number sahi nahi lag raha.');
     $('#m_e').textContent = 'Ban raha hai...';
     const tmp = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{ persistSession:false, autoRefreshToken:false, storageKey:'tmp-signup' } });
     const { data, error } = await tmp.auth.signUp({ email:u + DOMAIN, password:p, options:{ data:{ name } } });
     if (error) return ($('#m_e').textContent = error.message.includes('registered') ? 'Ye username pehle se hai.' : 'Nahi bana: ' + error.message);
     if (ph && data && data.user) await sb.from('member_phones').upsert({ member_id:data.user.id, phone:ph });
-    if (data && data.user){ const r = await sb.rpc('admin_set_share_start', { p_member:data.user.id, p_from:sd }); if (r.error) alert('Member ban gaya, par share ki tareekh save nahi hui: ' + errMsg(r.error) + '\nMember list me "Share date" dabakar tareekh set karo.'); }
+    if (data && data.user && vw){ const r = await sb.rpc('admin_set_viewer', { p_member:data.user.id, p_viewer:true }); if (r.error) alert('Member ban gaya, par viewer set nahi hua: ' + errMsg(r.error) + '\nSQL (viewer_and_share_start.sql) chali hai ya nahi check karo. Is member ko abhi delete karke dobara banao.'); }
+    else if (data && data.user){ const r = await sb.rpc('admin_set_share_start', { p_member:data.user.id, p_from:sd }); if (r.error) alert('Member ban gaya, par share ki tareekh save nahi hui: ' + errMsg(r.error) + '\nMember list me "Share date" dabakar tareekh set karo.'); }
     closeModal(); toast(name + ' ban gaya'); loadAll();
   };
 };
@@ -2240,6 +2277,10 @@ const dmyFull = d => d ? String(d).split('-').reverse().join('-') : '';
 window.toggleMem = id => {
   const m = memberOf(id);
   if (m.active && m.id === S.me.id) return toast('Apne aap ko deactivate nahi kar sakte');
+  if (m.is_viewer){
+    if (m.active && !confirm(m.name + ' (viewer) ko deactivate karna hai? Wo login nahi kar payega.')) return;
+    return sb.rpc('admin_set_active', { p_member:id, p_active:!m.active, p_date:null }).then(({ error }) => { if (error) toast(errMsg(error)); else { toast(m.active ? 'Deactivate ho gaya' : 'Activate ho gaya'); loadAll(); } });
+  }
   shareDateForm(id, m.active ? 'off' : 'on');
 };
 window.shareDateForm = (id, mode) => {
@@ -2275,7 +2316,7 @@ window.delMem = async id => {
 const lastReset = id => { const l = S.actlog.find(a => a.action === 'password_reset' && a.target === id); return l ? fdt(l.created_at) : null; };
 function pwList(){
   const q = S.pwq.trim().toLowerCase(), qd = q.replace(/\D/g, '');
-  const list = S.members.filter(m => !q || m.name.toLowerCase().includes(q) || m.username.toLowerCase().includes(q) || (qd && (S.phones[m.id] || '').includes(qd)));
+  const list = S.allMembers.filter(m => !q || m.name.toLowerCase().includes(q) || m.username.toLowerCase().includes(q) || (qd && (S.phones[m.id] || '').includes(qd)));
   return list.map(m => { const lr = lastReset(m.id), ph = S.phones[m.id];
     return `<div class="li" style="display:block"><div class="row" style="justify-content:flex-start;gap:12px">${av(m, 44)}<div style="min-width:0"><div class="t">${esc(m.name)} ${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Inactive</span>'}</div>
     <div class="s">Member ID: <b>${esc(m.username)}</b>${ph ? ' · ' + esc(showPhone(ph)) : ''}</div>
@@ -2687,7 +2728,7 @@ async function receiptData(memberId){
   if (error || !data) throw new Error(error ? errMsg(error) : 'Hisaab nahi mila');
   const r = data.find(x => x.member_id === memberId);
   if (!r) throw new Error('Is member ka hisaab nahi mila');
-  return { a, b, r, total:data.reduce((s, x) => s + Number(x.paid), 0), active:S.members.filter(m => m.active).length || 1, m:memberOf(memberId) };
+  return { a, b, r, total:data.reduce((s, x) => s + Number(x.paid), 0), active:S.members.filter(m => memIn(m, a, b)).length || 1, m:memberOf(memberId) };
 }
 const loadImgUrl = u => new Promise(res => { if (!u) return res(null); const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = () => res(null); i.src = u; });
 async function makeReceipt(memberId){

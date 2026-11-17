@@ -644,6 +644,34 @@ html[data-viewer] .chatbar,html[data-viewer] .fab,html[data-viewer] .noprint.act
 .fint td.tg.get{color:var(--get)}
 .fint tr.ft td{font-weight:800;background:var(--t1);border-top:2px solid var(--line)}
 .fint tr.ft td.mn{background:var(--t1)}
+.fl{cursor:pointer;text-decoration:underline dotted}
+.chkrow{display:flex;gap:8px;align-items:flex-start;font-weight:600}
+.chkrow input{width:auto;margin-top:3px}
+.rentfz th:nth-child(1),.rentfz td:nth-child(1){position:sticky;left:0;z-index:2;background:#fff;min-width:42px;width:42px}
+.rentfz th:nth-child(2),.rentfz td:nth-child(2){position:sticky;left:42px;z-index:2;background:#fff;box-shadow:3px 0 6px rgba(0,0,0,.08)}
+.rentfz thead th:nth-child(1),.rentfz thead th:nth-child(2){background:var(--t1);z-index:3}
+.mrow{cursor:pointer;transition:background .25s}
+.mrow:active{background:var(--t0)}
+.chev{font-size:26px;color:var(--mute);line-height:1}
+.pfchart td{text-align:center;font-weight:800}
+.pfchart td.ok{color:var(--get);background:rgba(46,160,90,.10)}
+.pfchart td.no{color:var(--give);background:rgba(200,52,75,.08)}
+.pfchart td.vc{color:#7a5600;background:#fff3cd;font-size:11px}
+.pfchart td.na{color:var(--mute);font-weight:400}
+.pubbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:16px;margin:0 0 10px;background:#fff3cd;border:1px solid #f0dc9a}
+.pubbar.on{background:#dff3e3;border-color:#b9e0c1}
+.finsum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 12px}
+.finsum>div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 12px;box-shadow:0 4px 14px rgba(var(--rgb1),.08)}
+.finsum span{display:block;font-size:12px;color:var(--mute)}
+.finsum b{font-size:19px}
+.fpg{overflow-x:auto;flex-wrap:nowrap;margin-bottom:10px}
+.fpg button{white-space:nowrap;flex:none}
+.fint tbody tr:nth-child(even) td{background:rgba(var(--rgb1),.035)}
+.fint tbody tr:nth-child(even) td.mn{background:var(--t0)}
+.fint tbody tr.me td{background:rgba(var(--rgb1),.10);font-weight:700}
+.fint tbody tr.me td.mn{background:var(--t1)}
+.bd{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
+.bd.ok{background:#d6f4e8;color:#1d7a4a}.bd.part{background:#fff3cd;color:#7a5600}.bd.due{background:#fde2e8;color:#b02a45}.bd.get{background:#dbeafe;color:#1e4ea8}.bd.z{color:var(--mute)}
 </style>
 </head>
 <body>
@@ -661,7 +689,8 @@ const FOOD_CATS = ['Khana','Grocery'];
 const DEF_LABELS = [
   { id:'rent',  name:'Rent',  type:'rent' },
   { id:'food',  name:'Food',  type:'cat', cats:['Khana','Grocery'] },
-  { id:'other', name:'Other', type:'cat', cats:['Bijli/Paani','Gas','Saaman','Transport','Other'] }
+  { id:'other', name:'Other', type:'cat', cats:['Bijli/Paani','Gas','Saaman','Transport','Other'] },
+  { id:'extra', name:'Additional', type:'extra' }
 ];
 const getLabels = () => (Array.isArray(S.labels) && S.labels.length ? S.labels : DEF_LABELS);
 const catList = () => { const out = CATS.slice(); getLabels().forEach(l => (l.cats || []).forEach(c => { if (!out.includes(c)) out.push(c); })); return out; };
@@ -741,7 +770,7 @@ const ic = (n, s = 22) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" f
 
 /* ---------- STATE ---------- */
 const S = { me:null, members:[], expenses:[], summary:[], xfers:[], reqs:[], cat:[], phones:{}, locks:new Set(),
-  access:{}, entered:[], periods:{}, allMembers:[], vacs:{}, labels:null, fin:null, finData:null, finPage:'all',
+  access:{}, entered:[], periods:{}, allMembers:[], vacs:{}, labels:null, fin:null, finData:null, finPage:'all', charges:[], pays:[], xself:[], carry:{}, heads:{}, finPub:[], pfMonth:null,
   ledger:[], statuses:[], chat:[], anns:[], rentDues:[], rentPays:[], food:[], meals:['Dinner'], backups:[], actlog:[],
   prefs:{ announcements_on:true, chat_on:true, ann_seen_at:null, chat_seen_at:null },
   knownAnn:null, lastPend:null, carry:false, tab:'home', month:todayStr().slice(0, 7), live:false, period:{ from:1, to:31 }, autoMonth:true, reacts:[],
@@ -765,6 +794,18 @@ const memIn = (m, from, to) => {
   if (ps && ps.length) return ps.some(x => x.from_date <= to && (!x.to_date || x.to_date >= from));
   return !!m.active;
 };
+const headEv = (id, lab) => (S.heads[id] || []).filter(e => e.label_id === lab);
+const headOn = (id, lab, day) => {
+  const ev = headEv(id, lab); if (!ev.length) return true;
+  const key = (a, b) => a.from_date < b.from_date ? -1 : a.from_date > b.from_date ? 1 : (a.created_at < b.created_at ? -1 : 1);
+  const past = ev.filter(e => e.from_date <= day).sort(key);
+  if (past.length) return !!past[past.length - 1].enabled;
+  return !ev.slice().sort(key)[0].enabled;
+};
+const headOnRange = (id, lab, a, b) => headOn(id, lab, a) || headEv(id, lab).some(e => e.from_date > a && e.from_date <= b && headOn(id, lab, e.from_date));
+const rentLabelId = () => { const l = getLabels().find(x => x.type === 'rent'); return l ? l.id : 'rent'; };
+const vacAllRange = (id, a, b) => (S.vacs[id] || []).some(v => v.from_date <= a && (!v.to_date || v.to_date >= b));
+const finPublished = mk => S.finPub.includes(mk);
 const vacOn = (id, day) => (S.vacs[id] || []).some(v => day >= v.from_date && (!v.to_date || day <= v.to_date));
 const vacAllMonth = id => { const r = prange(S.month); return (S.vacs[id] || []).some(v => v.from_date <= r[0] && (!v.to_date || v.to_date >= r[1])); };
 const vacTag = id => (vacOn(id, todayStr()) || vacAllMonth(id)) ? ' <span class="pill vac">Vacation</span>' : '';
@@ -933,8 +974,13 @@ async function loadAll(){
   q.push(sb.from('member_vacations').select('*'));
   q.push(sb.from('app_settings').select('*').eq('key', 'hisab_labels').maybeSingle());
   q.push(sb.rpc('get_final_hisab', { p_from:from, p_to:to, p_month:S.month }));
-  const R = await Promise.all(q);
-  const perRes = R[R.length - 6], accRes = R[R.length - 5], entRes = R[R.length - 4], vacRes = R[R.length - 3], labRes = R[R.length - 2], finRes = R[R.length - 1];
+  q.push(sb.from('final_charges').select('*'));
+  q.push(sb.from('final_payments').select('*'));
+  q.push(sb.from('advance_self').select('*'));
+  q.push(sb.from('member_heads').select('*'));
+  q.push(sb.from('app_settings').select('*').eq('key', 'final_published').maybeSingle());
+  const R = await Promise.all(q), RL = R.length;
+  const perRes = R[RL - 11], accRes = R[RL - 10], entRes = R[RL - 9], vacRes = R[RL - 8], labRes = R[RL - 7], finRes = R[RL - 6], chgRes = R[RL - 5], payRes = R[RL - 4], selfRes = R[RL - 3], headRes = R[RL - 2], pubRes = R[RL - 1];
   if (perRes && perRes.data && !perRes.error){ S.periods = {}; perRes.data.forEach(x => (S.periods[x.member_id] = S.periods[x.member_id] || []).push(x)); }
   const [m, e, s, x, rq, lk, ct, lg, st, ch, an, pf, rd, rp, fm, ms, dp, pd, rc, ph, bk, al] = R;
   if (pd && !pd.error){
@@ -970,6 +1016,12 @@ async function loadAll(){
   if (vacRes && vacRes.data && !vacRes.error){ S.vacs = {}; vacRes.data.forEach(x => (S.vacs[x.member_id] = S.vacs[x.member_id] || []).push(x)); }
   if (labRes && !labRes.error) S.labels = labRes.data && Array.isArray(labRes.data.value) ? labRes.data.value : null;
   S.fin = finRes && !finRes.error && finRes.data ? finRes.data : null;
+  S.charges = chgRes && !chgRes.error && chgRes.data ? chgRes.data : [];
+  S.pays = payRes && !payRes.error && payRes.data ? payRes.data : [];
+  S.xself = selfRes && !selfRes.error && selfRes.data ? selfRes.data : [];
+  if (headRes && headRes.data && !headRes.error){ S.heads = {}; headRes.data.forEach(x => (S.heads[x.member_id] = S.heads[x.member_id] || []).push(x)); }
+  S.finPub = pubRes && !pubRes.error && pubRes.data && Array.isArray(pubRes.data.value) ? pubRes.data.value : [];
+  S.carry = S.fin ? await computeCarry(S.month) : {};
   S.finData = S.fin ? finBuild(S.summary, S.fin) : null;
   if (accRes && accRes.data && !accRes.error){ S.access = {}; accRes.data.forEach(a => S.access[a.member_id] = a); }
   if (entRes && entRes.data && !entRes.error) S.entered = entRes.data; else if (!entRes || !entRes.error) S.entered = [];
@@ -1037,7 +1089,7 @@ function render(){
   if (isViewer() && ['kharcha', 'requests'].includes(S.tab)) S.tab = 'home';
   const my = S.summary.find(r => r.member_id === S.me.id);
   const fr = S.finData && S.finData.rows.find(r => r.id === S.me.id);
-  const net = fr ? -fr.togive : (my ? Number(my.net) : 0);
+  const net = fr ? -fr.baki : (my ? Number(my.net) : 0);
   const cls = net > 0.0005 ? 'get' : net < -0.0005 ? 'give' : '';
   const lbl = net > 0.0005 ? 'Is mahine aapko milenge' : net < -0.0005 ? 'Is mahine aapko dene hain' : 'Is mahine hisaab barabar hai';
   const pc = isAdmin() ? pendCount() : 0;
@@ -1060,7 +1112,7 @@ function render(){
       <div><button class="icon-btn" onclick="changePass()">Password</button> <button class="icon-btn" onclick="logout()">Logout</button></div>
     </div>
     ${isViewer() ? '<div class="balance"><div><div class="lbl">Viewer: sirf dekh sakte ho</div></div></div>' : ''}
-    ${isViewer() ? '' : `<div class="balance ${cls}"><div><div class="lbl">${lbl}</div>
+    ${isViewer() ? '' : (!isAdmin() && S.fin && !finPublished(S.month)) ? '<div class="balance"><div><div class="lbl">Final hisab abhi publish nahi hua</div></div></div>' : `<div class="balance ${cls}"><div><div class="lbl">${lbl}</div>
       <div class="amt num">${fmt(Math.abs(net))}<small>${CURRENCY}</small></div></div><div class="balico" role="button" tabindex="0" aria-label="Hisaab receipt" onclick="showReceipt('${S.me.id}')">${ic('wallet', 30)}</div></div>`}
   </div>
   <div class="wrap${enter ? ' enter' : ''}" id="view"></div>
@@ -1102,7 +1154,7 @@ window.openDrawer = () => {
     <div class="dr-s">Room</div>
     ${it('chat', 'chat', 'Group Messages', cu)}
     ${it('notice', 'mega', 'Announcements', au + pa)}
-    ${it('final', 'receipt', 'Final Hisab')}
+    ${(isAdmin() || S.finPub.length || !S.fin) ? it('final', 'receipt', 'Final Hisab') : ''}
     ${it('rent', 'rent', 'Room Rent')}
     ${it('food', 'food', 'Pakwan (Food Schedule)')}
     ${isAdmin() ? `<div class="dr-s">Admin</div>
@@ -1146,62 +1198,214 @@ function totals(){
 
 
 /* ===================== FINAL HISAB ===================== */
-function finBuild(sum, fr){
-  const labs = getLabels(), known = new Set();
+const r3 = x => Math.round(x * 1000) / 1000;
+function finCtx(){ return { charges:S.charges.filter(c => c.month === S.month), pays:S.pays.filter(p => p.month === S.month), carry:S.carry || {}, range:prange(S.month) }; }
+function finBuild(sum, fr, ctx){
+  ctx = ctx || finCtx();
+  const labs = getLabels(), known = new Set(), labIds = new Set(labs.map(l => l.id));
   labs.forEach(l => { if (l.type === 'cat') (l.cats || []).forEach(c => known.add(c)); });
   const by = {};
   (fr || []).forEach(x => {
-    const o = by[x.member_id] = by[x.member_id] || { rent:0, adv:0, cats:{} }, a = Number(x.amount) || 0;
+    const o = by[x.member_id] = by[x.member_id] || { rent:0, adv:0, cats:{}, ex:{}, orphan:0 }, a = Number(x.amount) || 0;
     if (x.kind === 'rent') o.rent += a; else if (x.kind === 'adv') o.adv += a; else o.cats[x.label] = (o.cats[x.label] || 0) + a;
+  });
+  (ctx.charges || []).forEach(c => {
+    if (ctx.range && !headOnRange(c.member_id, c.label_id, ctx.range[0], ctx.range[1])) return;
+    const o = by[c.member_id] = by[c.member_id] || { rent:0, adv:0, cats:{}, ex:{}, orphan:0 }, a = Number(c.amount) || 0;
+    if (labIds.has(c.label_id)) o.ex[c.label_id] = (o.ex[c.label_id] || 0) + a; else o.orphan += a;
   });
   let anyAnya = false;
   const rows = (sum || []).map(r => {
-    const o = by[r.member_id] || { rent:0, adv:0, cats:{} }, cells = {}; let total = 0, anya = 0;
+    const o = by[r.member_id] || { rent:0, adv:0, cats:{}, ex:{}, orphan:0 }, cells = {}; let total = 0, anya = o.orphan;
     labs.forEach(l => {
       let v = 0;
-      if (l.type === 'rent') v = o.rent; else if (l.type === 'adv') v = o.adv; else (l.cats || []).forEach(c => { v += o.cats[c] || 0; });
+      if (l.type === 'rent') v = o.rent; else if (l.type === 'adv') v = o.adv; else if (l.type === 'extra') v = o.ex[l.id] || 0; else (l.cats || []).forEach(c => { v += o.cats[c] || 0; });
       cells[l.id] = v; total += v;
     });
     Object.keys(o.cats).forEach(c => { if (!known.has(c)) anya += o.cats[c]; });
     total += anya; if (anya > 0.0005) anyAnya = true;
-    const paid = Number(r.paid) || 0;
-    return { id:r.member_id, name:r.name, cells, anya, total, paid, togive:total - paid };
+    const paid = Number(r.paid) || 0, togive = total - paid, carry = (ctx.carry || {})[r.member_id] || 0;
+    const paidIn = (ctx.pays || []).filter(p => p.member_id === r.member_id).reduce((a, p) => a + Number(p.amount), 0);
+    return { id:r.member_id, name:r.name, cells, anya, total, paid, togive, carry, paidIn, baki:r3(carry + togive - paidIn) };
   });
   return { labs, anya:anyAnya, rows };
 }
+const _chain = {};
+async function computeCarry(mk){
+  const pays = S.pays; if (!pays.length) return {};
+  const first = pays.reduce((a, p) => p.month < a ? p.month : a, pays[0].month);
+  if (first >= mk) return {};
+  const months = []; for (let m = first; m < mk && months.length < 24; m = addMonths(m, 1)) months.push(m);
+  let carry = {};
+  for (const m of months){
+    const ch = _chain[m]; let sum, fr;
+    if (ch && Date.now() - ch.t < 60000){ sum = ch.sum; fr = ch.fr; }
+    else {
+      const [a, b] = prange(m);
+      const [s1, f1] = await Promise.all([sb.rpc('get_summary', { p_from:a, p_to:b }), sb.rpc('get_final_hisab', { p_from:a, p_to:b, p_month:m })]);
+      if (s1.error || f1.error || !s1.data || !f1.data) break;
+      sum = s1.data; fr = f1.data; _chain[m] = { t:Date.now(), sum, fr };
+    }
+    const fb = finBuild(sum, fr, { charges:S.charges.filter(c => c.month === m), pays:S.pays.filter(p => p.month === m), carry, range:prange(m) });
+    const next = Object.assign({}, carry); fb.rows.forEach(r => { next[r.id] = r.baki; });
+    carry = next;
+  }
+  return carry;
+}
 window.finPage = k => { S.finPage = k; vFinal(); };
+function chgRowsHTML(list){
+  return list.map(c => `<div class="li" style="display:block"><div class="row"><div><div class="t">${esc(memberOf(c.member_id) ? memberOf(c.member_id).name : '')} · ${esc(c.label_name || '')}</div><div class="s">${esc(c.note || '')}</div></div><div class="r num"><b>${fmt(c.amount)}</b></div></div>
+    <div class="acts">${c.bill_path && (isAdmin() || c.member_id === S.me.id) ? `<button class="btn ghost sm" onclick="viewBill('${esc(c.bill_path)}')">Bill dekho</button>` : ''}${isAdmin() ? `<button class="btn ghost sm give" onclick="delCharge('${c.id}')">Delete</button>` : ''}</div></div>`).join('');
+}
+window.finPubToggle = async () => {
+  const on = S.finPub.includes(S.month), next = on ? S.finPub.filter(x => x !== S.month) : S.finPub.concat(S.month);
+  const { error } = await sb.from('app_settings').upsert({ key:'final_published', value:next, updated_at:new Date().toISOString() });
+  if (error) return toast(errMsg(error));
+  S.finPub = next; toast(on ? 'Members se chhupa diya' : 'Members ko dikhne laga'); vFinal();
+};
 function vFinal(){
-  const fb = S.finData;
-  const admBtn = isAdmin() ? `<div class="acts noprint" style="margin:0 0 10px"><button class="btn ghost sm" onclick="labelsForm()">Labels add / edit</button></div>` : '';
-  if (!fb){ $('#view').innerHTML = `${monthBar()}${admBtn}<div class="info">Final hisab abhi load nahi ho raha. Admin ko <b>final_hisab_vacation.sql</b> Supabase me chalani hogi.</div>`; return; }
+  const fb = S.finData, pub = finPublished(S.month), adm = isAdmin();
+  const pubBar = adm ? `<div class="pubbar ${pub ? 'on' : ''}"><div><b>${pub ? 'Members ko dikh raha hai' : 'Abhi sirf admin ko dikh raha hai'}</b><div class="s">${S.month} ka Final Hisab</div></div><button class="btn ${pub ? 'ghost' : ''} sm" onclick="finPubToggle()">${pub ? 'Chhupao' : 'Publish karo'}</button></div>` : '';
+  const admBtn = adm ? `<div class="acts noprint" style="margin:0 0 10px"><button class="btn sm" onclick="chargeForm()">+ Additional charge</button><button class="btn ghost sm" onclick="labelsForm()">Labels add / edit</button></div>` : '';
+  if (!adm && !pub){ $('#view').innerHTML = `${monthBar()}<div class="info">${S.month} ka Final Hisab abhi publish nahi hua. Admin jab publish karega tab yahan dikhega.</div>`; return; }
+  if (!fb){ $('#view').innerHTML = `${monthBar()}${pubBar}${admBtn}<div class="info">Final hisab abhi load nahi ho raha. Admin ko <b>final_hisab_vacation.sql</b>, <b>final_extras.sql</b> aur <b>member_profile.sql</b> Supabase me chalani hogi.</div>`; return; }
   const labs = fb.labs, pg = (S.finPage !== 'all' && labs.some(l => l.id === S.finPage)) ? S.finPage : 'all';
   const rows = fb.rows.slice().sort((a, b) => a.name.localeCompare(b.name));
   const chips = labs.map((l, i) => `<button class="${pg === l.id ? 'on' : ''}" onclick="finPage('${l.id}')">${i + 1}. ${esc(l.name)}</button>`).join('')
     + `<button class="${pg === 'all' ? 'on' : ''}" onclick="finPage('all')">${labs.length + 1}. Final hisab</button>`;
-  const nm = r => esc(r.name) + vacTag(r.id);
+  const nm = r => `<span class="fl" onclick="finMember('${r.id}')">${esc(r.name)}</span>${vacTag(r.id)}`;
   const sumOf = f => rows.reduce((a, r) => a + f(r), 0);
+  const badge = r => r.baki < -0.0005 ? '<span class="bd get">Milenge</span>' : r.baki <= 0.0005 ? ((r.total + r.carry > 0.0005 || r.paidIn > 0) ? '<span class="bd ok">Paid</span>' : '<span class="bd z">-</span>') : (r.paidIn > 0.0005 ? '<span class="bd part">Partial</span>' : '<span class="bd due">Baki</span>');
+  const sum = `<div class="finsum"><div><span>Total</span><b class="num">${fmt(sumOf(r => r.total + r.carry))}</b></div><div><span>Paid</span><b class="num get">${fmt(sumOf(r => r.paidIn))}</b></div><div><span>Baki</span><b class="num give">${fmt(Math.max(0, sumOf(r => Math.max(0, r.baki))))}</b></div></div>`;
   let table;
   if (pg === 'all'){
     const head = labs.map(l => `<th>${esc(l.name)}</th>`).join('') + (fb.anya ? '<th>Anya</th>' : '');
-    const body = rows.map(r => `<tr><td class="mn">${nm(r)}</td>${labs.map(l => `<td>${fmt(r.cells[l.id] || 0)}</td>`).join('')}${fb.anya ? `<td>${fmt(r.anya)}</td>` : ''}<td class="tt">${fmt(r.total)}</td><td>${fmt(r.paid)}</td><td class="tg ${r.togive < -0.0005 ? 'get' : ''}">${fmt(r.togive)}</td></tr>`).join('');
-    const foot = `<tr class="ft"><td class="mn">Total</td>${labs.map(l => `<td>${fmt(sumOf(r => r.cells[l.id] || 0))}</td>`).join('')}${fb.anya ? `<td>${fmt(sumOf(r => r.anya))}</td>` : ''}<td class="tt">${fmt(sumOf(r => r.total))}</td><td>${fmt(sumOf(r => r.paid))}</td><td class="tg">${fmt(sumOf(r => r.togive))}</td></tr>`;
-    table = `<div class="finw"><table class="fint"><thead><tr><th class="mn">Member</th>${head}<th>Total</th><th>Expence</th><th>Dene hain</th></tr></thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>
-    <p class="hint">Dene hain = sab labels ka total, minus sirf us member ka apna kharcha (Expence). Advance minus nahi hota. Hara number = member ko milenge.</p>`;
+    const body = rows.map(r => `<tr class="${r.id === S.me.id ? 'me' : ''}"><td class="mn">${nm(r)}</td>${labs.map(l => `<td>${fmt(r.cells[l.id] || 0)}</td>`).join('')}${fb.anya ? `<td>${fmt(r.anya)}</td>` : ''}<td class="tt">${fmt(r.total)}</td><td>${fmt(r.paid)}</td><td class="tg ${r.togive < -0.0005 ? 'get' : ''}">${fmt(r.togive)}</td><td>${fmt(r.carry)}</td><td>${fmt(r.paidIn)}</td><td class="tg ${r.baki < -0.0005 ? 'get' : ''}">${fmt(r.baki)}</td><td>${badge(r)}</td></tr>`).join('');
+    const foot = `<tr class="ft"><td class="mn">Total</td>${labs.map(l => `<td>${fmt(sumOf(r => r.cells[l.id] || 0))}</td>`).join('')}${fb.anya ? `<td>${fmt(sumOf(r => r.anya))}</td>` : ''}<td class="tt">${fmt(sumOf(r => r.total))}</td><td>${fmt(sumOf(r => r.paid))}</td><td class="tg">${fmt(sumOf(r => r.togive))}</td><td>${fmt(sumOf(r => r.carry))}</td><td>${fmt(sumOf(r => r.paidIn))}</td><td class="tg">${fmt(sumOf(r => r.baki))}</td><td></td></tr>`;
+    table = `<div class="finw"><table class="fint"><thead><tr><th class="mn">Member</th>${head}<th>Total</th><th>Expence</th><th>Dene hain</th><th>Pichhla baki</th><th>Paid</th><th>Baki</th><th></th></tr></thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>
+    <p class="hint">Dene hain = sab labels ka total minus sirf member ka apna kharcha (Expence). Advance minus nahi hota. Baki = Dene hain + Pichhla baki - Paid. Hara number = member ko milenge. Naam par tap karke payment aur charges ki detail dekho.</p>`;
   } else {
     const l = labs.find(x => x.id === pg);
-    const body = rows.map(r => `<tr><td class="mn">${nm(r)}</td><td class="tt">${fmt(r.cells[l.id] || 0)}</td></tr>`).join('');
+    const body = rows.map(r => `<tr class="${r.id === S.me.id ? 'me' : ''}"><td class="mn">${nm(r)}</td><td class="tt">${fmt(r.cells[l.id] || 0)}</td></tr>`).join('');
+    const mine = l.type === 'extra' ? S.charges.filter(c => c.month === S.month && c.label_id === l.id && (adm || isViewer() || c.member_id === S.me.id)) : [];
     table = `<div class="finw"><table class="fint"><thead><tr><th class="mn">Member</th><th>${esc(l.name)}</th></tr></thead><tbody>${body}</tbody><tfoot><tr class="ft"><td class="mn">Total</td><td class="tt">${fmt(sumOf(r => r.cells[l.id] || 0))}</td></tr></tfoot></table></div>
-    ${l.type === 'cat' ? `<p class="hint">Is label me: ${esc((l.cats || []).join(', '))}. Vacation wale member ka share sirf Rent me judta hai.</p>` : ''}`;
+    ${l.type === 'cat' ? `<p class="hint">Is label me: ${esc((l.cats || []).join(', '))}. Vacation wale member ka share sirf Rent me judta hai.</p>` : ''}
+    ${l.type === 'extra' ? `${adm ? `<div class="acts noprint" style="margin:0 0 10px"><button class="btn sm" onclick="chargeForm('', '${l.id}')">+ ${esc(l.name)} add karo</button></div>` : ''}<h2>Is mahine ki entries</h2><div class="card">${mine.length ? chgRowsHTML(mine) : '<div class="empty">Abhi koi entry nahi.</div>'}</div>` : ''}
+    ${l.type === 'adv' ? '<p class="hint">Advance = har member ka jama kiya hua advance. Jis member ke paas paisa rehta hai uska apna hissa bhi isme judta hai.</p>' : ''}`;
   }
-  $('#view').innerHTML = `${monthBar()}${admBtn}<div class="segbar">${chips}</div>${table}`;
+  $('#view').innerHTML = `${monthBar()}${pubBar}${admBtn}${sum}<div class="segbar fpg">${chips}</div>${table}`;
 }
+window.finMember = id => {
+  const fb = S.finData, r = fb && fb.rows.find(x => x.id === id), m = memberOf(id); if (!r || !m) return;
+  const pays = S.pays.filter(p => p.member_id === id && p.month === S.month).sort((a, b) => a.paid_on < b.paid_on ? -1 : 1);
+  const chg = S.charges.filter(c => c.month === S.month && c.member_id === id);
+  const L = (a, b, cls) => `<div class="row" style="padding:6px 0"><span>${a}</span><b class="num ${cls || ''}">${b}</b></div>`;
+  modal(`<h3>${esc(m.name)}${vacTag(id)}</h3><p class="hint" style="margin:0 0 8px">${S.month} (${periodLabel(S.month)})</p>
+  <div class="card" style="padding:6px 14px">${fb.labs.map(l => L(esc(l.name), fmt(r.cells[l.id] || 0))).join('')}${r.anya > 0.0005 ? L('Anya', fmt(r.anya)) : ''}
+    ${L('<b>Total</b>', fmt(r.total))}${L('Expence (apna kharcha) -', fmt(r.paid))}${L('<b>Dene hain</b>', fmt(r.togive))}${L('Pichhla baki +', fmt(r.carry))}${L('Paid -', fmt(r.paidIn))}${L('<b>Baki</b>', fmt(r.baki), r.baki > 0.0005 ? 'give' : r.baki < -0.0005 ? 'get' : '')}</div>
+  <h2 style="margin-top:12px">Payments</h2>
+  <div class="card">${pays.length ? pays.map(p => `<div class="li"><div><div class="t num">${fmt(p.amount)} ${CURRENCY}</div><div class="s">${p.paid_on}${p.note ? ' · ' + esc(p.note) : ''}</div></div>${isAdmin() ? `<button class="btn ghost sm give" onclick="delPay('${p.id}','${id}')">Delete</button>` : ''}</div>`).join('') : '<div class="empty">Is mahine abhi koi payment nahi.</div>'}</div>
+  ${chg.length ? `<h2 style="margin-top:12px">Additional charges</h2><div class="card">${chgRowsHTML(chg)}</div>` : ''}
+  ${isAdmin() ? `<form class="f" id="pf" style="margin-top:12px"><label>Payment add karo (${CURRENCY})</label><input id="pf_a" type="number" step="0.001" min="0.001" inputmode="decimal" value="${r.baki > 0.0005 ? r.baki.toFixed(3) : ''}" required>
+    <label>Tareekh</label><input id="pf_d" type="date" value="${todayStr()}" required><label>Note (optional)</label><input id="pf_n" placeholder="jaise: cash mila">
+    <div class="err" id="pf_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn ghost" onclick="chargeForm('${id}')">+ Additional charge</button><button class="btn" type="submit">Payment save</button></div></form>` : ''}
+  ${isAdmin() ? '' : '<div class="row" style="margin-top:12px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>'}`);
+  if (isAdmin()) $('#pf').onsubmit = async ev => {
+    ev.preventDefault();
+    const amount = parseFloat($('#pf_a').value); if (!(amount > 0)) return ($('#pf_e').textContent = 'Sahi raqam daalo.');
+    const { error } = await sb.from('final_payments').insert({ member_id:id, month:S.month, amount, paid_on:$('#pf_d').value, note:$('#pf_n').value.trim() });
+    if (error) return ($('#pf_e').textContent = 'Save nahi hua: ' + errMsg(error));
+    delete _chain[S.month]; closeModal(); toast('Payment save ho gayi'); loadAll();
+  };
+};
+window.delPay = async (pid, mid) => {
+  if (!confirm('Ye payment delete karni hai?')) return;
+  const { error } = await sb.from('final_payments').delete().eq('id', pid);
+  if (error) return toast(errMsg(error));
+  toast('Delete ho gaya'); await loadAll(); finMember(mid);
+};
+window.delCharge = async id => {
+  const c = S.charges.find(x => x.id === id); if (!c || !confirm('Ye charge delete karna hai?')) return;
+  const { error } = await sb.from('final_charges').delete().eq('id', id);
+  if (error) return toast(errMsg(error));
+  if (c.bill_path) sb.storage.from('bills').remove([c.bill_path]);
+  toast('Delete ho gaya'); closeModal(); loadAll();
+};
+window.chargeForm = (preId, labelId) => {
+  const labs = getLabels().filter(l => l.type === 'extra');
+  const mem = S.members.filter(m => memInMonth(m) || m.id === preId);
+  const sel = labelId || (labs[0] ? labs[0].id : 'new');
+  modal(`<h3>Additional charge (${S.month})</h3>
+  <p class="hint" style="margin:0 0 8px">Ye charge month end me us member se liya jata hai aur uske final hisab (dene hain) me judta hai.</p>
+  <form class="f" id="cf">
+    <label>Label</label>
+    <select id="c_l">${labs.map(l => `<option value="${l.id}" ${l.id === sel ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}<option value="new" ${sel === 'new' ? 'selected' : ''}>+ Naya label (jaise Dry cleaning)</option></select>
+    <div id="c_nw" style="${sel === 'new' ? '' : 'display:none'}"><label>Naye label ka naam</label><input id="c_nn" maxlength="30" placeholder="jaise: Dry cleaning"></div>
+    <label>Kin members se lena hai</label>
+    <div class="chk" id="c_m"></div>
+    <div class="hint">Sirf wahi members dikhte hain jin ke liye ye cheez ON hai (Member Profile me badal sakte ho).</div>
+    <label>Raqam (${CURRENCY})</label><input id="c_a" type="number" step="0.001" min="0.001" inputmode="decimal" required>
+    <label class="chkrow"><input type="checkbox" id="c_s"> Ye total raqam hai, chune hue members me barabar baant do</label>
+    <div class="hint" id="c_h"></div>
+    <label>Note (optional)</label><input id="c_n" placeholder="jaise: shirt ki dry cleaning">
+    <label>Bill ki photo (optional)</label><input id="c_p" type="file" accept="image/*"><img id="c_pv" class="preview" alt="" style="display:none">
+    <div class="err" id="c_e" style="color:var(--give)"></div>
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit" id="c_b">Save karo</button></div>
+  </form>`);
+  const pr1 = prange(S.month);
+  const fillMem = () => {
+    const lid = $('#c_l').value, list = lid === 'new' ? mem : mem.filter(m => headOnRange(m.id, lid, pr1[0], pr1[1]));
+    $('#c_m').innerHTML = list.length ? list.map(m => `<label><input type="checkbox" value="${m.id}" ${m.id === preId ? 'checked' : ''}> ${esc(m.name)}</label>`).join('') : '<div class="s">Is cheez ke liye koi member ON nahi hai.</div>';
+    document.querySelectorAll('#c_m input').forEach(b => { b.onchange = upd; }); upd();
+  };
+  const chosen = () => [...document.querySelectorAll('#c_m input:checked')].map(x => x.value);
+  const upd = () => { const n = chosen().length, a = parseFloat($('#c_a').value) || 0, sp = $('#c_s').checked; $('#c_h').textContent = n && a ? (sp ? `Har member: ${fmt(a / n)} ${CURRENCY} (${n} member)` : `${n} x ${fmt(a)} = ${fmt(n * a)} ${CURRENCY} total`) : ''; };
+  $('#c_l').onchange = () => { $('#c_nw').style.display = $('#c_l').value === 'new' ? '' : 'none'; fillMem(); };
+  $('#c_a').oninput = upd; $('#c_s').onchange = upd; fillMem();
+  $('#c_p').onchange = () => { const f = $('#c_p').files[0], p = $('#c_pv'); if (f){ p.src = URL.createObjectURL(f); p.style.display = 'block'; } else p.style.display = 'none'; };
+  $('#cf').onsubmit = async ev => {
+    ev.preventDefault();
+    const er = $('#c_e'), ids = chosen(), amt = parseFloat($('#c_a').value), f = $('#c_p').files[0];
+    if (!ids.length) return (er.textContent = 'Kam se kam ek member chuno.');
+    if (!(amt > 0)) return (er.textContent = 'Sahi raqam daalo.');
+    if (f && !hasType(f, IMG_TYPES, /\.(jpe?g|png|webp)$/i)) return (er.textContent = 'Sirf JPG, PNG ya WebP photo chalegi.');
+    let lid = $('#c_l').value, lname;
+    $('#c_b').disabled = true; er.textContent = 'Save ho raha hai...';
+    const uploaded = [];
+    try {
+      if (lid === 'new'){
+        lname = $('#c_nn').value.trim(); if (!lname) throw new Error('Naye label ka naam likho');
+        const arr = getLabels().map(x => Object.assign({}, x));
+        if (arr.some(x => x.name.toLowerCase() === lname.toLowerCase())) throw new Error('Is naam ka label pehle se hai');
+        lid = 'l' + Date.now().toString(36); arr.push({ id:lid, name:lname, type:'extra' });
+        if (!(await saveLabels(arr))) throw new Error('Label save nahi hua');
+      } else lname = (getLabels().find(x => x.id === lid) || {}).name || '';
+      const each = $('#c_s').checked ? r3(amt / ids.length) : amt;
+      const blob = f ? await compress(f) : null;
+      const rows = [];
+      for (let k = 0; k < ids.length; k++){
+        let path = null;
+        if (blob){
+          path = `${ids[k]}/chg-${Date.now()}-${k}.jpg`;
+          const up = await sb.storage.from('bills').upload(path, blob, { contentType:'image/jpeg' });
+          if (up.error) throw up.error; uploaded.push(path);
+        }
+        rows.push({ month:S.month, member_id:ids[k], label_id:lid, label_name:lname, amount:each, note:$('#c_n').value.trim(), bill_path:path });
+      }
+      const { error } = await sb.from('final_charges').insert(rows);
+      if (error) throw error;
+      S.finPage = lid; closeModal(); toast('Charge add ho gaya'); loadAll();
+    } catch (x){ if (uploaded.length) sb.storage.from('bills').remove(uploaded); er.textContent = 'Save nahi hua: ' + errMsg(x); $('#c_b').disabled = false; }
+  };
+};
 window.labelsForm = () => {
   if (!isAdmin()) return;
   const labs = getLabels();
   modal(`<h3>Final hisab ke labels</h3>
   <p class="hint" style="margin:0 0 10px">Har label ka alag page banta hai aur receipt me bhi aata hai. Total = sab labels ka jod. Phir member ka apna kharcha (Expence) ghat kar "dene hain" aata hai.</p>
   <div class="card">${labs.map((l, i) => `<div class="li" style="display:block"><div class="t">${i + 1}. ${esc(l.name)}</div>
-    <div class="s">${l.type === 'rent' ? 'Room rent' : l.type === 'adv' ? 'Advance (jo member ne liya)' : 'Kharcha: ' + esc((l.cats || []).join(', '))}</div>
+    <div class="s">${l.type === 'rent' ? 'Room rent' : l.type === 'adv' ? 'Advance (member ka jama kiya hua)' : l.type === 'extra' ? 'Additional charge (member select karke daalte hain)' : 'Kharcha: ' + esc((l.cats || []).join(', '))}</div>
     <div class="acts"><button class="btn ghost sm" onclick="labelMove(${i},-1)">&#9650;</button><button class="btn ghost sm" onclick="labelMove(${i},1)">&#9660;</button>
     <button class="btn ghost sm" onclick="labelForm(${i})">Edit</button><button class="btn ghost sm give" onclick="labelDel(${i})">Delete</button></div></div>`).join('')}</div>
   <div class="row" style="margin-top:12px"><button type="button" class="btn ghost" onclick="closeModal()">Band karo</button><button type="button" class="btn" onclick="labelForm(-1)">+ Label add</button></div>`);
@@ -1228,7 +1432,7 @@ window.labelForm = i => {
   <form class="f" id="lf">
     <label>Label ka naam (jaise Food, Drycleaner, Car wash)</label><input id="l_n" value="${esc(l.name)}" required maxlength="30">
     <label>Ye label kis cheez ka hai</label>
-    <select id="l_t"><option value="cat" ${l.type === 'cat' ? 'selected' : ''}>Kharcha (categories ka jod)</option><option value="rent" ${l.type === 'rent' ? 'selected' : ''}>Room rent</option><option value="adv" ${l.type === 'adv' ? 'selected' : ''}>Advance (jo member ne liya)</option></select>
+    <select id="l_t"><option value="cat" ${l.type === 'cat' ? 'selected' : ''}>Kharcha (categories ka jod)</option><option value="rent" ${l.type === 'rent' ? 'selected' : ''}>Room rent</option><option value="adv" ${l.type === 'adv' ? 'selected' : ''}>Advance (member ka jama kiya hua)</option><option value="extra" ${l.type === 'extra' ? 'selected' : ''}>Additional charge (month end me member se lena, bill ke saath)</option></select>
     <div id="l_cw" style="${l.type === 'cat' ? '' : 'display:none'}">
       <label>Kaun si categories is label me judengi</label>
       <div class="chk">${catList().map(c => `<label><input type="checkbox" value="${esc(c)}" ${(l.cats || []).includes(c) ? 'checked' : ''}> ${esc(c)}</label>`).join('')}</div>
@@ -1243,7 +1447,7 @@ window.labelForm = i => {
     ev.preventDefault();
     const name = $('#l_n').value.trim(), type = $('#l_t').value; if (!name) return;
     if (a.some((x, k) => k !== i && x.name.toLowerCase() === name.toLowerCase())) return ($('#l_e').textContent = 'Is naam ka label pehle se hai.');
-    if (type !== 'cat' && a.some((x, k) => k !== i && x.type === type)) return ($('#l_e').textContent = type === 'rent' ? 'Rent label pehle se hai.' : 'Advance label pehle se hai.');
+    if ((type === 'rent' || type === 'adv') && a.some((x, k) => k !== i && x.type === type)) return ($('#l_e').textContent = type === 'rent' ? 'Rent label pehle se hai.' : 'Advance label pehle se hai.');
     let cats = [];
     if (type === 'cat'){
       cats = [...document.querySelectorAll('#l_cw .chk input:checked')].map(x => x.value);
@@ -1397,7 +1601,8 @@ window.txDetail = id => {
 
 /* Hisab ka breakdown: food / other / rent alag alag, kuch double nahi */
 function rentRows(){
-  const ids = new Set(isAdmin() ? S.members.filter(memInMonth).map(m => m.id) : [S.me.id]);
+  const pr0 = prange(S.month), rl = rentLabelId();
+  const ids = new Set(isAdmin() ? S.members.filter(m => memInMonth(m) && headOnRange(m.id, rl, pr0[0], pr0[1])).map(m => m.id) : [S.me.id]);
   S.rentDues.forEach(d => ids.add(d.member_id));
   return [...ids].map(id => memberOf(id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name)).map(m => {
     const d = S.rentDues.find(x => x.member_id === m.id && x.month === S.month);
@@ -1508,10 +1713,12 @@ function xRow(t, acts){
     ${acts ? `<div class="acts"><button class="btn ghost sm" onclick="xForm('${t.id}')">Edit</button><button class="btn ghost sm give" onclick="delX('${t.id}')">Delete</button></div>` : ''}</div>`;
 }
 function vAdv(){
-  const sum = S.xfers.reduce((a, t) => a + Number(t.amount), 0);
+  const pr = prange(S.month), selfs = S.xself.filter(x => x.date >= pr[0] && x.date <= pr[1]);
+  const sum = S.xfers.reduce((a, t) => a + Number(t.amount), 0) + selfs.reduce((a, t) => a + Number(t.amount), 0);
+  const selfHTML = selfs.map(x => `<div class="li" style="display:block"><div class="row"><div><div class="t">${pnId(x.member_id, 26)}: apna hissa</div><div class="s">Advance (jis ke paas rakha hai) · ${x.date}${x.note ? ' · ' + esc(x.note) : ''}</div></div><div class="r num get"><b>${fmt(x.amount)}</b></div></div>${isAdmin() ? `<div class="acts"><button class="btn ghost sm give" onclick="delSelf('${x.id}')">Delete</button></div>` : ''}</div>`).join('');
   $('#view').innerHTML = `${monthBar()}
-  <div class="stat"><div><div class="k">Total raqam</div><div class="v num">${fmt(sum)} ${CURRENCY}</div></div><div><div class="k">Entries</div><div class="v num">${S.xfers.length}</div></div></div>
-  <div class="card">${S.xfers.length ? S.xfers.map(t => xRow(t, isAdmin())).join('') : '<div class="empty">Is mahine koi advance ya payment nahi hai.</div>'}</div>`;
+  <div class="stat"><div><div class="k">Total raqam</div><div class="v num">${fmt(sum)} ${CURRENCY}</div></div><div><div class="k">Entries</div><div class="v num">${S.xfers.length + selfs.length}</div></div></div>
+  <div class="card">${(S.xfers.length || selfs.length) ? S.xfers.map(t => xRow(t, isAdmin())).join('') + selfHTML : '<div class="empty">Is mahine koi advance ya payment nahi hai.</div>'}</div>`;
 }
 
 /* ---------- BILL BHEJO / REQUESTS ---------- */
@@ -2051,8 +2258,8 @@ function vRent(){
   <div class="stat"><div><div class="k">Outstanding (baaki)</div><div class="v num ${T.out > 0 ? 'give' : ''}">${fmt(T.out)}</div></div>
     ${isAdmin() ? `<div><div class="k">Paid / Not paid</div><div class="v num">${T.paidN} / ${T.unpaidN}</div></div>` : `<div><div class="k">Status</div><div class="v" style="font-size:16px">${rows[0] ? rentPill(rows[0].status) : '-'}</div></div>`}</div>
   ${isAdmin() ? `<div class="acts noprint" style="margin:0 0 10px"><button class="btn ghost sm" onclick="rentCopyPrev()">Pichhle mahine se copy</button><button class="btn ghost sm" onclick="rentSameAll()">Sab ke liye same rent</button></div>` : ''}
-  <div class="card"><div class="tblwrap"><table class="tbl" style="min-width:${isAdmin() ? 700 : 560}px"><thead><tr><th>No.</th><th>Member Name</th><th class="n">Monthly Rent</th><th>Rent Month</th><th class="n">Amount Paid</th><th class="n">Remaining</th><th>Status</th>${isAdmin() ? '<th></th>' : ''}</tr></thead><tbody>
-  ${rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td>${pnM(r.m, 28, r.m.name)}</td><td class="n num">${r.d ? fmt(r.due) : '-'}</td><td>${S.month}</td><td class="n num">${fmt(r.paid)}</td><td class="n num ${r.rem > 0 ? 'give' : ''}">${r.d ? fmt(r.rem) : '-'}</td><td>${rentPill(r.status)}</td>
+  <div class="card"><div class="tblwrap"><table class="tbl rentfz" style="min-width:${isAdmin() ? 700 : 560}px"><thead><tr><th>No.</th><th>Member Name</th><th class="n">Monthly Rent</th><th>Rent Month</th><th class="n">Amount Paid</th><th class="n">Remaining</th><th>Status</th>${isAdmin() ? '<th></th>' : ''}</tr></thead><tbody>
+  ${rows.length ? rows.map((r, i) => `<tr><td>${i + 1}</td><td>${pnM(r.m, 28, r.m.name)}${vacTag(r.m.id)}</td><td class="n num">${r.d ? fmt(r.due) : '-'}</td><td>${S.month}</td><td class="n num">${fmt(r.paid)}</td><td class="n num ${r.rem > 0 ? 'give' : ''}">${r.d ? fmt(r.rem) : '-'}</td><td>${rentPill(r.status)}</td>
     ${isAdmin() ? `<td style="white-space:nowrap"><button class="btn ghost sm" onclick="rentDueForm('${r.m.id}')">${r.d ? 'Edit rent' : 'Rent set'}</button> <button class="btn sm" ${r.d ? '' : 'disabled'} onclick="rentPayForm('${r.m.id}')">+ Payment</button> <button class="btn ghost sm" onclick="rentHistory('${r.m.id}')">History</button></td>` : ''}</tr>`).join('') : '<tr><td colspan="8" class="empty">Koi member nahi mila.</td></tr>'}</tbody></table></div></div>
   ${!isAdmin() ? `<h2>Aapki payments (${S.month})</h2><div class="card">${S.rentPays.length ? S.rentPays.map(p => `<div class="li"><div><div class="t">${fmt(p.amount)} ${CURRENCY}</div><div class="s">${p.paid_on}${p.note ? ' · ' + esc(p.note) : ''}</div></div></div>`).join('') : '<div class="empty">Is mahine ki koi payment record nahi.</div>'}</div>` : ''}
   <p class="hint">Room rent alag ledger hai. Ek member ka ek mahine ka ek hi rent record banta hai (dobara set karne par wahi edit hota hai), aur adjustment alag se likha jata hai.</p>`;
@@ -2333,28 +2540,85 @@ function vMem(){
   <p class="hint" style="margin:0 0 10px">"Hisaab bhejo" us mahine ka hisaab bhejta hai jo neeche chuna hai (<b>${S.month}</b>: ${periodLabel(S.month)}).</p>
   <div class="monthbar noprint"><input type="month" id="mon" value="${S.month}" aria-label="Mahina"><button class="btn ghost sm" onclick="setMonth()">Dikhao</button></div>
   <div class="card">${S.allMembers.map(m => {
-    const vw = !!m.is_viewer;
-    const ph = S.phones[m.id], ax = S.access[m.id] || {};
-    const prs = (S.periods[m.id] || []).slice().sort((a, b) => a.from_date < b.from_date ? 1 : -1), pr = prs[0];
-    const shLine = vw ? '<div class="s" style="margin-top:2px">Sirf dekhne wala (share/kharcha me nahi)</div>' : `<div class="s" style="margin-top:2px">Share: ${pr ? dmyFull(pr.from_date) + ' se' + (pr.to_date ? ' ' + dmyFull(pr.to_date) + ' tak' : '') : 'shuru se (purana member)'}</div>`;
-    const axL = [ax.can_add && 'Add', ax.can_edit && 'Edit', ax.can_delete && 'Delete'].filter(Boolean);
-    const axChips = (m.role === 'admin' || vw) ? '' : `<div style="margin-top:2px">${axL.length ? axL.map(x => `<span class="chip ok">${x}</span>`).join('') : '<span class="s">Kharcha entry access: nahi</span>'}</div>`;
-    return `<div class="li" style="display:block"><div class="row" style="justify-content:flex-start;gap:12px">${av(m, 44)}<div style="min-width:0"><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${vw ? '<span class="pill adm">Viewer</span>' : ''}${vacTag(m.id)} ${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Band</span>'}</div>
-    <div class="s">Member ID: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div>${shLine}${axChips}</div></div>
-    <div class="acts">
-      ${vw ? '' : `<button class="btn sm" onclick="sendHisaab('${m.id}')">Hisaab bhejo</button>`}
-      ${(m.role === 'admin' || vw) ? '' : `<button class="btn ghost sm" onclick="accessForm('${m.id}')">Member access</button>`}
-      ${(m.active && !vw) ? `<button class="btn ghost sm" onclick="shareDateForm('${m.id}','edit')">Share date</button>` : ''}
-      ${(m.active && !vw) ? `<button class="btn ghost sm" onclick="vacForm('${m.id}')">${(S.vacs[m.id] || []).some(v => !v.to_date) ? 'Vacation khatam' : 'Vacation'}</button>` : ''}
-      <button class="btn ghost sm" onclick="phoneForm('${m.id}')">${ph ? 'Mobile edit' : 'Mobile add'}</button>
-      <button class="btn ghost sm" onclick="avatarSheet('${m.id}')">Photo</button>
-      <button class="btn ghost sm" onclick="memEdit('${m.id}')">Naam badlo</button>
-      <button class="btn ghost sm" onclick="toggleMem('${m.id}')">${m.active ? 'Deactivate' : 'Activate'}</button>
-      ${m.id === S.me.id ? '' : `<button class="btn ghost sm give" onclick="delMem('${m.id}')">Delete</button>`}
-    </div></div>`;
+    const vw = !!m.is_viewer, ph = S.phones[m.id];
+    return `<div class="li mrow" role="button" tabindex="0" onclick="memProfile('${m.id}')"><div class="row" style="justify-content:flex-start;gap:12px">${av(m, 44)}<div style="min-width:0;flex:1"><div class="t">${esc(m.name)} ${m.role === 'admin' ? '<span class="pill adm">Admin</span>' : ''} ${vw ? '<span class="pill adm">Viewer</span>' : ''}${vacTag(m.id)} ${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Band</span>'}</div>
+    <div class="s">Member ID: ${esc(m.username)} · ${ph ? 'Mobile: ' + esc(showPhone(ph)) : 'Mobile nahi'}</div></div><span class="chev">&#8250;</span></div></div>`;
   }).join('')}</div>
-  <p class="hint">Deactivate kiya member login nahi kar sakta. Purana record safe rehta hai. Password reset aur Member ID badalna "Password Reset" screen me hai. Mobile number sirf admin dekh sakta hai.</p>`;
+  <p class="hint">Kisi bhi member par tap karke uska poora profile, share/rent/food ki settings aur baaki sab kaam kholo. Deactivate kiya member login nahi kar sakta. Purana record safe rehta hai.</p>`;
 }
+window.memProfile = (id, pm) => {
+  const m = memberOf(id); if (!m) return;
+  if (pm) S.pfMonth = pm;
+  const mk = S.pfMonth || S.month, vw = !!m.is_viewer, ph = S.phones[id], ax = S.access[id] || {};
+  const prs = (S.periods[id] || []).slice().sort((a, b) => a.from_date < b.from_date ? 1 : -1), pr = prs[0];
+  const labs = getLabels(), months = []; for (let k = -5; k <= 0; k++) months.push(addMonths(mk, k));
+  const cell = (l, mm) => {
+    const [a, b] = prange(mm);
+    if (!memIn(m, a, b)) return '<td class="na">-</td>';
+    const on = headOnRange(id, l.id, a, b);
+    if (on && vacAllRange(id, a, b) && (l.type === 'cat' || l.type === 'extra')) return '<td class="vc" title="Vacation">Vac</td>';
+    return on ? '<td class="ok">&#10003;</td>' : '<td class="no">&#10007;</td>';
+  };
+  const stat = l => {
+    const ev = headEv(id, l.id), today = todayStr(); if (!ev.length) return '<b class="get">ON</b> shuru se';
+    const key = (a, b) => a.from_date < b.from_date ? -1 : a.from_date > b.from_date ? 1 : (a.created_at < b.created_at ? -1 : 1);
+    const past = ev.filter(e => e.from_date <= today).sort(key), last = past[past.length - 1], first = ev.slice().sort(key)[0];
+    if (last) return last.enabled ? `<b class="get">ON</b> ${dmyFull(last.from_date)} se` : `<b class="give">OFF</b> ${dmyFull(last.from_date)} se`;
+    return first.enabled ? `<b>Shuru hoga</b> ${dmyFull(first.from_date)} se` : `<b class="get">ON</b> (${dmyFull(first.from_date)} se OFF)`;
+  };
+  const axL = [ax.can_add && 'Add', ax.can_edit && 'Edit', ax.can_delete && 'Delete'].filter(Boolean);
+  const D = (a, b) => `<div class="row" style="padding:6px 0;gap:10px"><span style="color:var(--mute)">${a}</span><span style="text-align:right">${b}</span></div>`;
+  const hasVac = (S.vacs[id] || []).some(v => !v.to_date);
+  modal(`<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">${av(m, 56)}<div style="min-width:0"><div style="font-weight:800;font-size:19px">${esc(m.name)}</div>
+    <div>${m.role === 'admin' ? '<span class="pill adm">Admin</span> ' : ''}${vw ? '<span class="pill adm">Viewer</span> ' : ''}${m.active ? '<span class="pill ok">Active</span>' : '<span class="pill off">Band</span>'}${vacTag(id)}</div></div></div>
+  <div class="card" style="padding:4px 14px">
+    ${D('Member ID', esc(m.username))}${D('Mobile', ph ? esc(showPhone(ph)) : 'nahi')}${D('Type', vw ? 'Viewer (sirf dekhta hai)' : m.role === 'admin' ? 'Admin' : 'Member')}
+    ${vw ? '' : D('Share (poora)', pr ? dmyFull(pr.from_date) + ' se' + (pr.to_date ? ' ' + dmyFull(pr.to_date) + ' tak' : '') : 'shuru se (purana member)')}
+    ${vw || m.role === 'admin' ? '' : D('Kharcha entry access', axL.length ? axL.map(x => `<span class="chip ok">${x}</span>`).join('') : 'nahi')}
+    ${vw ? '' : D('Vacation', hasVac ? 'Chal rahi hai' : 'nahi')}</div>
+  ${vw ? '' : `<h2 style="margin:14px 0 6px">Kis kis cheez me applicable</h2>
+  <div class="monthbar noprint"><input type="month" id="pf_m" value="${mk}" aria-label="Mahina"><button class="btn ghost sm" onclick="memProfile('${id}', document.getElementById('pf_m').value)">Dikhao</button></div>
+  <div class="finw"><table class="fint pfchart"><thead><tr><th class="mn">Cheez</th>${months.map(x => `<th>${x.slice(5)}/${x.slice(2, 4)}</th>`).join('')}</tr></thead>
+  <tbody>${labs.map(l => `<tr><td class="mn">${esc(l.name)}</td>${months.map(x => cell(l, x)).join('')}</tbody>`.replace('</tbody>', '</tr>')).join('')}</tbody></table></div>
+  <p class="hint">&#10003; = us mahine me is cheez ka hissa judega. &#10007; = nahi judega. Vac = vacation ki wajah se nahi judega (rent chalu rehta hai). - = tab member judega hi nahi tha.</p>
+  <h2 style="margin:14px 0 6px">Share ki settings (kab se)</h2>
+  <div class="card">${labs.map(l => `<div class="li"><div><div class="t">${esc(l.name)}</div><div class="s">${stat(l)}</div></div><div class="acts"><button class="btn ghost sm" onclick="headForm('${id}','${l.id}')">Badlo</button>${headEv(id, l.id).length ? `<button class="btn ghost sm" onclick="headReset('${id}','${l.id}')">Reset</button>` : ''}</div></div>`).join('')}</div>
+  <p class="hint">Jis cheez ko OFF karoge, us tareekh se us cheez ka hissa is member par nahi lagega. Rent OFF karne par us mahine se uska rent final hisab me nahi judega.</p>`}
+  <h2 style="margin:14px 0 6px">Kaam</h2>
+  <div class="acts">
+    ${vw ? '' : `<button class="btn sm" onclick="closeModal();sendHisaab('${id}')">Hisaab bhejo</button>`}
+    ${(m.role === 'admin' || vw) ? '' : `<button class="btn ghost sm" onclick="accessForm('${id}')">Member access</button>`}
+    ${(m.active && !vw) ? `<button class="btn ghost sm" onclick="shareDateForm('${id}','edit')">Share date</button><button class="btn ghost sm" onclick="vacForm('${id}')">${hasVac ? 'Vacation khatam' : 'Vacation'}</button>` : ''}
+    <button class="btn ghost sm" onclick="phoneForm('${id}')">${ph ? 'Mobile edit' : 'Mobile add'}</button>
+    <button class="btn ghost sm" onclick="avatarSheet('${id}')">Photo</button>
+    <button class="btn ghost sm" onclick="memEdit('${id}')">Naam badlo</button>
+    <button class="btn ghost sm" onclick="closeModal();toggleMem('${id}')">${m.active ? 'Deactivate' : 'Activate'}</button>
+    ${m.id === S.me.id ? '' : `<button class="btn ghost sm give" onclick="closeModal();delMem('${id}')">Delete</button>`}
+  </div>
+  <div class="row" style="margin-top:14px"><span></span><button class="btn" onclick="closeModal()">Band karo</button></div>`);
+};
+window.headForm = (id, lid) => {
+  const m = memberOf(id), l = getLabels().find(x => x.id === lid); if (!m || !l) return;
+  const first = !headEv(id, lid).length, curOn = headOn(id, lid, todayStr());
+  modal(`<h3>${esc(m.name)}: ${esc(l.name)}</h3>
+  <p class="hint" style="margin:0 0 8px">Is cheez me ye member kab se judega ya kab se nahi judega.</p>
+  <form class="f" id="hf"><div class="seg"><label><input type="radio" name="hs" value="1" ${first || !curOn ? 'checked' : ''}> ON (is cheez me judega)</label><label><input type="radio" name="hs" value="0" ${!first && curOn ? 'checked' : ''}> OFF (is cheez me nahi judega)</label></div>
+  <label>Is tareekh se</label><input id="h_d" type="date" value="${first ? nextMonth1() : todayStr()}" required>
+  <div class="err" id="h_e" style="color:var(--give)"></div>
+  <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="memProfile('${id}')">Wapas</button><button class="btn" type="submit">Save karo</button></div></form>`);
+  $('#hf').onsubmit = async ev => {
+    ev.preventDefault();
+    const { error } = await sb.from('member_heads').insert({ member_id:id, label_id:lid, enabled:document.querySelector('input[name=hs]:checked').value === '1', from_date:$('#h_d').value });
+    if (error) return ($('#h_e').textContent = errMsg(error));
+    toast('Save ho gaya'); await loadAll(); memProfile(id);
+  };
+};
+window.headReset = async (id, lid) => {
+  if (!confirm('Is cheez ki saari tareekhein hata kar "shuru se ON" karna hai?')) return;
+  const { error } = await sb.from('member_heads').delete().eq('member_id', id).eq('label_id', lid);
+  if (error) return toast(errMsg(error));
+  toast('Reset ho gaya'); await loadAll(); memProfile(id);
+};
 window.phoneForm = id => {
   const m = memberOf(id), cur = S.phones[id];
   modal(`<h3>${pnM(m, 30, m.name)}: mobile number</h3>
@@ -2389,7 +2653,9 @@ function hisaabMsg(r){
     fb.labs.forEach(l => L.push(`${l.name}: ${fmt(fr.cells[l.id] || 0)} ${CURRENCY}`));
     if (fr.anya > 0.0005) L.push(`Anya: ${fmt(fr.anya)} ${CURRENCY}`);
     L.push(`Total: ${fmt(fr.total)} ${CURRENCY}`, `Aapka kharch (minus): ${fmt(fr.paid)} ${CURRENCY}`);
-    L.push(fr.togive > 0.0005 ? `*Aapko ${fmt(fr.togive)} ${CURRENCY} dene hain*` : fr.togive < -0.0005 ? `*Aapko ${fmt(-fr.togive)} ${CURRENCY} milenge*` : '*Hisaab barabar hai*', '', 'Shukriya');
+    if (Math.abs(fr.carry) > 0.0005) L.push(`Pichhla baki: ${fmt(fr.carry)} ${CURRENCY}`);
+    if (fr.paidIn > 0.0005) L.push(`Paid: ${fmt(fr.paidIn)} ${CURRENCY}`);
+    L.push(fr.baki > 0.0005 ? `*Aapko ${fmt(fr.baki)} ${CURRENCY} dene hain*` : fr.baki < -0.0005 ? `*Aapko ${fmt(-fr.baki)} ${CURRENCY} milenge*` : '*Hisaab barabar hai*', '', 'Shukriya');
     return L.join('\n');
   }
   return hisaabMsgOld(r);
@@ -2422,10 +2688,13 @@ window.memForm = () => {
     <label>Member ka type</label>
     <select id="m_ty"><option value="member">Member (kharche mein share judta hai)</option><option value="viewer">Viewer (sirf dekhega, koi share/kharcha nahi)</option></select>
     <div id="m_sdw"><label>Share kis tareekh se shuru ho</label><input id="m_sd" type="date" value="${nextMonth1()}">
-    <div class="hint">Is tareekh se pehle ke kisi kharche mein ye member count nahi hoga.</div></div>
+    <div class="hint">Is tareekh se pehle ke kisi kharche mein ye member count nahi hoga.</div>
+    <div class="m_hd">${getLabels().filter(l => l.type === 'rent' || l.type === 'cat').map(l => `<label>${esc(l.name)} kab se shuru</label><input type="date" data-l="${l.id}" value="${nextMonth1()}">`).join('')}</div></div>
     <div class="err" id="m_e" style="color:var(--give)"></div>
     <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" type="submit">Member banao</button></div>
   </form>`);
+  $('#m_sd').oninput = () => document.querySelectorAll('.m_hd input').forEach(i => { if (!i.dataset.t) i.value = $('#m_sd').value; });
+  document.querySelectorAll('.m_hd input').forEach(i => { i.onchange = () => { i.dataset.t = '1'; }; });
   $('#m_ty').onchange = () => { $('#m_sdw').style.display = $('#m_ty').value === 'viewer' ? 'none' : ''; };
   $('#mf').onsubmit = async ev => {
     ev.preventDefault();
@@ -2439,7 +2708,11 @@ window.memForm = () => {
     if (error) return ($('#m_e').textContent = error.message.includes('registered') ? 'Ye username pehle se hai.' : 'Nahi bana: ' + error.message);
     if (ph && data && data.user) await sb.from('member_phones').upsert({ member_id:data.user.id, phone:ph });
     if (data && data.user && vw){ const r = await sb.rpc('admin_set_viewer', { p_member:data.user.id, p_viewer:true }); if (r.error) alert('Member ban gaya, par viewer set nahi hua: ' + errMsg(r.error) + '\nSQL (viewer_and_share_start.sql) chali hai ya nahi check karo. Is member ko abhi delete karke dobara banao.'); }
-    else if (data && data.user){ const r = await sb.rpc('admin_set_share_start', { p_member:data.user.id, p_from:sd }); if (r.error) alert('Member ban gaya, par share ki tareekh save nahi hui: ' + errMsg(r.error) + '\nMember list me "Share date" dabakar tareekh set karo.'); }
+    else if (data && data.user){
+      const r = await sb.rpc('admin_set_share_start', { p_member:data.user.id, p_from:sd }); if (r.error) alert('Member ban gaya, par share ki tareekh save nahi hui: ' + errMsg(r.error) + '. Profile me jaakar set karo.');
+      const hrows = [...document.querySelectorAll('.m_hd input')].filter(x => x.value).map(x => ({ member_id:data.user.id, label_id:x.dataset.l, enabled:true, from_date:x.value }));
+      if (hrows.length){ const h = await sb.from('member_heads').insert(hrows); if (h.error) alert('Member ban gaya, par Rent/Food ki date save nahi hui: ' + errMsg(h.error) + '. Profile me jaakar set karo.'); }
+    }
     closeModal(); toast(name + ' ban gaya'); loadAll();
   };
 };
@@ -2810,6 +3083,7 @@ window.xForm = id => {
     <label>${t ? 'Raqam' : 'Har member ki raqam'} (${CURRENCY})</label>
     <input id="x_a" type="number" step="0.001" min="0.001" inputmode="decimal" value="${t ? t.amount : ''}" required>
     ${t ? '' : '<div class="hint" id="x_sum"></div>'}
+    ${t ? '' : '<label class="chkrow"><input type="checkbox" id="x_self" checked> Jis ke paas paisa rakha hai, uska apna same raqam bhi jodo</label><div class="hint">Jis member ke paas sabka advance rehta hai wo apna hissa bhi alag nikal kar rakhta hai. Ye tick rakhoge to uska apna hissa bhi advance me gina jayega.</div>'}
     <label>Type</label>
     <select id="x_k"><option value="advance" ${!t || t.kind === 'advance' ? 'selected' : ''}>Advance (mahine ke liye jama)</option>
       <option value="settlement" ${t && t.kind === 'settlement' ? 'selected' : ''}>Settlement (purana hisaab chukaya)</option></select>
@@ -2842,10 +3116,19 @@ window.xForm = id => {
       if (!ids.length) return ($('#x_e').textContent = 'Kam se kam ek dene wala member chuno.');
       $('#x_bt').disabled = true;
       res = await sb.from('transfers').insert(ids.map(f => ({ ...base, from_member:f })));
+      if (!res.error && $('#x_self') && $('#x_self').checked && base.kind === 'advance'){
+        const r2 = await sb.from('advance_self').insert({ member_id:to_member, amount, date:base.date, note:base.note });
+        if (r2.error) res = r2;
+      }
     }
     if (res.error){ $('#x_bt').disabled = false; return ($('#x_e').textContent = 'Save nahi hua: ' + errMsg(res.error)); }
     closeModal(); toast('Save ho gaya'); loadAll();
   };
+};
+window.delSelf = async id => {
+  if (!confirm('Ye entry delete karni hai?')) return;
+  const { error } = await sb.from('advance_self').delete().eq('id', id);
+  if (error) toast(errMsg(error)); else { toast('Delete ho gaya'); loadAll(); }
 };
 window.delX = async id => {
   if (!confirm('Ye entry delete karni hai?')) return;
@@ -2899,24 +3182,28 @@ const trimN = x => String(+Number(x).toFixed(3));
 const MON3 = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 async function receiptData(memberId){
   const mk = periodMonthOf(todayStr()), [a, b] = prange(mk);
+  if (!isAdmin() && !finPublished(mk)) throw new Error('Final hisab abhi publish nahi hua. Admin publish karega tab receipt milegi.');
   const [s1, f1] = await Promise.all([sb.rpc('get_summary', { p_from:a, p_to:b }), sb.rpc('get_final_hisab', { p_from:a, p_to:b, p_month:mk })]);
   if (s1.error || !s1.data) throw new Error(s1.error ? errMsg(s1.error) : 'Hisaab nahi mila');
   if (f1.error || !f1.data) throw new Error('Final hisab nahi mila. Admin se final_hisab_vacation.sql chalwao.');
-  const fb = finBuild(s1.data, f1.data), row = fb.rows.find(x => x.id === memberId);
+  const carry = await computeCarry(mk);
+  const fb = finBuild(s1.data, f1.data, { charges:S.charges.filter(c => c.month === mk), pays:S.pays.filter(p => p.month === mk), carry, range:[a, b] }), row = fb.rows.find(x => x.id === memberId);
   if (!row) throw new Error('Is member ka hisaab nahi mila');
   return { a, b, fb, row, m:memberOf(memberId) };
 }
 const loadImgUrl = u => new Promise(res => { if (!u) return res(null); const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = () => res(null); i.src = u; });
 async function makeReceipt(memberId){
   const d = await receiptData(memberId), m = d.m || { name:'Member' };
-  const R0 = d.row, paid = R0.paid, total = R0.total, net = -R0.togive;
+  const R0 = d.row, paid = R0.paid, total = R0.total, net = -R0.baki;
   const kind = net < -0.0005 ? 'give' : net > 0.0005 ? 'get' : 'even';
   const label = kind === 'give' ? 'BAKI DENA HAI' : kind === 'get' ? 'BAKI LENA HAI' : 'HISAB BARABAR HAI';
   const bg = kind === 'give' ? '#fde2e8' : kind === 'get' ? '#dff3e3' : '#eef1f4';
-  const calc = `${trimN(total)} - ${trimN(paid)} = ${trimN(R0.togive)} KD`;
+  const hasCP = Math.abs(R0.carry) > 0.0005 || R0.paidIn > 0.0005;
+  const calc = hasCP ? `${trimN(total)} - ${trimN(paid)} + ${trimN(R0.carry)} - ${trimN(R0.paidIn)} = ${trimN(R0.baki)} KD` : `${trimN(total)} - ${trimN(paid)} = ${trimN(R0.baki)} KD`;
   const rows = d.fb.labs.map(l => [String(l.name).slice(0, 20), fmt(R0.cells[l.id] || 0) + ' KD']);
   if (R0.anya > 0.0005) rows.push(['Anya kharch', fmt(R0.anya) + ' KD']);
   rows.push(['TOTAL', fmt(total) + ' KD'], ['Aapka Kharch (-)', fmt(paid) + ' KD']);
+  if (hasCP) rows.push(['Pichhla Baki (+)', fmt(R0.carry) + ' KD'], ['Paid (-)', fmt(R0.paidIn) + ' KD']);
   const dt = `${p2(+d.a.slice(8))}/${MON3[+d.a.slice(5, 7) - 1]} - ${p2(+d.b.slice(8))}/${MON3[+d.b.slice(5, 7) - 1]} - ${d.b.slice(0, 4)}`;
   const img = await loadImgUrl(avUrl(m));
   const H = 1400 + Math.max(0, rows.length - 5) * 102, W = 1080, cx = 60, cw = 960, ch = H - 120, mid = W / 2, F = '"DejaVu Sans Mono","Courier New",monospace';
